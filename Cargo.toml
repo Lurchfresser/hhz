@@ -5,3 +5,7 @@ edition = "2024"
 
 [dependencies]
 chessie = "2.0.0"
+dotenv = "0.15.0"
+futures-util = "0.3.31"
+licheszter = "0.3.1"
+tokio = { version = "1.45.1", features = ["full"] }
