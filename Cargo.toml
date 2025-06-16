@@ -1,0 +1,7 @@
+[package]
+name = "hhz"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+chessie = "2.0.0"
