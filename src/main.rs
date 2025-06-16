@@ -1,3 +1,5 @@
+use std::fmt::Debug;
+
 use chessie::prelude::*;
 use dotenv::dotenv;
 use futures_util::StreamExt;
@@ -27,7 +29,7 @@ async fn main() {
                 };
                 if chessie_game.position().side_to_move() == my_color {
                     println!("Playing first move of session");
-                    let depth = 3; // Set the search depth
+                    let depth = 0; // Set the search depth
                     if let Some(best_move) = simple_search(&chessie_game, depth) {
                         println!("Best move: {}", best_move);
                         let best_move_uci = best_move.to_uci();
@@ -52,9 +54,8 @@ async fn main() {
                                     println!("Game full state: {:?}", game_full);
                                 }
                                 BoardState::GameState(game_state) => {
-                                    let chessie_result = chessie_game.make_move_uci(
-                                        game_state.moves.split(" ").last().unwrap(),
-                                    );
+                                    let chessie_result = chessie_game
+                                        .make_move_uci(game_state.moves.split(" ").last().unwrap());
                                     if let Err(e) = chessie_result {
                                         eprintln!("Failed to make move: {}", e);
                                         panic!();
@@ -126,11 +127,17 @@ fn simple_search(game: &Game, depth: u32) -> Option<Move> {
         return None; // No legal moves available
     }
     let mut best_move = None;
-    let mut best_score = i32::MIN + 1;
+    let mut best_score = if game.position().side_to_move() == Color::White {
+        i32::MIN + 1
+    } else {
+        i32::MAX - 1
+    };
     for move_ in legal_moves {
         let new_game = game.with_move_made(move_);
-        let score = alpha_beta_search(&new_game, depth - 1, i32::MIN + 1, i32::MAX - 1);
-        if score > best_score {
+        let score = min_max_search(&new_game, depth);
+        if score > best_score && game.position().side_to_move() == Color::White
+            || score < best_score && game.position().side_to_move() == Color::Black
+        {
             best_score = score;
             best_move = Some(move_);
         }
@@ -138,36 +145,32 @@ fn simple_search(game: &Game, depth: u32) -> Option<Move> {
     best_move
 }
 
-fn alpha_beta_search(game: &Game, depth: u32, alpha: i32, beta: i32) -> i32 {
+fn min_max_search(game: &Game, depth: u32) -> i32 {
     if depth == 0 {
-        return evaluate_board(game); // Evaluate the board position
+        return evaluate_board(game);
     }
-
-    let mut alpha = alpha;
-
+    let mut best_score = if (game.position().side_to_move() == Color::White) {
+        i32::MIN + 1
+    } else {
+        i32::MAX - 1
+    };
     let legal_moves = game.get_legal_moves();
-
-    if legal_moves.is_empty() {
-        if game.is_in_check() {
-            return i32::MIN + 1; // Checkmate
-        } else {
-            return 0; // Stalemate
-        }
+    match check_game_result(game) {
+        GameResult::WhiteWins => return i32::MAX,
+        GameResult::BlackWins => return i32::MIN,
+        GameResult::Draw(_) => return 0,
+        GameResult::Ongoing => {}
     }
-
     for move_ in legal_moves {
         let new_game = game.with_move_made(move_);
-        let score = -alpha_beta_search(&new_game, depth - 1, -beta, -alpha);
-
-        if score >= beta {
-            return beta; // Beta cut-off
-        }
-        if score > alpha {
-            alpha = score; // Update alpha
+        let score = min_max_search(&new_game, depth - 1);
+        if (score > best_score && game.position().side_to_move() == Color::White)
+            || (score < best_score && game.position().side_to_move() == Color::Black)
+        {
+            best_score = score;
         }
     }
-
-    alpha
+    best_score
 }
 
 pub fn evaluate_board(game: &Game) -> i32 {
@@ -193,5 +196,51 @@ impl PiecesScore for Board {
         score -= i32::from(self.rooks(Color::Black).population()) * 500;
         score -= i32::from(self.queens(Color::Black).population()) * 900;
         score
+    }
+}
+
+
+#[derive(Debug, PartialEq)]
+enum GameResult {
+    Ongoing,
+    WhiteWins,
+    BlackWins,
+    Draw(DrawReason),
+}
+
+#[derive(Debug, PartialEq)]
+enum DrawReason {
+    Stalemate,
+    FiftyMoveRule,
+    InsufficientMaterial,
+    Repetition,
+}
+
+fn check_game_result(game: &Game) -> GameResult {
+    // Check for draw conditions first
+    if game.can_draw_by_fifty() {
+        return GameResult::Draw(DrawReason::FiftyMoveRule);
+    }
+    
+    if game.can_draw_by_insufficient_material() {
+        return GameResult::Draw(DrawReason::InsufficientMaterial);
+    }
+    
+    // Check if there are any legal moves
+    let legal_moves = game.get_legal_moves();
+    
+    if legal_moves.is_empty() {
+        if game.is_in_check() {
+            // Checkmate - the opponent wins
+            match game.side_to_move() {
+                chessie::Color::White => GameResult::BlackWins,
+                chessie::Color::Black => GameResult::WhiteWins,
+            }
+        } else {
+            // Stalemate
+            GameResult::Draw(DrawReason::Stalemate)
+        }
+    } else {
+        GameResult::Ongoing
     }
 }
