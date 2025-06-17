@@ -3,6 +3,9 @@ name = "hhz"
 version = "0.1.0"
 edition = "2024"
 
+[features]
+metrics = []
+
 [dependencies]
 chessie = "2.0.0"
 dotenv = "0.15.0"
