@@ -26,26 +26,30 @@ pub fn search_entry(game: &Game, depth: u32) -> Option<Move> {
         i32::MAX - 1
     };
 
+    let mut alpha = i32::MIN + 1;
+    let mut beta = i32::MAX - 1;
+
     for move_ in legal_moves {
         let new_game = game.with_move_made(move_);
 
-        let score = min_max_search(&new_game, depth);
+        let score = min_max_search(&new_game, depth, alpha, beta);
 
-        if score > best_score && maximize_score || score < best_score && !maximize_score {
+        if maximize_score && score > best_score {
             best_score = score;
-
             best_move = Some(move_);
+            alpha = best_score.max(alpha);
+        } else if !maximize_score && score < best_score {
+            best_score = score;
+            best_move = Some(move_);
+            beta = best_score.min(beta);
         }
     }
 
     best_move
 }
 
-fn min_max_search(game: &Game, depth: u32) -> i32 {
+fn min_max_search(game: &Game, depth: u32, mut alpha: i32, mut beta: i32) -> i32 {
     SearchMetrics::increment_normal_search_entries();
-    if depth == 0 {
-        return q_search(game);
-    }
 
     let maximize_score = game.position().side_to_move() == Color::White;
 
@@ -60,29 +64,42 @@ fn min_max_search(game: &Game, depth: u32) -> i32 {
     SearchMetrics::increment_positions_generated(legal_moves.len() as u64);
 
     match check_game_result(game) {
-        GameResult::WhiteWins => return i32::MAX,
+        GameResult::WhiteWins => return i32::MAX - 1,
 
-        GameResult::BlackWins => return i32::MIN,
+        GameResult::BlackWins => return i32::MIN + 1,
 
         GameResult::Draw(_) => return 0,
 
         GameResult::Ongoing => {}
     }
 
+    if depth == 0 {
+        return q_search(game, alpha, beta);
+    }
+
     for move_ in legal_moves {
         let new_game = game.with_move_made(move_);
 
-        let score = min_max_search(&new_game, depth - 1);
+        let score = min_max_search(&new_game, depth - 1, alpha, beta);
 
-        if (score > best_score && maximize_score) || (score < best_score && !maximize_score) {
+        if (maximize_score && score > best_score) || (!maximize_score && score < best_score) {
             best_score = score;
+
+            if maximize_score {
+                alpha = best_score.max(alpha);
+            } else {
+                beta = best_score.min(beta);
+            }
+            if beta <= alpha {
+                break; // Beta cut-off
+            }
         }
     }
 
     best_score
 }
 
-fn q_search(game: &Game) -> i32 {
+fn q_search(game: &Game, mut alpha:i32, mut beta:i32) -> i32 {
     SearchMetrics::increment_q_search_entries();
 
     let maximize_score = game.position().side_to_move() == Color::White;
@@ -104,10 +121,19 @@ fn q_search(game: &Game) -> i32 {
     for move_ in legal_captures {
         let new_game = game.with_move_made(move_);
 
-        let score = q_search(&new_game);
+        let score = q_search(&new_game, alpha, beta);
 
         if (score > best_score && maximize_score) || (score < best_score && !maximize_score) {
             best_score = score;
+            
+            if maximize_score {
+                alpha = best_score.max(alpha);
+            } else {
+                beta = best_score.min(beta);
+            }
+            if beta <= alpha {
+                break; // Beta cut-off
+            }
         }
     }
 
@@ -182,8 +208,8 @@ fn check_game_result(game: &Game) -> GameResult {
         if game.is_in_check() {
             // Checkmate - the opponent wins
             match game.side_to_move() {
-                chessie::Color::White => GameResult::BlackWins,
-                chessie::Color::Black => GameResult::WhiteWins,
+                Color::White => GameResult::BlackWins,
+                Color::Black => GameResult::WhiteWins,
             }
         } else {
             // Stalemate

@@ -1,33 +1,45 @@
 use chessie::Game;
-use std::time::Instant;
-use hhz::metrics::SearchMetrics;
+use csv::Writer;
+use hhz::metrics::{SearchMetrics, SearchMetricsData};
 use hhz::search::search_entry;
+use std::time::Instant;
+
+static FEATURE_NAME: &str = "Alpha-Beta-Pruning";
 
 fn main() {
+    // if {FEATURE_NAME}.csv exists panic with a message
+    if std::path::Path::new(&format!("{}.csv", "benchmarks/".to_owned() + FEATURE_NAME)).exists() {
+        panic!(
+            "Metrics file {}.csv already exists. Please remove it before running the benchmark.",
+            FEATURE_NAME
+        );
+    }
+
+    let mut metrics_data: Vec<SearchMetricsData> = Vec::new();
+
     // List of positions to benchmark
     let positions = [
-        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",  // Starting position
-        // "r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3",  // After 1.e4 e5 2.Nf3 Nc6
-        // "r1bqk2r/ppp2ppp/2np1n2/2b1p3/2B1P3/2NP1N2/PPP2PPP/R1BQK2R w KQkq - 0 6",  // Italian Game
-        // Add more positions as needed
+        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", // Starting position
+                                                                    // "r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3",  // After 1.e4 e5 2.Nf3 Nc6
+                                                                    // "r1bqk2r/ppp2ppp/2np1n2/2b1p3/2B1P3/2NP1N2/PPP2PPP/R1BQK2R w KQkq - 0 6",  // Italian Game
+                                                                    // Add more positions as needed
     ];
 
-    let depths = [1, 2]; // Depths to test
+    let max_depth = 5; // Depths to test
 
     println!("Chess Engine Benchmark");
     println!("=====================");
 
-    // Initialize metrics once
-    SearchMetrics::init();
+    SearchMetrics::initialize();
 
     for position in positions {
         println!("\nPosition: {}", position);
 
-        for depth in depths {
+        for depth in 0..max_depth + 1 {
             println!("\nSearching at depth {}", depth);
 
             // Reset metrics for this test
-            SearchMetrics::reset();
+            SearchMetrics::new_measurement(FEATURE_NAME, depth);
 
             // Parse FEN to create game
             let game = Game::from_fen(position).unwrap();
@@ -40,8 +52,20 @@ fn main() {
             println!("Best move found: {:?}", best_move);
             println!("Total time: {:.3} ms", elapsed.as_secs_f64() * 1000.0);
 
-            // Print metrics from our collector
-            println!("{}", SearchMetrics::report());
+            SearchMetrics::report();
+            // Collect metrics
+            unsafe {
+                metrics_data.push(SearchMetrics::get_metrics());
+            }
         }
     }
+
+    let mut writer = Writer::from_path(format!("{}.csv", "benchmarks/".to_owned() + FEATURE_NAME))
+        .expect("Failed to create CSV writer");
+    for metric in metrics_data {
+        writer
+            .serialize(metric)
+            .expect("Failed to serialize SearchMetrics");
+    }
+    let csv = writer.flush().expect("Failed to flush CSV");
 }

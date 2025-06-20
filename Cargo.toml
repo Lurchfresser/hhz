@@ -8,7 +8,9 @@ metrics = []
 
 [dependencies]
 chessie = "2.0.0"
+csv = "1.3.1"
 dotenv = "0.15.0"
 futures-util = "0.3.31"
 licheszter = "0.3.1"
+serde = { version = "1.0.219", features = ["derive"] }
 tokio = { version = "1.45.1", features = ["full"] }

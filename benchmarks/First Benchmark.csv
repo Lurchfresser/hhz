@@ -1,0 +1,5 @@
+feature_name,depth,positions_generated,normal_search_entries,q_search_entries,search_time,evaluation_time
+First Benchmark,0,20,21,20,1.321561,0.015600999999999999
+First Benchmark,1,477,421,457,17.717604,0.211267
+First Benchmark,2,20467714,9323,20467294,172897.88092,3421.541011
+First Benchmark,3,·µ,-,7248030047,59046835.972918995,1147686.1520439999
