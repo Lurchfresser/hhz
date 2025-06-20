@@ -1,6 +1,0 @@
-feature_name,depth,positions_generated,normal_search_entries,q_search_entries,search_time,evaluation_time
-Alpha-Beta-Pruning,0,420,21,20,2.866815,0.01636
-Alpha-Beta-Pruning,1,1228,60,41,5.955251,0.023572
-Alpha-Beta-Pruning,2,11936,568,614,55.227676,0.2796
-Alpha-Beta-Pruning,3,37333,1481,5550,170.023695,1.00847
-Alpha-Beta-Pruning,4,1928028,27054,1071598,14110.278312,142.624043

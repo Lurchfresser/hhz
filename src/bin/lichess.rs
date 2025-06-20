@@ -8,7 +8,7 @@ use hhz::search::search_entry;
 
 #[tokio::main]
 async fn main() {
-    let depth = 4; // Set the search depth for the bot
+    let depth = 0; // Set the search depth for the bot
     dotenv().ok(); // Load environment variables from .env file
     //let lichess_id = dotenv::var("LICHESS_ID").expect("LICHESS_ID not set");
     // Create a new Licheszter with your account token

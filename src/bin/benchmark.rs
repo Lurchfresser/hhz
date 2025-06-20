@@ -20,17 +20,20 @@ fn main() {
     // List of positions to benchmark
     let positions = [
         "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", // Starting position
-                                                                    // "r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3",  // After 1.e4 e5 2.Nf3 Nc6
-                                                                    // "r1bqk2r/ppp2ppp/2np1n2/2b1p3/2B1P3/2NP1N2/PPP2PPP/R1BQK2R w KQkq - 0 6",  // Italian Game
-                                                                    // Add more positions as needed
+        // "r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3",  // After 1.e4 e5 2.Nf3 Nc6
+        // "r1bqk2r/ppp2ppp/2np1n2/2b1p3/2B1P3/2NP1N2/PPP2PPP/R1BQK2R w KQkq - 0 6",  // Italian Game
+        // Add more positions as needed
     ];
 
-    let max_depth = 5; // Depths to test
+    let max_depth = 7; // Depths to test
 
     println!("Chess Engine Benchmark");
     println!("=====================");
 
     SearchMetrics::initialize();
+
+    let mut writer = Writer::from_path(format!("{}.csv", "benchmarks/".to_owned() + FEATURE_NAME))
+        .expect("Failed to create CSV writer");
 
     for position in positions {
         println!("\nPosition: {}", position);
@@ -57,15 +60,9 @@ fn main() {
             unsafe {
                 metrics_data.push(SearchMetrics::get_metrics());
             }
+            writer
+                .serialize(metrics_data.last().unwrap().clone()).unwrap();
+            writer.flush().unwrap();
         }
     }
-
-    let mut writer = Writer::from_path(format!("{}.csv", "benchmarks/".to_owned() + FEATURE_NAME))
-        .expect("Failed to create CSV writer");
-    for metric in metrics_data {
-        writer
-            .serialize(metric)
-            .expect("Failed to serialize SearchMetrics");
-    }
-    let csv = writer.flush().expect("Failed to flush CSV");
 }
