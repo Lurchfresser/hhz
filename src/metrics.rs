@@ -3,12 +3,12 @@
 #[cfg(feature = "metrics")]
 use serde::Serialize;
 #[cfg(feature = "metrics")]
-use serde::ser::Serializer;
-#[cfg(feature = "metrics")]
 use std::sync::Once;
 #[cfg(feature = "metrics")]
 use std::time::{Duration, Instant};
 
+
+//TODO: total time
 #[cfg(feature = "metrics")]
 #[derive(Copy, Clone, Debug, Serialize)]
 pub struct SearchMetricsData {

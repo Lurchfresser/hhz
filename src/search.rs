@@ -1,14 +1,17 @@
+use crate::eval::{eval, pieces_score};
 use crate::metrics::{SearchMetrics, TimingGuard};
 
-use chessie::{Board, Color, Game, Move};
+use chessie::{Color, Game, Move, MoveList};
 
 pub fn search_entry(game: &Game, depth: u32) -> Option<Move> {
     SearchMetrics::increment_normal_search_entries();
     // Initialize metrics if not already done
 
     let _guard = TimingGuard::new_search();
+    let maximize_score = game.position().side_to_move() == Color::White;
 
-    let legal_moves = game.get_legal_moves();
+
+    let legal_moves = sort_moves(game.get_legal_moves(), game.clone(), maximize_score);
 
     if legal_moves.is_empty() {
         return None; // No legal moves available
@@ -18,7 +21,6 @@ pub fn search_entry(game: &Game, depth: u32) -> Option<Move> {
 
     let mut best_move = None;
 
-    let maximize_score = game.position().side_to_move() == Color::White;
 
     let mut best_score = if maximize_score {
         i32::MIN + 1
@@ -59,7 +61,7 @@ fn min_max_search(game: &Game, depth: u32, mut alpha: i32, mut beta: i32) -> i32
         i32::MAX - 1
     };
 
-    let legal_moves = game.get_legal_moves();
+    let legal_moves = sort_moves(game.get_legal_moves(), game.clone(), maximize_score);
 
     SearchMetrics::increment_positions_generated(legal_moves.len() as u64);
 
@@ -99,7 +101,7 @@ fn min_max_search(game: &Game, depth: u32, mut alpha: i32, mut beta: i32) -> i32
     best_score
 }
 
-fn q_search(game: &Game, mut alpha:i32, mut beta:i32) -> i32 {
+fn q_search(game: &Game, mut alpha: i32, mut beta: i32) -> i32 {
     SearchMetrics::increment_q_search_entries();
 
     let maximize_score = game.position().side_to_move() == Color::White;
@@ -110,12 +112,16 @@ fn q_search(game: &Game, mut alpha:i32, mut beta:i32) -> i32 {
         i32::MAX - 1
     };
 
-    let legal_captures = game.into_iter().only_captures().collect::<Vec<_>>();
+    let legal_captures = sort_moves(
+        game.into_iter().only_captures().collect(),
+        game.clone(),
+        maximize_score,
+    );
 
     SearchMetrics::increment_positions_generated(legal_captures.len() as u64);
 
     if legal_captures.is_empty() {
-        return evaluate_board(game);
+        return eval(game);
     }
 
     for move_ in legal_captures {
@@ -125,7 +131,7 @@ fn q_search(game: &Game, mut alpha:i32, mut beta:i32) -> i32 {
 
         if (score > best_score && maximize_score) || (score < best_score && !maximize_score) {
             best_score = score;
-            
+
             if maximize_score {
                 alpha = best_score.max(alpha);
             } else {
@@ -140,33 +146,19 @@ fn q_search(game: &Game, mut alpha:i32, mut beta:i32) -> i32 {
     best_score
 }
 
-pub fn evaluate_board(game: &Game) -> i32 {
-    let _guard = TimingGuard::new_evaluation();
-
-    // A simple evaluation function that counts material balance
-
-    game.board().score()
-}
-
-pub trait PiecesScore {
-    fn score(&self) -> i32;
-}
-
-impl PiecesScore for Board {
-    fn score(&self) -> i32 {
-        let mut score: i32 = 0;
-        score += i32::from(self.pawns(Color::White).population()) * 100;
-        score += i32::from(self.knights(Color::White).population()) * 300;
-        score += i32::from(self.bishops(Color::White).population()) * 320;
-        score += i32::from(self.rooks(Color::White).population()) * 500;
-        score += i32::from(self.queens(Color::White).population()) * 900;
-        score -= i32::from(self.pawns(Color::Black).population()) * 100;
-        score -= i32::from(self.knights(Color::Black).population()) * 300;
-        score -= i32::from(self.bishops(Color::Black).population()) * 320;
-        score -= i32::from(self.rooks(Color::Black).population()) * 500;
-        score -= i32::from(self.queens(Color::Black).population()) * 900;
-        score
-    }
+fn sort_moves(moves: MoveList, game: Game, is_maximizing: bool) -> MoveList {
+    // Sort moves based on some heuristic, e.g., captures first, then checks, etc.
+    let mut sorted_moves = moves;
+    sorted_moves.sort_by_key(|m| {
+        let from = game
+            .kind_at(m.from())
+            .map_or_else(|| 0, |piece| pieces_score(piece));
+        let to = game
+            .kind_at(m.to())
+            .map_or_else(|| 0, |piece| pieces_score(piece));
+        if is_maximizing { to - from } else { from - to }
+    });
+    sorted_moves
 }
 
 #[derive(Debug, PartialEq)]

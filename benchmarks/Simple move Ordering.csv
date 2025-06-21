@@ -1,0 +1,8 @@
+feature_name,depth,positions_generated,normal_search_entries,q_search_entries,search_time,evaluation_time
+Simple move Ordering,0,420,21,20,2.566519,0.0
+Simple move Ordering,1,1248,60,42,5.969846,0.0
+Simple move Ordering,2,11912,568,588,51.850441,0.0
+Simple move Ordering,3,34094,1572,1634,125.765067,0.0
+Simple move Ordering,4,733394,30674,76603,3168.666993,0.0
+Simple move Ordering,5,4408586,84473,1822049,33035.230186,0.0
+Simple move Ordering,6,126867658,2796588,45734341,834673.29346,0.0

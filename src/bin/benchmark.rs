@@ -2,9 +2,9 @@ use chessie::Game;
 use csv::Writer;
 use hhz::metrics::{SearchMetrics, SearchMetricsData};
 use hhz::search::search_entry;
-use std::time::Instant;
+use std::time::{Instant, SystemTime};
 
-static FEATURE_NAME: &str = "Alpha-Beta-Pruning";
+static FEATURE_NAME: &str = "Simple move Ordering";
 
 fn main() {
     // if {FEATURE_NAME}.csv exists panic with a message
@@ -39,7 +39,7 @@ fn main() {
         println!("\nPosition: {}", position);
 
         for depth in 0..max_depth + 1 {
-            println!("\nSearching at depth {}", depth);
+            println!("\nSearching at depth {}, current time: {}", depth, SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs());
 
             // Reset metrics for this test
             SearchMetrics::new_measurement(FEATURE_NAME, depth);
