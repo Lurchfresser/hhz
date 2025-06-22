@@ -21,6 +21,7 @@ pub static FILE_8: u64 = 0x8080808080808080;
 
 pub static ROOK_LOOKUP_MASK: [u64; 64] = gen_free_rook_mask();
 pub static KNIGHT_LOOKUP: [u64; 64] = gen_knight_lookup();
+pub static KING_LOOKUP: [u64; 65] = gen_king_moves();
 static ROOK_LOOKUP: &[u8] = include_bytes!("../assets/rook_lookup.bin");
 
 // TODO: rename or multiply by 64
@@ -93,7 +94,7 @@ pub fn pop_lsb(bit_board: &mut u64) -> u32 {
 }
 
 pub fn get_rook_moves(square: u32, blockers: u64) -> u64 {
-    let rook_moves = gen_free_rook_mask()[square as usize];
+    let rook_moves = ROOK_LOOKUP_MASK[square as usize];
     let lookup_index = unsafe { _pext_u64(blockers, rook_moves) };
     let test = unsafe {
         let ptr: *const u64 = ROOK_LOOKUP
@@ -106,11 +107,55 @@ pub fn get_rook_moves(square: u32, blockers: u64) -> u64 {
     test
 }
 
-pub const fn gen_king_moves() -> [u64; 64] {
-    let mut king_moves = [0u64; 64];
+//Size 65 for king free positions
+pub const fn gen_king_moves() -> [u64; 65] {
+    let mut king_moves = [0u64; 65];
     let mut i = 0;
     while i < 64 {
-        king_moves[i] = i as u64;
+        let square = square_index_to_square(i);
+        let mut attacks = 0u64;
+
+        // North (up)
+        if square.rank > 0 {
+            attacks |= 1 << (i - 8);
+
+            // Northwest (up-left)
+            if square.file > 0 {
+                attacks |= 1 << (i - 9);
+            }
+
+            // Northeast (up-right)
+            if square.file < 7 {
+                attacks |= 1 << (i - 7);
+            }
+        }
+
+        // South (down)
+        if square.rank < 7 {
+            attacks |= 1 << (i + 8);
+
+            // Southwest (down-left)
+            if square.file > 0 {
+                attacks |= 1 << (i + 7);
+            }
+
+            // Southeast (down-right)
+            if square.file < 7 {
+                attacks |= 1 << (i + 9);
+            }
+        }
+
+        // West (left)
+        if square.file > 0 {
+            attacks |= 1 << (i - 1);
+        }
+
+        // East (right)
+        if square.file < 7 {
+            attacks |= 1 << (i + 1);
+        }
+
+        king_moves[i as usize] = attacks;
         i += 1;
     }
     king_moves

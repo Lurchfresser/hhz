@@ -254,6 +254,17 @@ impl Board {
             println!("knight attacks {}", knight_attacks);
         }
     }
+
+    pub fn generate_king_moves(&self) -> u64 {
+        let king_moves = if (self.white_to_move) {
+            KING_LOOKUP[self.white_king.trailing_zeros() as usize] & !self.white_pieces
+        } else {
+            KING_LOOKUP[self.black_king.trailing_zeros() as usize] & !self.black_pieces
+        };
+
+        println!("{}", king_moves);
+        king_moves
+    }
 }
 
 impl Default for Board {
