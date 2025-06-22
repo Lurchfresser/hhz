@@ -64,36 +64,6 @@ fn main() {
         //     knight_lookup[i as usize]
         // );
     }
-    let mut rook_free_board_lookup = [0u64; 64];
-
-    for s in 0u64..64u64 {
-        let square = square_index_to_square(s);
-        let mut bit_board: u64 = 0;
-
-        bit_board |= square.get_whole_file();
-        bit_board |= square.get_whole_rank();
-
-        bit_board ^= square_index_to_bitboard(s);
-
-        if square.rank != 0 {
-            bit_board &= !RANK_A;
-        }
-        if square.rank != 7 {
-            bit_board &= !RANK_H;
-        }
-        if square.file != 0 {
-            bit_board &= !FILE_1;
-        }
-        if square.file != 7 {
-            bit_board &= !FILE_8
-        }
-        rook_free_board_lookup[s as usize] = bit_board;
-        // println!(
-        //     "square {} and mask {}",
-        //     square_index_to_bitboard(s),
-        //     bit_board
-        // );
-    }
 
     println!("---------------");
 
@@ -104,7 +74,7 @@ fn main() {
             for sub_index in 0u64..(ROOK_LOOK_UP_SIZE) {
                 let blockers: u64 = _pdep_u64(
                     sub_index,
-                    rook_free_board_lookup[rook_square_index as usize],
+                    gen_free_rook_mask()[rook_square_index as usize],
                 );
                 let mut move_bit_mask = 0;
 
@@ -166,9 +136,6 @@ fn main() {
             }
         }
     }
-    // In generate_attack_lookup.rs:
-    let mut free_rook_file = std::fs::File::create("assets/rook_free_board_lookup.bin").unwrap();
-    free_rook_file.write_all(bytemuck::bytes_of(&rook_free_board_lookup)).unwrap();
     let mut rook_file = std::fs::File::create("assets/rook_lookup.bin").unwrap();
     rook_file.write_all(bytemuck::cast_slice(&rook_lookup)).unwrap();
 
