@@ -19,6 +19,8 @@ pub static FILE_6: u64 = 0x2020202020202020;
 pub static FILE_7: u64 = 0x4040404040404040;
 pub static FILE_8: u64 = 0x8080808080808080;
 
+pub static ROOK_LOOKUP_MASK: [u64; 64] = gen_free_rook_mask();
+pub static KNIGHT_LOOKUP: [u64; 64] = gen_knight_lookup();
 static ROOK_LOOKUP: &[u8] = include_bytes!("../assets/rook_lookup.bin");
 
 // TODO: rename or multiply by 64
@@ -114,7 +116,7 @@ pub const fn gen_king_moves() -> [u64; 64] {
     king_moves
 }
 
-pub const fn gen_free_rook_mask() -> [u64; 64] {
+const fn gen_free_rook_mask() -> [u64; 64] {
     let mut rook_free_board_lookup = [0u64; 64];
     let mut s = 0;
     while s < 64 {
@@ -144,7 +146,62 @@ pub const fn gen_free_rook_mask() -> [u64; 64] {
         //     square_index_to_bitboard(s),
         //     bit_board
         // );
-        s+=1;
+        s += 1;
     }
     rook_free_board_lookup
+}
+
+const fn gen_knight_lookup() -> [u64; 64] {
+    let mut knight_lookup = [0u64; 64];
+    let mut i = 0;
+    while i < 64 {
+        let mut moves: u64 = 0;
+
+        // links nach rechts
+        let file = i % 8;
+        // von unten nach oben
+        let rank = i / 8;
+
+        // north
+        if rank <= 5 {
+            // north-west
+            if file >= 1 {
+                moves |= 1 << i + 15; // up-right
+            }
+            if file <= 6 {
+                moves |= 1 << i + 17; // up-left
+            }
+        }
+        // south
+        if rank >= 2 {
+            // south-west
+            if file >= 1 {
+                moves |= 1 << i - 17; // down-right
+            }
+            if file <= 6 {
+                moves |= 1 << i - 15; // down-left
+            }
+        }
+        // west
+        if file >= 2 {
+            if rank >= 1 {
+                moves |= 1 << i - 10; // up-left
+            }
+            if rank <= 6 {
+                moves |= 1 << i + 6; // down-left
+            }
+        }
+        // east
+        if file <= 5 {
+            if rank >= 1 {
+                moves |= 1 << i - 6; // up-right
+            }
+            if rank <= 6 {
+                moves |= 1 << i + 10; // down-right
+            }
+        }
+        knight_lookup[i as usize] = moves;
+        i += 1;
+    }
+    knight_lookup
 }

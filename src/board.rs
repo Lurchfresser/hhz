@@ -53,7 +53,6 @@ impl Board {
         let mut white_queens = 0;
         let mut white_king = 0;
 
-
         let mut black_pawns = 0;
         let mut black_knights = 0;
         let mut black_bishops = 0;
@@ -129,10 +128,11 @@ impl Board {
             }
         }
 
-        let white_pieces = white_pawns | white_knights | white_bishops | white_rooks | white_queens | white_king;
-        let black_pieces = black_pawns | black_knights | black_bishops | black_rooks | black_queens | black_king;
+        let white_pieces =
+            white_pawns | white_knights | white_bishops | white_rooks | white_queens | white_king;
+        let black_pieces =
+            black_pawns | black_knights | black_bishops | black_rooks | black_queens | black_king;
         let all_pieces = white_pieces | black_pieces;
-
 
         // Parse the rest of the FEN string for additional information
         let mut parts = fen.split_whitespace();
@@ -230,8 +230,28 @@ impl Board {
 
         while rooks != 0 {
             let rook_attacks =
-                get_rook_moves(pop_lsb(&mut rooks).try_into().unwrap(), self.all_pieces) & !own_pieces;
+                get_rook_moves(pop_lsb(&mut rooks).try_into().unwrap(), self.all_pieces)
+                    & !own_pieces;
             println!("rook attacks {}", rook_attacks);
+        }
+    }
+
+    pub fn generate_knight_moves(&self) {
+        let mut knights = if self.white_to_move {
+            self.white_knights
+        } else {
+            self.black_knights
+        };
+
+        let own_pieces = if self.white_to_move {
+            self.white_pieces
+        } else {
+            self.black_pieces
+        };
+
+        while knights != 0 {
+            let knight_attacks = KNIGHT_LOOKUP[pop_lsb(&mut knights) as usize] & !own_pieces;
+            println!("knight attacks {}", knight_attacks);
         }
     }
 }
