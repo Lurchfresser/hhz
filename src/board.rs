@@ -60,8 +60,6 @@ impl Board {
         let mut black_queens = 0;
         let mut black_king = 0;
 
-        let mut white_to_move = true;
-
         let mut file: i32 = 1;
         let mut rank: i32 = 8;
 
@@ -256,7 +254,7 @@ impl Board {
     }
 
     pub fn generate_king_moves(&self) -> u64 {
-        let king_moves = if (self.white_to_move) {
+        let king_moves = if self.white_to_move {
             KING_LOOKUP[self.white_king.trailing_zeros() as usize] & !self.white_pieces
         } else {
             KING_LOOKUP[self.black_king.trailing_zeros() as usize] & !self.black_pieces

@@ -25,7 +25,7 @@ pub struct SearchMetricsData {
 }
 
 #[cfg(not(feature = "metrics"))]
-struct SearchMetricsData{}
+pub struct SearchMetricsData{}
 
 #[cfg(feature = "metrics")]
 fn serialize_duration_as_ms<S>(duration: &Duration, serializer: S) -> Result<S::Ok, S::Error>
@@ -57,7 +57,7 @@ impl SearchMetricsData {
     }
 }
 
-static mut METRICS: Option<SearchMetricsData> = None;
+pub static mut METRICS: Option<SearchMetricsData> = None;
 #[cfg(feature = "metrics")]
 static INIT: Once = Once::new();
 
