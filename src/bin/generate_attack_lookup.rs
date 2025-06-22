@@ -1,6 +1,6 @@
-use core::arch::x86_64::{_pdep_u64, _pext_u64};
-use std::collections::HashSet;
+use core::arch::x86_64::_pdep_u64;
 use hhz::bit_boards::*;
+use std::io::Write;
 
 fn main() {
     if cfg!(target_arch = "x86_64") {
@@ -9,7 +9,7 @@ fn main() {
         panic!("This code is designed to run on x86_64 architecture only.");
     }
 
-    let mut knight_lookup: Vec<u64> = vec![0; 64];
+    let mut knight_lookup = [0u64; 64];
     for i in 0u64..64u64 {
         let mut moves: u64 = 0;
 
@@ -22,38 +22,38 @@ fn main() {
         if rank <= 5 {
             // north-west
             if file >= 1 {
-                moves |= (1 << i + 15); // up-right
+                moves |= 1 << i + 15; // up-right
             }
             if file <= 6 {
-                moves |= (1 << i + 17); // up-left
+                moves |= 1 << i + 17; // up-left
             }
         }
         // south
         if rank >= 2 {
             // south-west
             if file >= 1 {
-                moves |= (1 << i - 17); // down-right
+                moves |= 1 << i - 17; // down-right
             }
             if file <= 6 {
-                moves |= (1 << i - 15); // down-left
+                moves |= 1 << i - 15; // down-left
             }
         }
         // west
         if file >= 2 {
             if rank >= 2 {
-                moves |= (1 << i - 10); // up-left
+                moves |= 1 << i - 10; // up-left
             }
             if rank <= 6 {
-                moves |= (1 << i + 6); // down-left
+                moves |= 1 << i + 6; // down-left
             }
         }
         // east
         if file <= 5 {
             if rank >= 2 {
-                moves |= (1 << i - 6); // up-right
+                moves |= 1 << i - 6; // up-right
             }
             if rank <= 6 {
-                moves |= (1 << i + 10); // down-right
+                moves |= 1 << i + 10; // down-right
             }
         }
         //  println!("i: {}, debug hits: {}", i, debug_hits);
@@ -64,7 +64,7 @@ fn main() {
         //     knight_lookup[i as usize]
         // );
     }
-    let mut rook_free_board_lookup: Vec<u64> = vec![0; 64];
+    let mut rook_free_board_lookup = [0u64; 64];
 
     for s in 0u64..64u64 {
         let square = square_index_to_square(s);
@@ -97,69 +97,82 @@ fn main() {
 
     println!("---------------");
 
-    let mut rook_lookup = vec![0, (1 << 12) * 64];
+    let mut rook_lookup = [0; (ROOK_LOOK_UP_SIZE * 64) as usize];
     unsafe {
-        'outer: for index in 0u64..(1u64 << 12) {
-            let rook_square = square_index_to_square(27);
-            let rook_sqaure_bit_board = rook_square.to_bit_board();
-            let blockers: u64 = _pdep_u64(index, rook_free_board_lookup[27 as usize]);
-            let mut move_bit_mask = 0;
+        for rook_square_index in 0u64..64u64 {
+            let rook_square = square_index_to_square(rook_square_index);
+            for sub_index in 0u64..(ROOK_LOOK_UP_SIZE) {
+                let blockers: u64 = _pdep_u64(
+                    sub_index,
+                    rook_free_board_lookup[rook_square_index as usize],
+                );
+                let mut move_bit_mask = 0;
 
-            if rook_square.rank > 1 {
-                'inner: for i in (0..rook_square.rank).rev() {
-                    let square_2 = Square {
-                        rank: i,
-                        file: rook_square.file,
-                    };
-                    let square_bit_board = square_2.to_bit_board();
-                    move_bit_mask |= square_bit_board;
-                    if blockers & square_bit_board != 0 {
-                        break 'inner;
+                if rook_square.rank >= 1 {
+                    'inner: for i in (0..rook_square.rank).rev() {
+                        let square_2 = Square {
+                            rank: i,
+                            file: rook_square.file,
+                        };
+                        let square_bit_board = square_2.to_bit_board();
+                        move_bit_mask |= square_bit_board;
+                        if blockers & square_bit_board != 0 {
+                            break 'inner;
+                        }
                     }
                 }
-            }
-            if rook_square.rank < 5 {
-                'inner: for i in (rook_square.rank + 1 .. 8) {
-                    let square_2 = Square {
-                        rank: i,
-                        file: rook_square.file,
-                    };
-                    let square_bit_board = square_2.to_bit_board();
-                    move_bit_mask |= square_bit_board;
-                    if blockers & square_bit_board != 0 {
-                        break 'inner;
+                if rook_square.rank <= 5 {
+                    'inner: for i in rook_square.rank + 1..8 {
+                        let square_2 = Square {
+                            rank: i,
+                            file: rook_square.file,
+                        };
+                        let square_bit_board = square_2.to_bit_board();
+                        move_bit_mask |= square_bit_board;
+                        if blockers & square_bit_board != 0 {
+                            break 'inner;
+                        }
                     }
                 }
-            }
 
-            if rook_square.file > 1 {
-                'inner: for i in (0..rook_square.file).rev() {
-                    let square_2 = Square {
-                        file: i,
-                        rank: rook_square.rank,
-                    };
-                    let square_bit_board = square_2.to_bit_board();
-                    move_bit_mask |= square_bit_board;
-                    if blockers & square_bit_board != 0 {
-                        break 'inner;
+                if rook_square.file >= 1 {
+                    'inner: for i in (0..rook_square.file).rev() {
+                        let square_2 = Square {
+                            file: i,
+                            rank: rook_square.rank,
+                        };
+                        let square_bit_board = square_2.to_bit_board();
+                        move_bit_mask |= square_bit_board;
+                        if blockers & square_bit_board != 0 {
+                            break 'inner;
+                        }
                     }
                 }
-            }
-            if rook_square.file < 5 {
-                'inner: for i in (rook_square.file + 1 .. 8) {
-                    let square_2 = Square {
-                        file: i,
-                        rank: rook_square.rank,
-                    };
-                    let square_bit_board = square_2.to_bit_board();
-                    move_bit_mask |= square_bit_board;
-                    if blockers & square_bit_board != 0 {
-                        break 'inner;
+                if rook_square.file <= 5 {
+                    'inner: for i in rook_square.file + 1..8 {
+                        let square_2 = Square {
+                            file: i,
+                            rank: rook_square.rank,
+                        };
+                        let square_bit_board = square_2.to_bit_board();
+                        move_bit_mask |= square_bit_board;
+                        if blockers & square_bit_board != 0 {
+                            break 'inner;
+                        }
                     }
                 }
+                rook_lookup[(rook_square_index * ROOK_LOOK_UP_SIZE + sub_index) as usize] =
+                    move_bit_mask;
             }
-
-            println!("blockers {} and moves {}", blockers, move_bit_mask);
         }
     }
+    // In generate_attack_lookup.rs:
+    let mut free_rook_file = std::fs::File::create("assets/rook_free_board_lookup.bin").unwrap();
+    free_rook_file.write_all(bytemuck::bytes_of(&rook_free_board_lookup)).unwrap();
+    let mut rook_file = std::fs::File::create("assets/rook_lookup.bin").unwrap();
+    rook_file.write_all(bytemuck::cast_slice(&rook_lookup)).unwrap();
+
+
+
+    println!("done");
 }

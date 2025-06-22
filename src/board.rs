@@ -1,3 +1,4 @@
+use crate::bit_boards::*;
 use regex::Regex;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -17,12 +18,18 @@ pub struct Board {
     white_queens: u64,
     white_king: u64,
 
+    white_pieces: u64,
+
     black_pawns: u64,
     black_knights: u64,
     black_bishops: u64,
     black_rooks: u64,
     black_queens: u64,
     black_king: u64,
+
+    black_pieces: u64,
+
+    all_pieces: u64,
 
     en_passant_target: Option<u64>,
 
@@ -45,12 +52,15 @@ impl Board {
         let mut white_rooks = 0;
         let mut white_queens = 0;
         let mut white_king = 0;
+
+
         let mut black_pawns = 0;
         let mut black_knights = 0;
         let mut black_bishops = 0;
         let mut black_rooks = 0;
         let mut black_queens = 0;
         let mut black_king = 0;
+
         let mut white_to_move = true;
 
         let mut file: i32 = 1;
@@ -119,6 +129,11 @@ impl Board {
             }
         }
 
+        let white_pieces = white_pawns | white_knights | white_bishops | white_rooks | white_queens | white_king;
+        let black_pieces = black_pawns | black_knights | black_bishops | black_rooks | black_queens | black_king;
+        let all_pieces = white_pieces | black_pieces;
+
+
         // Parse the rest of the FEN string for additional information
         let mut parts = fen.split_whitespace();
 
@@ -182,18 +197,41 @@ impl Board {
             white_rooks,
             white_queens,
             white_king,
+            white_pieces,
             black_pawns,
             black_knights,
             black_bishops,
             black_rooks,
             black_queens,
             black_king,
+            black_pieces,
+            all_pieces,
             white_to_move,
             en_passant_target,
             white_castling_rights,
             black_castling_rights,
             halfmove_clock,
             fullmove_number,
+        }
+    }
+
+    pub fn generate_rook_moves(&self) {
+        let mut rooks = if self.white_to_move {
+            self.white_rooks
+        } else {
+            self.black_rooks
+        };
+
+        let own_pieces = if self.white_to_move {
+            self.white_pieces
+        } else {
+            self.black_pieces
+        };
+
+        while rooks != 0 {
+            let rook_attacks =
+                get_rook_moves(pop_lsb(&mut rooks).try_into().unwrap(), self.all_pieces) & !own_pieces;
+            println!("rook attacks {}", rook_attacks);
         }
     }
 }

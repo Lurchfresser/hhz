@@ -1,6 +1,5 @@
 use chessie::*;
 
-use crate::metrics;
 use crate::metrics::SearchMetrics;
 
 pub const PAWN_SCORE: i32 = 100;

@@ -15,3 +15,4 @@ licheszter = "0.3.1"
 serde = { version = "1.0.219", features = ["derive"] }
 tokio = { version = "1.45.1", features = ["full"] }
 regex = "1.11.1"
+bytemuck = "1.23.1"
