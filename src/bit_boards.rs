@@ -1,28 +1,55 @@
+#[macro_export]
+macro_rules! include_bytes_align_as {
+    ($align_ty:ty, $path:literal) => {{
+        use crate::bit_boards::my_macros::AlignedAs;
+
+        static ALIGNED: &AlignedAs<$align_ty, [u8]> = &AlignedAs {
+            _align: [],
+            bytes: *include_bytes!($path),
+        };
+
+        &ALIGNED.bytes
+    }};
+}
+
+pub mod my_macros {
+    #[repr(C)]
+    pub struct AlignedAs<Align, Bytes: ?Sized> {
+        pub _align: [Align; 0],
+        pub bytes: Bytes,
+    }
+}
+
 use core::arch::x86_64::_pext_u64;
 use std::arch::x86_64::_mm_tzcnt_64;
 
-pub static RANK_A: u64 = 0x00000000000000FF;
-pub static RANK_B: u64 = 0x000000000000FF00;
-pub static RANK_C: u64 = 0x0000000000FF0000;
-pub static RANK_D: u64 = 0x00000000FF000000;
-pub static RANK_E: u64 = 0x000000FF00000000;
-pub static RANK_F: u64 = 0x0000FF0000000000;
-pub static RANK_G: u64 = 0x00FF000000000000;
-pub static RANK_H: u64 = 0xFF00000000000000;
+pub const FILE_A: u64 = 0x0101010101010101;
+pub const FILE_B: u64 = 0x0202020202020202;
+pub const FILE_C: u64 = 0x0404040404040404;
+pub const FILE_D: u64 = 0x0808080808080808;
+pub const FILE_E: u64 = 0x1010101010101010;
+pub const FILE_F: u64 = 0x2020202020202020;
+pub const FILE_G: u64 = 0x4040404040404040;
+pub const FILE_H: u64 = 0x8080808080808080;
 
-pub static FILE_1: u64 = 0x0101010101010101;
-pub static FILE_2: u64 = 0x0202020202020202;
-pub static FILE_3: u64 = 0x0404040404040404;
-pub static FILE_4: u64 = 0x0808080808080808;
-pub static FILE_5: u64 = 0x1010101010101010;
-pub static FILE_6: u64 = 0x2020202020202020;
-pub static FILE_7: u64 = 0x4040404040404040;
-pub static FILE_8: u64 = 0x8080808080808080;
+pub const RANK_1: u64 = 0x00000000000000FF;
+pub const RANK_2: u64 = 0x000000000000FF00;
+pub const RANK_3: u64 = 0x0000000000FF0000;
+pub const RANK_4: u64 = 0x00000000FF000000;
+pub const RANK_5: u64 = 0x000000FF00000000;
+pub const RANK_6: u64 = 0x0000FF0000000000;
+pub const RANK_7: u64 = 0x00FF000000000000;
+pub const RANK_8: u64 = 0xFF00000000000000;
 
-pub static ROOK_LOOKUP_MASK: [u64; 64] = gen_free_rook_mask();
+pub static WHITE_PAWN_ADVANCE_LOOKUP: [u64; 64] = gen_white_pawn_advances();
+pub static BLACK_PAWN_ADVANCE_LOOKUP: [u64; 64] = gen_black_pawn_advances();
+pub static WHITE_PAWN_ATTACKS_LOOKUP: [u64; 64] = gen_white_pawn_attacks();
+pub static BLACK_PAWN_ATTACKS_LOOKUP: [u64; 64] = gen_black_pawn_attacks();
 pub static KNIGHT_LOOKUP: [u64; 64] = gen_knight_lookup();
 pub static KING_LOOKUP: [u64; 65] = gen_king_moves();
-static ROOK_LOOKUP: &[u8] = include_bytes!("../assets/rook_lookup.bin");
+
+static ROOK_LOOKUP: &[u8] = include_bytes_align_as!(u64, "../assets/rook_lookup.bin");
+pub static ROOK_LOOKUP_MASK: [u64; 64] = gen_free_rook_mask();
 
 // TODO: rename or multiply by 64
 // If rook is in corner it is 2¹², if at edge 2¹¹ otherwise 2¹⁰
@@ -30,7 +57,7 @@ static ROOK_LOOKUP: &[u8] = include_bytes!("../assets/rook_lookup.bin");
 pub const ROOK_LOOK_UP_SIZE: u64 = 1u64 << 12;
 
 #[inline(always)]
-pub const fn square_index_to_bitboard(index: u64) -> u64 {
+pub const fn square_index_to_bitboard(index: usize) -> u64 {
     1 << index
 }
 
@@ -41,12 +68,13 @@ pub fn bitboard_to_square_index(bitboard: u64) -> i64 {
 }
 
 #[inline(always)]
-pub const fn square_index_to_square(index: u64) -> Square {
-    let file = index % 8;
-    let rank = index / 8;
-    Square { file, rank }
+pub const fn square_index_to_square(index: usize) -> Square {
+    let file = (index % 8) as u64;
+    let rank = (index / 8) as u64;
+    Square { rank, file }
 }
 
+//TODO: if used outside of const fns use binary repersentation instead
 pub struct Square {
     pub file: u64,
     pub rank: u64,
@@ -55,34 +83,34 @@ pub struct Square {
 impl Square {
     pub const fn get_whole_rank(&self) -> u64 {
         match self.rank {
-            0 => RANK_A,
-            1 => RANK_B,
-            2 => RANK_C,
-            3 => RANK_D,
-            4 => RANK_E,
-            5 => RANK_F,
-            6 => RANK_G,
-            7 => RANK_H,
+            0 => RANK_1,
+            1 => RANK_2,
+            2 => RANK_3,
+            3 => RANK_4,
+            4 => RANK_5,
+            5 => RANK_6,
+            6 => RANK_7,
+            7 => RANK_8,
             _ => panic!("Invalid rank"),
         }
     }
 
     pub const fn get_whole_file(&self) -> u64 {
         match self.file {
-            0 => FILE_1,
-            1 => FILE_2,
-            2 => FILE_3,
-            3 => FILE_4,
-            4 => FILE_5,
-            5 => FILE_6,
-            6 => FILE_7,
-            7 => FILE_8,
+            0 => FILE_A,
+            1 => FILE_B,
+            2 => FILE_C,
+            3 => FILE_D,
+            4 => FILE_E,
+            5 => FILE_F,
+            6 => FILE_G,
+            7 => FILE_H,
             _ => panic!("Invalid file"),
         }
     }
 
     #[inline(always)]
-    pub fn to_bit_board(&self) -> u64 {
+    pub const fn to_bit_board(&self) -> u64 {
         1 << (self.rank * 8 + self.file)
     }
 }
@@ -107,93 +135,70 @@ pub fn get_rook_moves(square: u32, blockers: u64) -> u64 {
     test
 }
 
-//Size 65 for king free positions
-pub const fn gen_king_moves() -> [u64; 65] {
-    let mut king_moves = [0u64; 65];
-    let mut i = 0;
-    while i < 64 {
-        let square = square_index_to_square(i);
+const fn gen_white_pawn_attacks() -> [u64; 64] {
+    let mut pawn_attacks = [0u64; 64];
+    let mut i: u64 = 0;
+    while i < (64 - 8) {
         let mut attacks = 0u64;
+        let square = square_index_to_square(i as usize);
 
-        // North (up)
-        if square.rank > 0 {
-            attacks |= 1 << (i - 8);
-
-            // Northwest (up-left)
-            if square.file > 0 {
-                attacks |= 1 << (i - 9);
-            }
-
-            // Northeast (up-right)
-            if square.file < 7 {
-                attacks |= 1 << (i - 7);
-            }
-        }
-
-        // South (down)
-        if square.rank < 7 {
-            attacks |= 1 << (i + 8);
-
-            // Southwest (down-left)
-            if square.file > 0 {
-                attacks |= 1 << (i + 7);
-            }
-
-            // Southeast (down-right)
-            if square.file < 7 {
-                attacks |= 1 << (i + 9);
-            }
-        }
-
-        // West (left)
-        if square.file > 0 {
-            attacks |= 1 << (i - 1);
-        }
-
-        // East (right)
-        if square.file < 7 {
-            attacks |= 1 << (i + 1);
-        }
-
-        king_moves[i as usize] = attacks;
-        i += 1;
-    }
-    king_moves
-}
-
-const fn gen_free_rook_mask() -> [u64; 64] {
-    let mut rook_free_board_lookup = [0u64; 64];
-    let mut s = 0;
-    while s < 64 {
-        let square = square_index_to_square(s);
-        let mut bit_board: u64 = 0;
-
-        bit_board |= square.get_whole_file();
-        bit_board |= square.get_whole_rank();
-
-        bit_board ^= square_index_to_bitboard(s);
-
-        if square.rank != 0 {
-            bit_board &= !RANK_A;
-        }
-        if square.rank != 7 {
-            bit_board &= !RANK_H;
-        }
         if square.file != 0 {
-            bit_board &= !FILE_1;
+            attacks |= square.to_bit_board() << 7;
         }
         if square.file != 7 {
-            bit_board &= !FILE_8
+            attacks |= square.to_bit_board() << 9;
         }
-        rook_free_board_lookup[s as usize] = bit_board;
-        // println!(
-        //     "square {} and mask {}",
-        //     square_index_to_bitboard(s),
-        //     bit_board
-        // );
-        s += 1;
+        pawn_attacks[i as usize] = attacks;
+        i += 1;
     }
-    rook_free_board_lookup
+    pawn_attacks
+}
+
+const fn gen_black_pawn_attacks() -> [u64; 64] {
+    let mut pawn_attacks = [0u64; 64];
+    let mut i = 8u64;
+    while i < 64 {
+        let mut attacks = 0u64;
+        let square = square_index_to_square(i as usize);
+
+        if square.file != 7 {
+            attacks |= square.to_bit_board() >> 7;
+        }
+        if square.file != 0 {
+            attacks |= square.to_bit_board() >> 9;
+        }
+        pawn_attacks[i as usize] = attacks;
+        i += 1;
+    }
+    pawn_attacks
+}
+
+const fn gen_white_pawn_advances() -> [u64; 64] {
+    let mut pawn_advances = [0u64; 64];
+    let mut i = 0u64;
+    while i < 64 {
+        let mut advance = square_index_to_bitboard(i as usize) << 8;
+        if square_index_to_bitboard(i as usize) & RANK_2 != 0 {
+            advance |= square_index_to_bitboard(i as usize) << 16;
+        }
+        pawn_advances[i as usize] = advance;
+        i += 1;
+    }
+    pawn_advances
+}
+
+const fn gen_black_pawn_advances() -> [u64; 64] {
+    let mut pawn_advances = [0u64; 64];
+    let mut i = 0u64;
+    while i < 64 {
+        let mut advance = square_index_to_bitboard(i as usize) >> 8;
+        if square_index_to_bitboard(i as usize) & RANK_7 != 0 {
+            advance |= square_index_to_bitboard(i as usize) >> 16;
+        }
+        pawn_advances[i as usize] = advance;
+        i += 1;
+    }
+    pawn_advances
 }
 
 const fn gen_knight_lookup() -> [u64; 64] {
@@ -249,4 +254,92 @@ const fn gen_knight_lookup() -> [u64; 64] {
         i += 1;
     }
     knight_lookup
+}
+
+const fn gen_free_rook_mask() -> [u64; 64] {
+    let mut rook_free_board_lookup = [0u64; 64];
+    let mut s: usize = 0;
+    while s < 64 {
+        let square = square_index_to_square(s);
+        let mut bit_board: u64 = 0;
+
+        bit_board |= square.get_whole_file();
+        bit_board |= square.get_whole_rank();
+
+        bit_board ^= square_index_to_bitboard(s);
+
+        if square.rank != 0 {
+            bit_board &= !RANK_1;
+        }
+        if square.rank != 7 {
+            bit_board &= !RANK_8;
+        }
+        if square.file != 0 {
+            bit_board &= !FILE_A;
+        }
+        if square.file != 7 {
+            bit_board &= !FILE_H
+        }
+        rook_free_board_lookup[s as usize] = bit_board;
+        // println!(
+        //     "square {} and mask {}",
+        //     square_index_to_bitboard(s),
+        //     bit_board
+        // );
+        s += 1;
+    }
+    rook_free_board_lookup
+}
+//Size 65 for king free positions
+pub const fn gen_king_moves() -> [u64; 65] {
+    let mut king_moves = [0u64; 65];
+    let mut i = 0;
+    while i < 64 {
+        let square = square_index_to_square(i);
+        let mut attacks = 0u64;
+
+        // North (up)
+        if square.rank > 0 {
+            attacks |= 1u64 << (i - 8);
+
+            // Northwest (up-left)
+            if square.file > 0 {
+                attacks |= 1 << (i - 9);
+            }
+
+            // Northeast (up-right)
+            if square.file < 7 {
+                attacks |= 1 << (i - 7);
+            }
+        }
+
+        // South (down)
+        if square.rank < 7 {
+            attacks |= 1 << (i + 8);
+
+            // Southwest (down-left)
+            if square.file > 0 {
+                attacks |= 1 << (i + 7);
+            }
+
+            // Southeast (down-right)
+            if square.file < 7 {
+                attacks |= 1 << (i + 9);
+            }
+        }
+
+        // West (left)
+        if square.file > 0 {
+            attacks |= 1 << (i - 1);
+        }
+
+        // East (right)
+        if square.file < 7 {
+            attacks |= 1 << (i + 1);
+        }
+
+        king_moves[i as usize] = attacks;
+        i += 1;
+    }
+    king_moves
 }

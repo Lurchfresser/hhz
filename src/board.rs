@@ -10,6 +10,9 @@ pub enum CastlingRights {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct Move {}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Board {
     white_pawns: u64,
     white_knights: u64,
@@ -31,7 +34,7 @@ pub struct Board {
 
     all_pieces: u64,
 
-    en_passant_target: Option<u64>,
+    en_passant_target: u64,
 
     white_castling_rights: CastlingRights,
     black_castling_rights: CastlingRights,
@@ -174,16 +177,18 @@ impl Board {
             CastlingRights::None
         };
 
-        let en_passant_target = parts.next().and_then(|s| {
+        let en_passant_target = if let Some(s) = parts.next() {
             if s == "-" {
-                None
+                0u64
             } else {
                 // Convert the square to a bitboard position
                 let file = s.chars().next().unwrap() as u8 - b'a';
                 let rank = s.chars().nth(1).unwrap() as u8 - b'1';
-                Some(1 << (rank * 8 + file))
+                1u64 << (rank * 8 + file)
             }
-        });
+        } else {
+            0u64
+        };
 
         let halfmove_clock = parts.next().unwrap().parse::<u32>().unwrap();
         let fullmove_number = parts.next().unwrap().parse::<u32>().unwrap();
@@ -212,25 +217,60 @@ impl Board {
             fullmove_number,
         }
     }
-
-    pub fn generate_rook_moves(&self) {
-        let mut rooks = if self.white_to_move {
-            self.white_rooks
+    pub fn generate_pawn_moves(&self) {
+        let mut pawns = if self.white_to_move {
+            self.white_pawns
         } else {
-            self.black_rooks
+            self.black_pawns
         };
 
-        let own_pieces = if self.white_to_move {
-            self.white_pieces
-        } else {
+        let enemy_pieces = if self.white_to_move {
             self.black_pieces
+        } else {
+            self.white_pieces
         };
 
-        while rooks != 0 {
-            let rook_attacks =
-                get_rook_moves(pop_lsb(&mut rooks).try_into().unwrap(), self.all_pieces)
-                    & !own_pieces;
-            println!("rook attacks {}", rook_attacks);
+        #[allow(non_snake_case)]
+        let ADVANCE_LOOKUP = if self.white_to_move {
+            &WHITE_PAWN_ADVANCE_LOOKUP
+        } else {
+            &BLACK_PAWN_ADVANCE_LOOKUP
+        };
+
+        #[allow(non_snake_case)]
+        let ATTACKS_LOOKUP = if self.white_to_move {
+            &WHITE_PAWN_ATTACKS_LOOKUP
+        } else {
+            &BLACK_PAWN_ATTACKS_LOOKUP
+        };
+
+        while pawns != 0 {
+            let mut moves_for_pawn = 0u64;
+            let square_index = pop_lsb(&mut pawns) as usize;
+            let pawn_bit_board = square_index_to_bitboard(square_index);
+
+            // 1. Generate attacks (this part was already correct)
+            moves_for_pawn |=
+                ATTACKS_LOOKUP[square_index] & (enemy_pieces | self.en_passant_target);
+
+            // 2. Generate advances (this is the corrected part)
+            let blockers = self.all_pieces ^ pawn_bit_board;
+            let advances = ADVANCE_LOOKUP[square_index];
+
+            if self.white_to_move {
+                // For white, shift blockers UP to see if they block the double advance
+                let invalid_advances = blockers | (blockers << 8);
+                moves_for_pawn |= advances & !invalid_advances;
+            } else {
+                // For black, shift blockers DOWN to see if they block the double advance
+                let invalid_advances = blockers | (blockers >> 8);
+                moves_for_pawn |= advances & !invalid_advances;
+            }
+
+            if moves_for_pawn != 0 {
+                println!("pawn: {}", pawn_bit_board);
+                println!("moves {}", moves_for_pawn);
+            }
         }
     }
 
@@ -248,8 +288,30 @@ impl Board {
         };
 
         while knights != 0 {
-            let knight_attacks = KNIGHT_LOOKUP[pop_lsb(&mut knights) as usize] & !own_pieces;
+            let knight_index = pop_lsb(&mut knights) as usize;
+            let knight_attacks = KNIGHT_LOOKUP[knight_index] & !own_pieces;
             println!("knight attacks {}", knight_attacks);
+        }
+    }
+
+    pub fn generate_rook_moves(&self) {
+        let mut rooks = if self.white_to_move {
+            self.white_rooks
+        } else {
+            self.black_rooks
+        };
+
+        let own_pieces = if self.white_to_move {
+            self.white_pieces
+        } else {
+            self.black_pieces
+        };
+
+        while rooks != 0 {
+            let rook_attacks_looked_up =
+                get_rook_moves(pop_lsb(&mut rooks).try_into().unwrap(), self.all_pieces);
+            let rook_attacks = rook_attacks_looked_up & !own_pieces;
+            println!("rook attacks {}", rook_attacks);
         }
     }
 

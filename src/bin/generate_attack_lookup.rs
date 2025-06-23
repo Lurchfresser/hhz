@@ -3,8 +3,13 @@ use hhz::bit_boards::*;
 use std::io::Write;
 
 fn main() {
+    gen_rook_look_up();
+}
+
+
+pub fn gen_rook_look_up() -> [u64; (ROOK_LOOK_UP_SIZE * 64) as usize]{
     if cfg!(target_arch = "x86_64") {
-        println!("Running on x86_64 architecture");
+        // println!("Running on x86_64 architecture");
     } else {
         panic!("This code is designed to run on x86_64 architecture only.");
     }
@@ -12,7 +17,7 @@ fn main() {
     let mut rook_lookup = [0; (ROOK_LOOK_UP_SIZE * 64) as usize];
     unsafe {
         for rook_square_index in 0u64..64u64 {
-            let rook_square = square_index_to_square(rook_square_index);
+            let rook_square = square_index_to_square(rook_square_index as usize);
             for sub_index in 0u64..(ROOK_LOOK_UP_SIZE) {
                 let blockers: u64 = _pdep_u64(
                     sub_index,
@@ -33,7 +38,7 @@ fn main() {
                         }
                     }
                 }
-                if rook_square.rank <= 5 {
+                if rook_square.rank <= 6 {
                     'inner: for i in rook_square.rank + 1..8 {
                         let square_2 = Square {
                             rank: i,
@@ -60,7 +65,7 @@ fn main() {
                         }
                     }
                 }
-                if rook_square.file <= 5 {
+                if rook_square.file <= 6 {
                     'inner: for i in rook_square.file + 1..8 {
                         let square_2 = Square {
                             file: i,
@@ -83,5 +88,6 @@ fn main() {
 
 
 
-    println!("done");
+    // println!("done");
+    rook_lookup
 }

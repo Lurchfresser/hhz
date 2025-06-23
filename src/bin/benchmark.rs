@@ -4,6 +4,8 @@ use hhz::metrics::{SearchMetrics, SearchMetricsData};
 use hhz::search::search_entry;
 use std::time::{Instant, SystemTime};
 
+pub mod generate_attack_lookup;
+
 static FEATURE_NAME: &str = "Simple move Ordering";
 
 fn main() {
