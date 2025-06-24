@@ -3,7 +3,18 @@ stages:
 
 image: docker:latest
 
+services:
+  - docker:dind
+
+variables:
+  # TLS configuration
+  DOCKER_HOST: tcp://docker:2376
+  DOCKER_TLS_CERTDIR: "/certs"
+  DOCKER_TLS_VERIFY: 1
+  DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
+
 build:
   stage: build
   script:
     - docker info
+    # Add your docker build commands here
