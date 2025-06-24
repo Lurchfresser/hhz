@@ -28,4 +28,4 @@ release:
   tags:
     - deploydocker
   rules:
-    - if: '$CI_COMMIT_BRANCH == "master"'
+    - if: '$CI_COMMIT_BRANCH == "main"'
