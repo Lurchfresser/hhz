@@ -153,4 +153,3 @@ pub fn get_bishop_moves(square: u32, blockers: u64) -> u64 {
     println!("{}", test);
     test
 }
-
