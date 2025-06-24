@@ -1,0 +1,8 @@
+feature_name,depth,positions_generated,normal_search_entries,q_search_entries,num_alpha_beta_cutoffs,search_time,q_search_time,evaluation_time,move_gen_time,move_ordering_time,total_time
+fixed-and-fastened-game-result-detection,0,420,21,20,0,0.327186,0.0037979999999999997,0.0,1.608672,0.062643,2.391681
+fixed-and-fastened-game-result-detection,1,1248,60,42,21,0.301549,0.048103,0.0,3.4567729999999997,0.723201,4.774447
+fixed-and-fastened-game-result-detection,2,11059,524,530,91,1.98269,0.364765,0.0,31.607735999999996,3.059996,37.662257
+fixed-and-fastened-game-result-detection,3,30640,1413,1403,724,3.818131,1.5993220000000001,0.0,66.125257,14.719507,87.390438
+fixed-and-fastened-game-result-detection,4,307242,12544,36666,12039,33.412663,61.81068,0.0,1060.53448,69.320329,1239.708523
+fixed-and-fastened-game-result-detection,5,1002212,34328,194990,77383,97.534935,367.944781,0.0,4322.1537769999995,494.781304,5350.01962
+fixed-and-fastened-game-result-detection,6,18766652,376046,7275705,3034648,1147.016975,15304.095904,0.0,117412.62783499999,4885.932662,140807.10866
