@@ -1,8 +1,7 @@
 stages:
   - build
 
-
 build:
+  stage: build
   script:
     - docker info
-
