@@ -7,6 +7,8 @@ WORKDIR /usr/src/hhz-bot
 
 COPY . .
 
+RUN ls -la assets
+
 # This will now succeed because the toolchain is up-to-date.
 # The binary will be linked against Bookworm's GLIBC.
 RUN cargo build --release --bin hello_world
