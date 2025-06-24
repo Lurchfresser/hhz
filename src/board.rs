@@ -346,6 +346,10 @@ impl Board {
         println!("{}", king_moves);
         king_moves
     }
+
+    pub fn generate_pins_and_discoverer(&self) {
+        
+    }
 }
 
 impl Default for Board {

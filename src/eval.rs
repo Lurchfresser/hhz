@@ -1,6 +1,6 @@
 use chessie::*;
 
-use crate::metrics::SearchMetrics;
+use crate::metrics::{SearchMetrics, TimingKind};
 
 pub const PAWN_SCORE: i32 = 100;
 pub const KNIGHT_SCORE: i32 = 300;
@@ -20,9 +20,8 @@ pub fn pieces_score(piece_kind: PieceKind) -> i32 {
 }
 
 pub fn eval(game: &Game) -> i32 {
-    SearchMetrics::start_evaluation_timing();
+    SearchMetrics::change_timing_kind(TimingKind::Evaluation);
     let score = game.score();
-    SearchMetrics::stop_evaluation_timing();
     score
 }
 
