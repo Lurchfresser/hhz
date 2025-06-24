@@ -7,8 +7,6 @@ WORKDIR /usr/src/hhz-bot
 
 COPY . .
 
-RUN ls -la assets
-
 # This will now succeed because the toolchain is up-to-date.
 # The binary will be linked against Bookworm's GLIBC.
 RUN cargo build --release --bin hello_world
@@ -21,6 +19,8 @@ FROM debian:bookworm-slim AS runtime
 # Copy the compiled binary from the "builder" stage.
 # Both stages use Bookworm, so there is no GLIBC mismatch.
 COPY --from=builder /usr/src/hhz-bot/target/release/hello_world /usr/local/bin/hhz-bot
+
+EXPOSE 42069
 
 # Set the command to run your application
 CMD ["hhz-bot"]
