@@ -16,3 +16,11 @@ serde = { version = "1.0.219", features = ["derive"] }
 tokio = { version = "1.45.1", features = ["full"] }
 regex = "1.11.1"
 bytemuck = "1.23.1"
+rouille = "3.6.2"
+
+[profile.release]
+opt-level = 3        # Use the highest standard optimization level (this is the default for release).
+lto = "fat"          # Enable "fat" Link-Time Optimization for whole-program optimization.
+codegen-units = 1    # Force all code into a single unit for maximum optimization potential.
+panic = "abort"      # Abort on panic instead of unwinding, which is faster and produces smaller binaries.
+strip = true         # Automatically strip symbols from the binary, reducing its size.
