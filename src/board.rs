@@ -294,6 +294,27 @@ impl Board {
         }
     }
 
+    pub fn generate_bishop_moves(&self) {
+        let mut bishops = if self.white_to_move {
+            self.white_bishops
+        } else {
+            self.black_bishops
+        };
+
+        let own_pieces = if self.white_to_move {
+            self.white_pieces
+        } else {
+            self.black_pieces
+        };
+
+        while bishops != 0 {
+            let bishop_attacks_looked_up =
+                get_bishop_moves(pop_lsb(&mut bishops).try_into().unwrap(), self.all_pieces);
+            let bishop_attacks = bishop_attacks_looked_up & !own_pieces;
+            println!("bishop attacks {}", bishop_attacks);
+        }
+    } 
+    
     pub fn generate_rook_moves(&self) {
         let mut rooks = if self.white_to_move {
             self.white_rooks
