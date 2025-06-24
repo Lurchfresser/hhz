@@ -65,15 +65,7 @@ fn min_max_search(game: &Game, depth: u32, mut alpha: i32, mut beta: i32) -> i32
 
     let legal_moves_unordered = game.get_legal_moves();
 
-    SearchMetrics::change_timing_kind(TimingKind::MoveOrdering);
-
-    let legal_moves = sort_moves(legal_moves_unordered, game.clone(), maximize_score);
-
-    SearchMetrics::increment_positions_generated(legal_moves.len() as u64);
-
-    SearchMetrics::change_timing_kind(TimingKind::Search);
-
-    match check_game_result(game) {
+    match check_game_result(game, legal_moves_unordered.len()) {
         GameResult::WhiteWins => return i32::MAX - 1,
 
         GameResult::BlackWins => return i32::MIN + 1,
@@ -82,6 +74,15 @@ fn min_max_search(game: &Game, depth: u32, mut alpha: i32, mut beta: i32) -> i32
 
         GameResult::Ongoing => {}
     }
+
+
+    SearchMetrics::change_timing_kind(TimingKind::MoveOrdering);
+
+    let legal_moves = sort_moves(legal_moves_unordered, game.clone(), maximize_score);
+
+    SearchMetrics::increment_positions_generated(legal_moves.len() as u64);
+
+    SearchMetrics::change_timing_kind(TimingKind::Search);
 
     if depth == 0 {
         SearchMetrics::change_timing_kind(TimingKind::QSearch);
@@ -118,6 +119,7 @@ fn q_search(game: &Game, mut alpha: i32, mut beta: i32) -> i32 {
 
     SearchMetrics::change_timing_kind(TimingKind::QSearch);
 
+    //TODO: make function on board
     let maximize_score = game.position().side_to_move() == Color::White;
 
     let mut best_score = if maximize_score {
@@ -128,7 +130,17 @@ fn q_search(game: &Game, mut alpha: i32, mut beta: i32) -> i32 {
 
     SearchMetrics::change_timing_kind(TimingKind::MoveGen);
 
-    let legal_captures_unordered = game.into_iter().only_captures().collect();
+    let legal_captures_unordered: MoveList = game.into_iter().only_captures().collect();
+
+    match check_game_result(game, legal_captures_unordered.len()) {
+        GameResult::WhiteWins => return i32::MAX - 1,
+
+        GameResult::BlackWins => return i32::MIN + 1,
+
+        GameResult::Draw(_) => return 0,
+
+        GameResult::Ongoing => {}
+    }
 
     SearchMetrics::change_timing_kind(TimingKind::MoveOrdering);
 
@@ -199,7 +211,20 @@ enum DrawReason {
     Repetition,
 }
 
-fn check_game_result(game: &Game) -> GameResult {
+fn check_game_result(game: &Game, num_legal_moves: usize) -> GameResult {
+    if num_legal_moves == 0 {
+        return if game.is_in_check() {
+            // Checkmate - the opponent wins
+            match game.side_to_move() {
+                Color::White => GameResult::BlackWins,
+                Color::Black => GameResult::WhiteWins,
+            }
+        } else {
+            // Stalemate
+            GameResult::Draw(DrawReason::Stalemate)
+        };
+    }
+
     // Check for draw conditions first
     if game.can_draw_by_fifty() {
         return GameResult::Draw(DrawReason::FiftyMoveRule);
@@ -215,21 +240,5 @@ fn check_game_result(game: &Game) -> GameResult {
         return GameResult::Draw(DrawReason::Repetition);
     }
 
-    // Check if there are any legal moves
-    let legal_moves = game.get_legal_moves();
-
-    if legal_moves.is_empty() {
-        if game.is_in_check() {
-            // Checkmate - the opponent wins
-            match game.side_to_move() {
-                Color::White => GameResult::BlackWins,
-                Color::Black => GameResult::WhiteWins,
-            }
-        } else {
-            // Stalemate
-            GameResult::Draw(DrawReason::Stalemate)
-        }
-    } else {
-        GameResult::Ongoing
-    }
+    GameResult::Ongoing
 }
