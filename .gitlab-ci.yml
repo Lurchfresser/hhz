@@ -25,7 +25,7 @@ build_docker_image_standalone: # cf. https://docs.gitlab.com/ci/docker/using_kan
 release:
   stage: release
   script:
-    - /home/gitlab-runner/hzz-bot.sh
+    - /home/gitlab-runner/hhz-bot.sh
   tags:
     - deploydocker
   rules:
