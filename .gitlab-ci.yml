@@ -1,6 +1,8 @@
 stages:
   - build
 
+image: docker:latest
+
 build:
   stage: build
   script:
