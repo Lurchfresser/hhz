@@ -10,35 +10,14 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/benchmarks/4_improved-measurent-logic.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/benchmarks/5_fixed-and-fastened-game-result-detection.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/benchmarks/Alpha-Beta-Pruning.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/benchmarks/First Benchmark.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/benchmarks/Simple move Ordering.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/benchmarks/improved-measurent-logic.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />

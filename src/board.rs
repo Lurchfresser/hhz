@@ -232,16 +232,16 @@ impl Board {
 
         #[allow(non_snake_case)]
         let ADVANCE_LOOKUP = if self.white_to_move {
-            &WHITE_PAWN_ADVANCE_LOOKUP
+            &WHITE_FREE_PAWN_ADVANCE_LOOKUP
         } else {
-            &BLACK_PAWN_ADVANCE_LOOKUP
+            &BLACK_FREE_PAWN_ADVANCE_LOOKUP
         };
 
         #[allow(non_snake_case)]
         let ATTACKS_LOOKUP = if self.white_to_move {
-            &WHITE_PAWN_ATTACKS_LOOKUP
+            &WHITE_FREE_PAWN_ATTACKS_LOOKUP
         } else {
-            &BLACK_PAWN_ATTACKS_LOOKUP
+            &BLACK_FREE_PAWN_ATTACKS_LOOKUP
         };
 
         while pawns != 0 {
@@ -289,7 +289,7 @@ impl Board {
 
         while knights != 0 {
             let knight_index = pop_lsb(&mut knights) as usize;
-            let knight_attacks = KNIGHT_LOOKUP[knight_index] & !own_pieces;
+            let knight_attacks = FREE_KNIGHT_LOOKUP[knight_index] & !own_pieces;
             println!("knight attacks {}", knight_attacks);
         }
     }
@@ -313,8 +313,8 @@ impl Board {
             let bishop_attacks = bishop_attacks_looked_up & !own_pieces;
             println!("bishop attacks {}", bishop_attacks);
         }
-    } 
-    
+    }
+
     pub fn generate_rook_moves(&self) {
         let mut rooks = if self.white_to_move {
             self.white_rooks
@@ -338,17 +338,57 @@ impl Board {
 
     pub fn generate_king_moves(&self) -> u64 {
         let king_moves = if self.white_to_move {
-            KING_LOOKUP[self.white_king.trailing_zeros() as usize] & !self.white_pieces
+            FREE_KING_LOOKUP[self.white_king.trailing_zeros() as usize] & !self.white_pieces
         } else {
-            KING_LOOKUP[self.black_king.trailing_zeros() as usize] & !self.black_pieces
+            FREE_KING_LOOKUP[self.black_king.trailing_zeros() as usize] & !self.black_pieces
         };
 
         println!("{}", king_moves);
         king_moves
     }
 
-    pub fn generate_pins_and_discoverer(&self) {
-        
+    pub fn generate_pins(&self) {
+        let kingsquare = if self.white_to_move {
+            self.white_king
+        } else {
+            self.black_king
+        };
+        let king_square_index = bitboard_to_square_index(kingsquare);
+
+        let enemy_rooks_squares = if self.white_to_move {
+            self.black_rooks
+        } else {
+            self.white_rooks
+        };
+        let enemy_queens_squares = if self.white_to_move {
+            self.black_queens
+        } else {
+            self.white_queens
+        };
+
+        let mut potential_rook_piners = FREE_ROOK_LOOKUP[bitboard_to_square_index(kingsquare)]
+            & (enemy_queens_squares | enemy_rooks_squares);
+
+        println!("{}", potential_rook_piners);
+
+        while potential_rook_piners != 0 {
+            let rook_or_queen_square_index = pop_lsb(&mut potential_rook_piners);
+            let ray = ROOK_SQUARE_TO_SQUARE_RAY_LOOKUP
+                [(rook_or_queen_square_index as usize) * 64 + king_square_index];
+            let pieces_between = ray & self.all_pieces;
+            if pieces_between.count_ones() == 0 {
+                //TODO: this is check
+            } else if pieces_between.count_ones() == 1 {
+                let my_pieces = if (self.white_to_move) {
+                    self.white_pieces
+                } else {
+                    self.black_pieces
+                };
+                let pins = my_pieces & ray;
+                println!("pins: {}", pins);
+            }
+        }
+        //todo!()
     }
 }
 

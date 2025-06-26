@@ -3,7 +3,7 @@ use crate::bit_boards::{
     square_index_to_square,
 };
 
-pub const fn gen_white_pawn_attacks() -> [u64; 64] {
+pub const fn gen_free_white_pawn_attacks() -> [u64; 64] {
     let mut pawn_attacks = [0u64; 64];
     let mut i: u64 = 0;
     while i < (64 - 8) {
@@ -22,7 +22,7 @@ pub const fn gen_white_pawn_attacks() -> [u64; 64] {
     pawn_attacks
 }
 
-pub const fn gen_black_pawn_attacks() -> [u64; 64] {
+pub const fn gen_free_black_pawn_attacks() -> [u64; 64] {
     let mut pawn_attacks = [0u64; 64];
     let mut i = 8u64;
     while i < 64 {
@@ -41,7 +41,7 @@ pub const fn gen_black_pawn_attacks() -> [u64; 64] {
     pawn_attacks
 }
 
-pub const fn gen_white_pawn_advances() -> [u64; 64] {
+pub const fn gen_free_white_pawn_advances() -> [u64; 64] {
     let mut pawn_advances = [0u64; 64];
     let mut i = 0u64;
     while i < 64 {
@@ -55,7 +55,7 @@ pub const fn gen_white_pawn_advances() -> [u64; 64] {
     pawn_advances
 }
 
-pub const fn gen_black_pawn_advances() -> [u64; 64] {
+pub const fn gen_free_black_pawn_advances() -> [u64; 64] {
     let mut pawn_advances = [0u64; 64];
     let mut i = 0u64;
     while i < 64 {
@@ -69,7 +69,7 @@ pub const fn gen_black_pawn_advances() -> [u64; 64] {
     pawn_advances
 }
 
-pub const fn gen_knight_lookup() -> [u64; 64] {
+pub const fn gen_free_kight_moves() -> [u64; 64] {
     let mut knight_lookup = [0u64; 64];
     let mut i = 0;
     while i < 64 {
@@ -125,7 +125,7 @@ pub const fn gen_knight_lookup() -> [u64; 64] {
 }
 
 //TODO: const fn
-pub const fn gen_free_bishop_mask() -> [u64; 64] {
+pub const fn gen_free_bishop_mask_edges_removed() -> [u64; 64] {
     let mut free_bishop_lookup = [0u64; 64];
     let mut s = 0;
     while s < 64 {
@@ -202,7 +202,23 @@ pub const fn gen_free_bishop_mask() -> [u64; 64] {
     free_bishop_lookup
 }
 
-pub const fn gen_free_rook_mask() -> [u64; 64] {
+pub const fn gen_free_rook_moves() -> [u64; 64] {
+    let mut free_rook_lookup = [0u64; 64];
+    let mut s: usize = 0;
+    while s < 64 {
+        let square = square_index_to_square(s);
+        let mut bit_board: u64 = 0;
+
+        bit_board ^= square.get_whole_file();
+        bit_board ^= square.get_whole_rank();
+
+        free_rook_lookup[s as usize] = bit_board;
+        s += 1;
+    }
+    free_rook_lookup
+}
+
+pub const fn gen_free_rook_mask_edges_removed() -> [u64; 64] {
     let mut rook_free_board_lookup = [0u64; 64];
     let mut s: usize = 0;
     while s < 64 {
@@ -227,18 +243,74 @@ pub const fn gen_free_rook_mask() -> [u64; 64] {
             bit_board &= !FILE_H
         }
         rook_free_board_lookup[s as usize] = bit_board;
-        // println!(
-        //     "square {} and mask {}",
-        //     square_index_to_bitboard(s),
-        //     bit_board
-        // );
         s += 1;
     }
     rook_free_board_lookup
 }
 
+pub const fn gen_rook_square_to_square_ray() -> [u64; 64 * 64] {
+    let mut rook_square_to_square_ray_lookup = [0u64; 64 * 64];
+    let mut from_index = 0;
+    while from_index < 64 {
+        let mut to_index = 0;
+        while to_index < 64 {
+            if from_index == to_index {
+                to_index += 1;
+                continue;
+            }
+            let from_square = square_index_to_square(from_index);
+            let to_square = square_index_to_square(to_index);
+
+            let mut rook_square_to_square_ray = 0;
+
+            if from_square.rank == to_square.rank {
+                let mut horizontal_distance = (to_square.file as i16) - (from_square.file as i16);
+                while horizontal_distance.abs() != 0 {
+                    let new_file = (from_square.file as i16) + horizontal_distance;
+                    rook_square_to_square_ray |= Square {
+                        rank: from_square.rank,
+                        file: new_file as u64,
+                    }
+                    .to_bit_board();
+                    if (horizontal_distance > 0) {
+                        horizontal_distance -= 1
+                    } else {
+                        horizontal_distance += 1
+                    }
+                }
+                rook_square_to_square_ray &= !to_square.to_bit_board();
+            }
+            
+            if from_square.file == to_square.file {
+                let mut vertical_distance = (to_square.rank as i16) - (from_square.rank as i16);
+                while vertical_distance.abs() != 0 {
+                    let new_rank = (from_square.rank as i16) + vertical_distance;
+                    rook_square_to_square_ray |= Square {
+                        file: from_square.file,
+                        rank: new_rank as u64,
+                    }
+                    .to_bit_board();
+                    if (vertical_distance > 0) {
+                        vertical_distance -= 1
+                    } else {
+                        vertical_distance += 1
+                    }
+                }
+                rook_square_to_square_ray &= !to_square.to_bit_board();
+            }
+
+            rook_square_to_square_ray_lookup[from_index * 64 + to_index] =
+                rook_square_to_square_ray;
+
+            to_index += 1
+        }
+        from_index += 1;
+    }
+    rook_square_to_square_ray_lookup
+}
+
 //Size 65 for king free positions
-pub const fn gen_king_moves() -> [u64; 65] {
+pub const fn gen_free_king_moves() -> [u64; 65] {
     let mut king_moves = [0u64; 65];
     let mut i = 0;
     while i < 64 {

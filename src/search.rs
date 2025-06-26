@@ -75,7 +75,6 @@ fn min_max_search(game: &Game, depth: u32, mut alpha: i32, mut beta: i32) -> i32
         GameResult::Ongoing => {}
     }
 
-
     SearchMetrics::change_timing_kind(TimingKind::MoveOrdering);
 
     let legal_moves = sort_moves(legal_moves_unordered, game.clone(), maximize_score);
@@ -130,9 +129,12 @@ fn q_search(game: &Game, mut alpha: i32, mut beta: i32) -> i32 {
 
     SearchMetrics::change_timing_kind(TimingKind::MoveGen);
 
-    let legal_captures_unordered: MoveList = game.into_iter().only_captures().collect();
+    //TODO: better stalemate detection
+    let legal_moves: MoveList = game.get_legal_moves();
 
-    match check_game_result(game, legal_captures_unordered.len()) {
+    SearchMetrics::increment_positions_generated(legal_moves.len() as u64);
+
+    match check_game_result(game, legal_moves.len()) {
         GameResult::WhiteWins => return i32::MAX - 1,
 
         GameResult::BlackWins => return i32::MIN + 1,
@@ -142,13 +144,13 @@ fn q_search(game: &Game, mut alpha: i32, mut beta: i32) -> i32 {
         GameResult::Ongoing => {}
     }
 
+    let legal_captures_unordered: MoveList = game.into_iter().only_captures().collect();
+
     SearchMetrics::change_timing_kind(TimingKind::MoveOrdering);
 
     let legal_captures = sort_moves(legal_captures_unordered, game.clone(), maximize_score);
 
     SearchMetrics::change_timing_kind(TimingKind::QSearch);
-
-    SearchMetrics::increment_positions_generated(legal_captures.len() as u64);
 
     if legal_captures.is_empty() {
         SearchMetrics::change_timing_kind(TimingKind::Evaluation);

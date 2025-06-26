@@ -1,7 +1,7 @@
 use chessie::prelude::*;
 use dotenv::dotenv;
 use futures_util::StreamExt;
-use licheszter::models::game::Color as LichessColor;
+use licheszter::models::game::{Color as LichessColor, GameStatus};
 use licheszter::{client::Licheszter, models::board::BoardState};
 
 use hhz::search::search_entry;
@@ -44,6 +44,9 @@ async fn main() {
                                     println!("Game full state: {:?}", game_full);
                                 }
                                 BoardState::GameState(game_state) => {
+                                    if game_state.status != GameStatus::Started {
+                                        continue;
+                                    }
                                     let chessie_result = chessie_game
                                         .make_move_uci(game_state.moves.split(" ").last().unwrap());
                                     if let Err(e) = chessie_result {
@@ -56,7 +59,8 @@ async fn main() {
                                         );
                                         continue; // Wait for the opponent's move
                                     }
-                                    calculate_and_play_move(chessie_game, depth, &client, &game.id).await;
+                                    calculate_and_play_move(chessie_game, depth, &client, &game.id)
+                                        .await;
                                 }
                                 BoardState::ChatLine(chat_line) => {
                                     println!("Chat line: {}", chat_line.text);
@@ -98,7 +102,12 @@ async fn main() {
     }
 }
 
-async fn calculate_and_play_move(chessie_game: Game, depth: u32, client: &Licheszter, game_id: &str) {
+async fn calculate_and_play_move(
+    chessie_game: Game,
+    depth: u32,
+    client: &Licheszter,
+    game_id: &str,
+) {
     println!("Calculating best move for depth: {}", depth);
     if let Some(best_move) = search_entry(&chessie_game, depth) {
         println!("Best move: {}", best_move);

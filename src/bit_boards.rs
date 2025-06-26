@@ -42,17 +42,19 @@ pub const RANK_6: u64 = 0x0000FF0000000000;
 pub const RANK_7: u64 = 0x00FF000000000000;
 pub const RANK_8: u64 = 0xFF00000000000000;
 
-pub static WHITE_PAWN_ADVANCE_LOOKUP: [u64; 64] = gen_white_pawn_advances();
-pub static BLACK_PAWN_ADVANCE_LOOKUP: [u64; 64] = gen_black_pawn_advances();
-pub static WHITE_PAWN_ATTACKS_LOOKUP: [u64; 64] = gen_white_pawn_attacks();
-pub static BLACK_PAWN_ATTACKS_LOOKUP: [u64; 64] = gen_black_pawn_attacks();
-pub static KNIGHT_LOOKUP: [u64; 64] = gen_knight_lookup();
-pub static KING_LOOKUP: [u64; 65] = gen_king_moves();
+pub static WHITE_FREE_PAWN_ADVANCE_LOOKUP: [u64; 64] = gen_free_white_pawn_advances();
+pub static BLACK_FREE_PAWN_ADVANCE_LOOKUP: [u64; 64] = gen_free_black_pawn_advances();
+pub static WHITE_FREE_PAWN_ATTACKS_LOOKUP: [u64; 64] = gen_free_white_pawn_attacks();
+pub static BLACK_FREE_PAWN_ATTACKS_LOOKUP: [u64; 64] = gen_free_black_pawn_attacks();
+pub static FREE_KNIGHT_LOOKUP: [u64; 64] = gen_free_kight_moves();
+pub static FREE_ROOK_LOOKUP: [u64; 64] = gen_free_rook_moves();
+pub static ROOK_SQUARE_TO_SQUARE_RAY_LOOKUP: [u64; 64 * 64] = gen_rook_square_to_square_ray();
+pub static FREE_KING_LOOKUP: [u64; 65] = gen_free_king_moves();
 
-pub static BISHOP_LOOKUP_MASK: [u64; 64] = gen_free_bishop_mask();
+pub static BISHOP_LOOKUP_MASK: [u64; 64] = gen_free_bishop_mask_edges_removed();
 static BISHOP_LOOKUP: &[u8] = include_bytes_align_as!(u64, "../assets/bishop_lookup.bin");
 
-pub static ROOK_LOOKUP_MASK: [u64; 64] = gen_free_rook_mask();
+pub static ROOK_LOOKUP_MASK: [u64; 64] = gen_free_rook_mask_edges_removed();
 static ROOK_LOOKUP: &[u8] = include_bytes_align_as!(u64, "../assets/rook_lookup.bin");
 
 // TODO: rename or multiply by 64
@@ -68,8 +70,8 @@ pub const fn square_index_to_bitboard(index: usize) -> u64 {
 
 //TODO: measure different methods
 #[inline(always)]
-pub fn bitboard_to_square_index(bitboard: u64) -> i64 {
-    unsafe { _mm_tzcnt_64(bitboard) }
+pub fn bitboard_to_square_index(bitboard: u64) -> usize {
+    unsafe { _mm_tzcnt_64(bitboard) as usize }
 }
 
 #[inline(always)]
