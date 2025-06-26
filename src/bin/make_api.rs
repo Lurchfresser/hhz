@@ -2,10 +2,9 @@ use rouille::input::json_input;
 use rouille::{Response, router, try_or_400};
 use serde::{Deserialize, Serialize};
 
-
 #[derive(Clone, Debug, Deserialize, Serialize)]
 struct GameRequest {
-    pub fen: String,  // Changed from &'a str to String
+    pub fen: String, // Changed from &'a str to String
 }
 
 fn main() {
@@ -27,5 +26,8 @@ fn main() {
            _ => Response::text("Not found").with_status_code(404)
 
         )
+        .with_additional_header("Access-Control-Allow-Origin", "*") // Allow any origin
+        .with_additional_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+        .with_additional_header("Access-Control-Allow-Headers", "Content-Type")
     });
 }
