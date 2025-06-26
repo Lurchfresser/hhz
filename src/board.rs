@@ -360,6 +360,13 @@ impl Board {
         } else {
             self.white_rooks
         };
+
+        let enemy_bishop_squares = if self.white_to_move {
+            self.black_bishops
+        } else {
+            self.white_bishops
+        };
+
         let enemy_queens_squares = if self.white_to_move {
             self.black_queens
         } else {
@@ -369,23 +376,52 @@ impl Board {
         let mut potential_rook_piners = FREE_ROOK_LOOKUP[bitboard_to_square_index(kingsquare)]
             & (enemy_queens_squares | enemy_rooks_squares);
 
-        println!("{}", potential_rook_piners);
+        println!("potential_rook_piners: {}", potential_rook_piners);
 
         while potential_rook_piners != 0 {
             let rook_or_queen_square_index = pop_lsb(&mut potential_rook_piners);
             let ray = ROOK_SQUARE_TO_SQUARE_RAY_LOOKUP
                 [(rook_or_queen_square_index as usize) * 64 + king_square_index];
+            // we need to check for all pieces, so no enemy pieces block the pin
+            // this is later masked out to 0 with the "my_pieces & ray" instruction
             let pieces_between = ray & self.all_pieces;
             if pieces_between.count_ones() == 0 {
+                println!("rook check detected");
                 //TODO: this is check
             } else if pieces_between.count_ones() == 1 {
-                let my_pieces = if (self.white_to_move) {
+                let my_pieces = if self.white_to_move {
                     self.white_pieces
                 } else {
                     self.black_pieces
                 };
                 let pins = my_pieces & ray;
-                println!("pins: {}", pins);
+                println!("rook pins: {}", pins);
+            }
+        }
+
+        let mut potential_bishop_piners = FREE_BISHOP_LOOKUP[bitboard_to_square_index(kingsquare)]
+            & (enemy_queens_squares | enemy_bishop_squares);
+
+        println!("potential_bishop_piners: {}", potential_bishop_piners);
+
+        while potential_bishop_piners != 0 {
+            let bishop_or_queen_square_index = pop_lsb(&mut potential_bishop_piners);
+            let ray = BISHOP_SQUARE_TO_SQUARE_RAY_LOOKUP
+                [(bishop_or_queen_square_index as usize) * 64 + king_square_index];
+            // we need to check for all pieces, so no enemy pieces block the pin
+            // this is later masked out to 0 with the "my_pieces & ray" instruction
+            let pieces_between = ray & self.all_pieces;
+            if pieces_between.count_ones() == 0 {
+                println!("bishop check detected");
+                //TODO: this is check
+            } else if pieces_between.count_ones() == 1 {
+                let my_pieces = if self.white_to_move {
+                    self.white_pieces
+                } else {
+                    self.black_pieces
+                };
+                let pins = my_pieces & ray;
+                println!("bishop pins: {}", pins);
             }
         }
         //todo!()

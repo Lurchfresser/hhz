@@ -1,12 +1,11 @@
 use hhz::board::Board;
-use hhz::const_move_gen::{
-    gen_free_rook_mask_edges_removed, gen_free_rook_moves, gen_rook_square_to_square_ray,
-};
+use hhz::const_move_gen::*;
 
 fn main() {
-    let board = Board::from_fen("1q6/1P6/4r3/8/1K2r1r1/1P6/1R6/1r2r3 w - - 0 1");
+    let board = Board::from_fen("b7/4r2q/2P3P1/8/3rKP1q/3P4/6p1/1b5b w - - 0 1");
 
     board.generate_pins();
+    // let test = gen_free_bishop_moves();
     
     println!("hi");
 }

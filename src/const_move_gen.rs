@@ -124,7 +124,60 @@ pub const fn gen_free_kight_moves() -> [u64; 64] {
     knight_lookup
 }
 
-//TODO: const fn
+pub const fn gen_free_bishop_moves() -> [u64; 64] {
+    let mut free_bishop_lookup = [0u64; 64];
+
+    // --- Part 1: Generate all diagonal masks into local arrays ---
+
+    // There are 15 main-diagonals (a1-h8 style) and 15 anti-diagonals (a8-h1 style).
+    let mut main_diagonals = [0u64; 15];
+    let mut anti_diagonals = [0u64; 15];
+
+    let mut i: usize = 0;
+    while i < 64 {
+        let rank = (i / 8) as i8;
+        let file = (i % 8) as i8;
+        let bit = 1u64 << i;
+
+        // For main-diagonals, the difference (rank - file) is constant.
+        // It ranges from -7 (h1) to +7 (a8). We add 7 to map this to an index [0, 14].
+        let main_idx = (rank - file + 7) as usize;
+        main_diagonals[main_idx] |= bit;
+
+        // For anti-diagonals, the sum (rank + file) is constant.
+        // It ranges from 0 (a1) to 14 (h8), which is already a valid index range [0, 14].
+        let anti_idx = (rank + file) as usize;
+        anti_diagonals[anti_idx] |= bit;
+
+        i += 1;
+    }
+
+    // --- Part 2: Use the generated masks to build the final lookup table ---
+
+    let mut s: usize = 0;
+    while s < 64 {
+        let rank = (s / 8) as i8;
+        let file = (s % 8) as i8;
+
+        // Find the index for the current square's main-diagonal.
+        let main_diagonal_idx = (rank - file + 7) as usize;
+        let main_diagonal_mask = main_diagonals[main_diagonal_idx];
+
+        // Find the index for the current square's anti-diagonal.
+        let anti_diagonal_idx = (rank + file) as usize;
+        let anti_diagonal_mask = anti_diagonals[anti_diagonal_idx];
+
+        // The moves for a bishop are the combination of its two diagonals.
+        // Using XOR (^) combines the bitmasks and cleverly removes the starting
+        // square itself, since it's the only square present in both masks.
+        free_bishop_lookup[s] = main_diagonal_mask ^ anti_diagonal_mask;
+
+        s += 1;
+    }
+
+    free_bishop_lookup
+}
+
 pub const fn gen_free_bishop_mask_edges_removed() -> [u64; 64] {
     let mut free_bishop_lookup = [0u64; 64];
     let mut s = 0;
@@ -202,6 +255,64 @@ pub const fn gen_free_bishop_mask_edges_removed() -> [u64; 64] {
     free_bishop_lookup
 }
 
+/// Generates a bitmask for the ray between two squares for a bishop.
+/// The mask contains only the squares *between* the from and to squares.
+pub const fn gen_bishop_square_to_square_ray() -> [u64; 64 * 64] {
+    let mut bishop_square_to_square_ray_lookup = [0u64; 64 * 64];
+    let mut from_index = 0;
+    while from_index < 64 {
+        let mut to_index = 0;
+        while to_index < 64 {
+            // No ray if it's the same square
+            if from_index == to_index {
+                to_index += 1;
+                continue;
+            }
+            let from_square = square_index_to_square(from_index);
+            let to_square = square_index_to_square(to_index);
+
+            let mut bishop_square_to_square_ray = 0u64;
+
+            let mut rank_diff = (to_square.rank as i16) - (from_square.rank as i16);
+            let mut file_diff = (to_square.file as i16) - (from_square.file as i16);
+
+            // Check if they are on the same diagonal
+            if rank_diff.abs() == file_diff.abs() {
+                // Loop while the distance is greater than 1 to get only squares between
+                while rank_diff.abs() > 1 {
+                    // Move one step closer to the from_square
+                    if rank_diff > 0 {
+                        rank_diff -= 1;
+                    } else {
+                        rank_diff += 1;
+                    }
+                    if file_diff > 0 {
+                        file_diff -= 1;
+                    } else {
+                        file_diff += 1;
+                    }
+
+                    let new_rank = (from_square.rank as i16) + rank_diff;
+                    let new_file = (from_square.file as i16) + file_diff;
+
+                    bishop_square_to_square_ray |= Square {
+                        rank: new_rank as u64,
+                        file: new_file as u64,
+                    }
+                    .to_bit_board();
+                }
+            }
+
+            bishop_square_to_square_ray_lookup[from_index * 64 + to_index] =
+                bishop_square_to_square_ray;
+
+            to_index += 1;
+        }
+        from_index += 1;
+    }
+    bishop_square_to_square_ray_lookup
+}
+
 pub const fn gen_free_rook_moves() -> [u64; 64] {
     let mut free_rook_lookup = [0u64; 64];
     let mut s: usize = 0;
@@ -272,7 +383,7 @@ pub const fn gen_rook_square_to_square_ray() -> [u64; 64 * 64] {
                         file: new_file as u64,
                     }
                     .to_bit_board();
-                    if (horizontal_distance > 0) {
+                    if horizontal_distance > 0 {
                         horizontal_distance -= 1
                     } else {
                         horizontal_distance += 1
@@ -280,7 +391,7 @@ pub const fn gen_rook_square_to_square_ray() -> [u64; 64 * 64] {
                 }
                 rook_square_to_square_ray &= !to_square.to_bit_board();
             }
-            
+
             if from_square.file == to_square.file {
                 let mut vertical_distance = (to_square.rank as i16) - (from_square.rank as i16);
                 while vertical_distance.abs() != 0 {
@@ -290,7 +401,7 @@ pub const fn gen_rook_square_to_square_ray() -> [u64; 64 * 64] {
                         rank: new_rank as u64,
                     }
                     .to_bit_board();
-                    if (vertical_distance > 0) {
+                    if vertical_distance > 0 {
                         vertical_distance -= 1
                     } else {
                         vertical_distance += 1
