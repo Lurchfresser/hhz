@@ -546,6 +546,7 @@ dependencies = [
  "regex",
  "rouille",
  "serde",
+ "serde_json",
  "tokio",
 ]
 
