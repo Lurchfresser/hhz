@@ -8,9 +8,16 @@ struct GameRequest {
 }
 
 fn main() {
-    println!("Starting server on 0.0.0.0:42069");
-    rouille::start_server("0.0.0.0:42069", move |request| {
+    println!("Starting server on localhost:42069");
+    rouille::start_server("localhost:42069", move |request| {
         println!("received request on url: {}", request.url());
+        if request.method() == "OPTIONS" {
+            return Response::text("")
+                .with_status_code(200)
+                .with_additional_header("Access-Control-Allow-Origin", "*") // Allow any origin
+                .with_additional_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+                .with_additional_header("Access-Control-Allow-Headers", "Content-Type");
+        }
         router!(request,
             // first route
             (POST) (/new-game) => {
