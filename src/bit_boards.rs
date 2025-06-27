@@ -130,10 +130,10 @@ impl Square {
     }
 }
 
-pub fn pop_lsb(bit_board: &mut u64) -> u32 {
+pub fn pop_lsb(bit_board: &mut u64) -> usize {
     let trailing = bit_board.trailing_zeros();
     *bit_board ^= 1 << trailing;
-    trailing
+    trailing as usize
 }
 
 pub fn get_rook_moves(square: u32, blockers: u64) -> u64 {
@@ -150,8 +150,8 @@ pub fn get_rook_moves(square: u32, blockers: u64) -> u64 {
     test
 }
 
-pub fn get_bishop_moves(square: u32, blockers: u64) -> u64 {
-    let bishop_moves = BISHOP_LOOKUP_MASK[square as usize];
+pub fn get_bishop_moves(square: usize, blockers: u64) -> u64 {
+    let bishop_moves = BISHOP_LOOKUP_MASK[square];
     let lookup_index = unsafe { _pext_u64(blockers, bishop_moves) };
     let test = unsafe {
         let ptr: *const u64 = BISHOP_LOOKUP

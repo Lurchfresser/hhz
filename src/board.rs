@@ -230,6 +230,7 @@ impl Board {
         }
     }
 
+    //TODO: merge with gen-pseudo-legal-move-gen
     pub fn get_enemy_pawn_and_knight_checkers(&self) -> u64 {
         let king_index = if self.white_to_move {
             bitboard_to_square_index(self.white_king)
@@ -261,6 +262,30 @@ impl Board {
         let knight_attacks = FREE_KNIGHT_LOOKUP[king_index] & enemy_knights;
 
         knight_attacks | pawn_attacks
+    }
+
+    //TODO: add pawn structure lookup table
+    pub fn gen_pawn_attack_squares(&self, for_white: bool) -> u64 {
+        let mut pawns = if for_white {
+            self.white_pawns
+        } else {
+            self.black_pawns
+        };
+
+        #[allow(non_snake_case)]
+        let ATTACKS_LOOKUP = if self.white_to_move {
+            &WHITE_FREE_PAWN_ATTACKS_LOOKUP
+        } else {
+            &BLACK_FREE_PAWN_ATTACKS_LOOKUP
+        };
+
+        let mut pawn_attacks = 0u64;
+        while pawns != 0 {
+            let pawn_index = pop_lsb(&mut pawns) as usize;
+            // 1. Generate attacks
+            pawn_attacks |= ATTACKS_LOOKUP[pawn_index];
+        }
+        pawn_attacks
     }
 
     pub fn generate_pawn_moves(
@@ -345,6 +370,20 @@ impl Board {
         }
     }
 
+    pub fn generate_knight_attack_squares(&self, for_white: bool) -> u64 {
+        let mut knights = if for_white {
+            self.white_knights
+        } else {
+            self.black_knights
+        };
+        let mut knight_attacks = 0u64;
+        while knights != 0 {
+            let knight_index = pop_lsb(&mut knights) as usize;
+            knight_attacks |= FREE_KNIGHT_LOOKUP[knight_index];
+        }
+        knight_attacks
+    }
+
     pub fn generate_knight_moves(&self, moves: &mut MoveList, all_pinned_pieces: u64) {
         let mut unpinned_knights = if self.white_to_move {
             self.white_knights
@@ -366,6 +405,22 @@ impl Board {
                 moves.push(Move::new(knight_index, to_index))
             }
         }
+    }
+
+    pub fn generate_bishop_and_queen_attack_squares(&self, for_white: bool) -> u64 {
+        let mut bishops = if for_white {
+            self.white_bishops | self.white_queens
+        } else {
+            self.black_bishops | self.black_queens
+        };
+
+        let mut bishop_attacks = 0u64;
+        while bishops != 0 {
+            let bishop_index = pop_lsb(&mut bishops);
+            let bishop_attacks_looked_up = get_bishop_moves(bishop_index, self.all_pieces);
+            bishop_attacks |= bishop_attacks_looked_up
+        }
+        bishop_attacks
     }
 
     pub fn generate_bishop_and_queen_moves(
@@ -401,7 +456,7 @@ impl Board {
                 continue;
             }
 
-            let bishop_attacks_looked_up = get_bishop_moves(square_index as u32, self.all_pieces);
+            let bishop_attacks_looked_up = get_bishop_moves(square_index, self.all_pieces);
             let mut bishop_attacks = bishop_attacks_looked_up & !own_pieces;
 
             if (bit_board & bishop_pinned_pieces) != 0 {
@@ -421,6 +476,22 @@ impl Board {
             }
         }
         all_bishop_attacks
+    }
+
+    pub fn generate_rook_and_queen_attack_squares(&self, for_white: bool) -> u64 {
+        let mut rooks = if for_white {
+            self.white_rooks | self.white_queens
+        } else {
+            self.black_rooks | self.white_queens
+        };
+
+        let mut rook_attacks = 0u64;
+
+        while rooks != 0 {
+            let rook_index = pop_lsb(&mut rooks) as usize;
+            rook_attacks |= get_rook_moves(rook_index as u32, self.all_pieces);
+        }
+        rook_attacks
     }
 
     pub fn generate_rook_and_queen_moves(
@@ -452,12 +523,12 @@ impl Board {
         while rooks != 0 {
             let rook_index = pop_lsb(&mut rooks) as usize;
             let rook_bit_board = square_index_to_bitboard(rook_index);
-            if (rook_bit_board & bishop_pinned_pieces != 0) {
+            if rook_bit_board & bishop_pinned_pieces != 0 {
                 continue;
             }
             let rook_attacks_looked_up = get_rook_moves(rook_index as u32, self.all_pieces);
             let mut rook_attacks = rook_attacks_looked_up & !own_pieces;
-            if (rook_bit_board & rook_pinned_pieces != 0) {
+            if rook_bit_board & rook_pinned_pieces != 0 {
                 if HORIZONTALS_LOOKUP[rook_index] & own_king != 0 {
                     rook_attacks &= HORIZONTALS_LOOKUP[rook_index]
                 } else {
@@ -473,14 +544,27 @@ impl Board {
         all_rook_attacks
     }
 
-    pub fn generate_king_moves<const IN_CHECK: bool>(&self, moves: MoveList) -> u64 {
-        let king_moves = if self.white_to_move {
-            FREE_KING_LOOKUP[self.white_king.trailing_zeros() as usize] & !self.white_pieces
+    pub fn generate_king_moves(&self, moves: &mut MoveList, enemy_attack_square: u64) {
+        let king_index = if self.white_to_move {
+            bitboard_to_square_index(self.white_king)
         } else {
-            FREE_KING_LOOKUP[self.black_king.trailing_zeros() as usize] & !self.black_pieces
+            bitboard_to_square_index(self.black_king)
         };
 
-        if IN_CHECK { king_moves } else { king_moves }
+        let own_pieces = if (self.white_to_move) {
+            self.white_pieces
+        } else {
+            self.black_pieces
+        };
+
+        let mut legal_king_moves =
+            FREE_KING_LOOKUP[king_index] & (!own_pieces) & (!enemy_attack_square);
+
+        while legal_king_moves != 0 {
+            let to_index = pop_lsb(&mut legal_king_moves);
+
+            moves.push(Move::new(king_index, to_index))
+        }
     }
 
     pub fn generate_pins_and_sliding_checkers(&self) -> (u64, u64, u64) {
@@ -575,6 +659,17 @@ impl Board {
         let all_pinned_pieces = bishop_pinned_pieces | rook_pinned_pieces;
         let checkers = sliding_checkers | self.get_enemy_pawn_and_knight_checkers();
 
+        let enemy_pawn_attacks = self.gen_pawn_attack_squares(!self.white_to_move);
+        let enemy_knight_attacks = self.generate_knight_attack_squares(!self.white_to_move);
+        let enemy_bishop_and_queen_attacks =
+            self.generate_bishop_and_queen_attack_squares(!self.white_to_move);
+        let enemy_rook_and_queen_attacks =
+            self.generate_rook_and_queen_attack_squares(!self.white_to_move);
+        let all_enemy_attack_squares = enemy_pawn_attacks
+            | enemy_knight_attacks
+            | enemy_bishop_and_queen_attacks
+            | enemy_rook_and_queen_attacks;
+
         match checkers.count_ones() {
             //No checks
             0 => {
@@ -590,8 +685,9 @@ impl Board {
                     bishop_pinned_pieces,
                     rook_pinned_pieces,
                 );
+                self.generate_king_moves(&mut moves, all_enemy_attack_squares);
             }
-            //One check, king and blocking moves only
+            //One check, king and blocking moves or capturing checker only
             1 => {}
             //2 checks, only king moves possible
             2 => {
