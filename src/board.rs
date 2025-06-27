@@ -265,7 +265,7 @@ impl Board {
 
     pub fn generate_pawn_moves(
         &self,
-        moves: &MoveList,
+        moves: &mut MoveList,
         rook_pinned_pieces: u64,
         bishop_pinned_pieces: u64,
     ) {
@@ -279,6 +279,12 @@ impl Board {
             self.black_pieces
         } else {
             self.white_pieces
+        };
+
+        let own_king = if self.white_to_move {
+            self.white_king
+        } else {
+            self.black_king
         };
 
         #[allow(non_snake_case)]
@@ -297,16 +303,15 @@ impl Board {
 
         while pawns != 0 {
             let mut moves_for_pawn = 0u64;
-            let square_index = pop_lsb(&mut pawns) as usize;
-            let pawn_bit_board = square_index_to_bitboard(square_index);
+            let pawn_index = pop_lsb(&mut pawns) as usize;
+            let pawn_bit_board = square_index_to_bitboard(pawn_index);
 
             // 1. Generate attacks
-            moves_for_pawn |=
-                ATTACKS_LOOKUP[square_index] & (enemy_pieces | self.en_passant_target);
+            moves_for_pawn |= ATTACKS_LOOKUP[pawn_index] & (enemy_pieces | self.en_passant_target);
 
             // 2. Generate advances
             let blockers = self.all_pieces ^ pawn_bit_board;
-            let advances = ADVANCE_LOOKUP[square_index];
+            let advances = ADVANCE_LOOKUP[pawn_index];
 
             if self.white_to_move {
                 // For white, shift blockers UP to see if they block the double advance
@@ -316,6 +321,26 @@ impl Board {
                 // For black, shift blockers DOWN to see if they block the double advance
                 let invalid_advances = blockers | (blockers >> 8);
                 moves_for_pawn |= advances & !invalid_advances;
+            }
+
+            if pawn_bit_board & bishop_pinned_pieces != 0 {
+                if NORTH_EAST_LOOKUP[pawn_index] & own_king != 0 {
+                    moves_for_pawn &= NORTH_EAST_LOOKUP[pawn_index]
+                } else {
+                    moves_for_pawn &= NORTH_WEST_LOOKUP[pawn_index]
+                }
+            } else if pawn_bit_board & rook_pinned_pieces != 0 {
+                if HORIZONTALS_LOOKUP[pawn_index] & own_king != 0 {
+                    moves_for_pawn &= HORIZONTALS_LOOKUP[pawn_index]
+                } else {
+                    moves_for_pawn &= VERTICALSS_LOOKUP[pawn_index]
+                }
+            }
+
+            while moves_for_pawn != 0 {
+                let to_index = pop_lsb(&mut moves_for_pawn) as usize;
+                //TODO: add en passant target
+                moves.push(Move::new(pawn_index, to_index));
             }
         }
     }
@@ -343,16 +368,16 @@ impl Board {
         }
     }
 
-    pub fn generate_bishop_moves(
+    pub fn generate_bishop_and_queen_moves(
         &self,
         moves: &mut MoveList,
         bishop_pinned_pieces: u64,
         rook_pinned_pieces: u64,
-    ) {
+    ) -> u64 {
         let mut bishops = if self.white_to_move {
-            self.white_bishops
+            self.white_bishops | self.white_queens
         } else {
-            self.black_bishops
+            self.black_bishops | self.black_queens
         };
 
         let own_pieces = if self.white_to_move {
@@ -367,6 +392,7 @@ impl Board {
             self.black_king
         };
 
+        let mut all_bishop_attacks = 0u64;
         while bishops != 0 {
             let square_index = pop_lsb(&mut bishops) as usize;
             let bit_board = square_index_to_bitboard(square_index as usize);
@@ -388,18 +414,25 @@ impl Board {
                 }
             }
 
+            all_bishop_attacks |= bishop_attacks;
             while bishop_attacks != 0 {
                 let to_index = pop_lsb(&mut bishop_attacks) as usize;
                 moves.push(Move::new(square_index, to_index));
             }
         }
+        all_bishop_attacks
     }
 
-    pub fn generate_rook_moves(&self) {
+    pub fn generate_rook_and_queen_moves(
+        &self,
+        moves: &mut MoveList,
+        bishop_pinned_pieces: u64,
+        rook_pinned_pieces: u64,
+    ) -> u64 {
         let mut rooks = if self.white_to_move {
-            self.white_rooks
+            self.white_rooks | self.white_queens
         } else {
-            self.black_rooks
+            self.black_rooks | self.white_queens
         };
 
         let own_pieces = if self.white_to_move {
@@ -408,12 +441,36 @@ impl Board {
             self.black_pieces
         };
 
+        let own_king = if self.white_to_move {
+            self.white_king
+        } else {
+            self.black_king
+        };
+
+        let mut all_rook_attacks = 0;
+
         while rooks != 0 {
-            let rook_attacks_looked_up =
-                get_rook_moves(pop_lsb(&mut rooks).try_into().unwrap(), self.all_pieces);
-            let rook_attacks = rook_attacks_looked_up & !own_pieces;
-            println!("rook attacks {}", rook_attacks);
+            let rook_index = pop_lsb(&mut rooks) as usize;
+            let rook_bit_board = square_index_to_bitboard(rook_index);
+            if (rook_bit_board & bishop_pinned_pieces != 0) {
+                continue;
+            }
+            let rook_attacks_looked_up = get_rook_moves(rook_index as u32, self.all_pieces);
+            let mut rook_attacks = rook_attacks_looked_up & !own_pieces;
+            if (rook_bit_board & rook_pinned_pieces != 0) {
+                if HORIZONTALS_LOOKUP[rook_index] & own_king != 0 {
+                    rook_attacks &= HORIZONTALS_LOOKUP[rook_index]
+                } else {
+                    rook_attacks &= VERTICALSS_LOOKUP[rook_index]
+                }
+            }
+            all_rook_attacks |= rook_attacks;
+            while rook_attacks != 0 {
+                let to_index = pop_lsb(&mut rook_attacks);
+                moves.push(Move::new(rook_index, to_index as usize))
+            }
         }
+        all_rook_attacks
     }
 
     pub fn generate_king_moves<const IN_CHECK: bool>(&self, moves: MoveList) -> u64 {
@@ -521,9 +578,18 @@ impl Board {
         match checkers.count_ones() {
             //No checks
             0 => {
-                // self.generate_pawn_moves(&moves, rook_pinned_pieces, bishop_pinned_pieces);
+                self.generate_pawn_moves(&mut moves, rook_pinned_pieces, bishop_pinned_pieces);
                 self.generate_knight_moves(&mut moves, all_pinned_pieces);
-                self.generate_bishop_moves(&mut moves, bishop_pinned_pieces, rook_pinned_pieces);
+                self.generate_bishop_and_queen_moves(
+                    &mut moves,
+                    bishop_pinned_pieces,
+                    rook_pinned_pieces,
+                );
+                self.generate_rook_and_queen_moves(
+                    &mut moves,
+                    bishop_pinned_pieces,
+                    rook_pinned_pieces,
+                );
             }
             //One check, king and blocking moves only
             1 => {}
