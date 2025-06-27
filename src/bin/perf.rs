@@ -4,7 +4,7 @@ use std::collections::HashSet;
 
 fn main() {
     // let fen = "8/8/8/8/3K1N1R/8/8/8 w - - 0 1";
-    let fen = "r1bqk1nr/ppp2ppp/2np4/1Bb1p3/4P1Q1/2N5/PPPP1PPP/R1B1K1NR w KQkq - 0 1";
+    let fen = "3r4/5N2/8/8/1B5B/8/1R5q/3K4 w - - 0 1";
     let board = Board::from_fen(fen);
     let chessie_board = chessie::Game::from_fen(fen).unwrap();
 

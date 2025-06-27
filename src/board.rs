@@ -14,6 +14,13 @@ pub enum CastlingRights {
     None,
 }
 
+struct PinAndCheckInfos {
+    sliding_checkers: u64,
+    stop_check_targets: u64,
+    bishop_pinned_pieces: u64,
+    rook_pinned_pieces: u64,
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum PieceKind {
     Pawn = 0,
@@ -293,6 +300,7 @@ impl Board {
         moves: &mut MoveList,
         rook_pinned_pieces: u64,
         bishop_pinned_pieces: u64,
+        to_mask: u64,
     ) {
         let mut pawns = if self.white_to_move {
             self.white_pawns
@@ -362,6 +370,8 @@ impl Board {
                 }
             }
 
+            moves_for_pawn &= to_mask;
+
             while moves_for_pawn != 0 {
                 let to_index = pop_lsb(&mut moves_for_pawn) as usize;
                 //TODO: add en passant target
@@ -384,7 +394,12 @@ impl Board {
         knight_attacks
     }
 
-    pub fn generate_knight_moves(&self, moves: &mut MoveList, all_pinned_pieces: u64) {
+    pub fn generate_knight_moves(
+        &self,
+        moves: &mut MoveList,
+        all_pinned_pieces: u64,
+        to_mask: u64,
+    ) {
         let mut unpinned_knights = if self.white_to_move {
             self.white_knights
         } else {
@@ -399,7 +414,7 @@ impl Board {
 
         while unpinned_knights != 0 {
             let knight_index = pop_lsb(&mut unpinned_knights) as usize;
-            let mut knight_attacks = FREE_KNIGHT_LOOKUP[knight_index] & !own_pieces;
+            let mut knight_attacks = (FREE_KNIGHT_LOOKUP[knight_index] & !own_pieces) & to_mask;
             while knight_attacks != 0 {
                 let to_index = pop_lsb(&mut knight_attacks) as usize;
                 moves.push(Move::new(knight_index, to_index))
@@ -428,7 +443,8 @@ impl Board {
         moves: &mut MoveList,
         bishop_pinned_pieces: u64,
         rook_pinned_pieces: u64,
-    ) -> u64 {
+        to_mask: u64,
+    ) {
         let mut bishops = if self.white_to_move {
             self.white_bishops | self.white_queens
         } else {
@@ -447,7 +463,6 @@ impl Board {
             self.black_king
         };
 
-        let mut all_bishop_attacks = 0u64;
         while bishops != 0 {
             let square_index = pop_lsb(&mut bishops) as usize;
             let bit_board = square_index_to_bitboard(square_index as usize);
@@ -469,13 +484,12 @@ impl Board {
                 }
             }
 
-            all_bishop_attacks |= bishop_attacks;
+            bishop_attacks &= to_mask;
             while bishop_attacks != 0 {
                 let to_index = pop_lsb(&mut bishop_attacks) as usize;
                 moves.push(Move::new(square_index, to_index));
             }
         }
-        all_bishop_attacks
     }
 
     pub fn generate_rook_and_queen_attack_squares(&self, for_white: bool) -> u64 {
@@ -499,6 +513,7 @@ impl Board {
         moves: &mut MoveList,
         bishop_pinned_pieces: u64,
         rook_pinned_pieces: u64,
+        to_mask: u64,
     ) -> u64 {
         let mut rooks = if self.white_to_move {
             self.white_rooks | self.white_queens
@@ -535,6 +550,7 @@ impl Board {
                     rook_attacks &= VERTICALSS_LOOKUP[rook_index]
                 }
             }
+            rook_attacks &= to_mask;
             all_rook_attacks |= rook_attacks;
             while rook_attacks != 0 {
                 let to_index = pop_lsb(&mut rook_attacks);
@@ -544,7 +560,12 @@ impl Board {
         all_rook_attacks
     }
 
-    pub fn generate_king_moves(&self, moves: &mut MoveList, enemy_attack_square: u64) {
+    pub fn generate_king_moves(
+        &self,
+        moves: &mut MoveList,
+        enemy_attack_square: u64,
+        to_mask: u64,
+    ) {
         let king_index = if self.white_to_move {
             bitboard_to_square_index(self.white_king)
         } else {
@@ -558,7 +579,7 @@ impl Board {
         };
 
         let mut legal_king_moves =
-            FREE_KING_LOOKUP[king_index] & (!own_pieces) & (!enemy_attack_square);
+            FREE_KING_LOOKUP[king_index] & (!own_pieces) & (!enemy_attack_square) & to_mask;
 
         while legal_king_moves != 0 {
             let to_index = pop_lsb(&mut legal_king_moves);
@@ -567,7 +588,9 @@ impl Board {
         }
     }
 
-    pub fn generate_pins_and_sliding_checkers(&self) -> (u64, u64, u64) {
+    pub fn generate_pins_and_sliding_checkers(&self) -> PinAndCheckInfos {
+        let mut stop_check_targets = 0u64;
+
         let kingsquare = if self.white_to_move {
             self.white_king
         } else {
@@ -609,6 +632,7 @@ impl Board {
             if pieces_between.count_ones() == 0 {
                 //Check detected
                 sliding_checkers |= square_index_to_bitboard(rook_or_queen_square_index as usize);
+                stop_check_targets |= ray | sliding_checkers;
             } else if pieces_between.count_ones() == 1 {
                 let my_pieces = if self.white_to_move {
                     self.white_pieces
@@ -634,6 +658,7 @@ impl Board {
             if pieces_between.count_ones() == 0 {
                 //Check detected
                 sliding_checkers |= square_index_to_bitboard(bishop_or_queen_square_index as usize);
+                stop_check_targets |= ray | sliding_checkers;
             } else if pieces_between.count_ones() == 1 {
                 let my_pieces = if self.white_to_move {
                     self.white_pieces
@@ -646,16 +671,22 @@ impl Board {
         }
         //todo!()
         //TODO: move in struct
-        (sliding_checkers, bishop_pinned_pieces, rook_pinned_pieces)
+        PinAndCheckInfos {
+            sliding_checkers,
+            stop_check_targets,
+            bishop_pinned_pieces,
+            rook_pinned_pieces,
+        }
     }
 
     pub fn generate_legal_moves_temp(&self) -> MoveList {
         let mut moves = MoveList::default();
 
-        let (sliding_checkers, bishop_pinned_pieces, rook_pinned_pieces) =
-            self.generate_pins_and_sliding_checkers();
-        let all_pinned_pieces = bishop_pinned_pieces | rook_pinned_pieces;
-        let checkers = sliding_checkers | self.get_enemy_pawn_and_knight_checkers();
+        let pin_and_check_infos = self.generate_pins_and_sliding_checkers();
+        let all_pinned_pieces =
+            pin_and_check_infos.bishop_pinned_pieces | pin_and_check_infos.rook_pinned_pieces;
+        let checkers =
+            pin_and_check_infos.sliding_checkers | self.get_enemy_pawn_and_knight_checkers();
 
         let enemy_pawn_attacks = self.gen_pawn_attack_squares(!self.white_to_move);
         let enemy_knight_attacks = self.generate_knight_attack_squares(!self.white_to_move);
@@ -671,25 +702,55 @@ impl Board {
         match checkers.count_ones() {
             //No checks
             0 => {
-                self.generate_pawn_moves(&mut moves, rook_pinned_pieces, bishop_pinned_pieces);
-                self.generate_knight_moves(&mut moves, all_pinned_pieces);
+                self.generate_pawn_moves(
+                    &mut moves,
+                    pin_and_check_infos.rook_pinned_pieces,
+                    pin_and_check_infos.bishop_pinned_pieces,
+                    u64::MAX,
+                );
+                self.generate_knight_moves(&mut moves, all_pinned_pieces, u64::MAX);
                 self.generate_bishop_and_queen_moves(
                     &mut moves,
-                    bishop_pinned_pieces,
-                    rook_pinned_pieces,
+                    pin_and_check_infos.bishop_pinned_pieces,
+                    pin_and_check_infos.rook_pinned_pieces,
+                    u64::MAX,
                 );
                 self.generate_rook_and_queen_moves(
                     &mut moves,
-                    bishop_pinned_pieces,
-                    rook_pinned_pieces,
+                    pin_and_check_infos.bishop_pinned_pieces,
+                    pin_and_check_infos.rook_pinned_pieces,
+                    u64::MAX,
                 );
-                self.generate_king_moves(&mut moves, all_enemy_attack_squares);
+                self.generate_king_moves(&mut moves, all_enemy_attack_squares, u64::MAX);
             }
             //One check, king and blocking moves or capturing checker only
-            1 => {}
+            1 => {
+                let stop_check_mask = checkers | pin_and_check_infos.stop_check_targets;
+                self.generate_pawn_moves(
+                    &mut moves,
+                    pin_and_check_infos.rook_pinned_pieces,
+                    pin_and_check_infos.bishop_pinned_pieces,
+                    stop_check_mask,
+                );
+                self.generate_knight_moves(&mut moves, all_pinned_pieces, stop_check_mask);
+                self.generate_bishop_and_queen_moves(
+                    &mut moves,
+                    pin_and_check_infos.bishop_pinned_pieces,
+                    pin_and_check_infos.rook_pinned_pieces,
+                    stop_check_mask,
+                );
+                self.generate_rook_and_queen_moves(
+                    &mut moves,
+                    pin_and_check_infos.bishop_pinned_pieces,
+                    pin_and_check_infos.rook_pinned_pieces,
+                    stop_check_mask,
+                );
+                // King should move out of the way and not to the check
+                self.generate_king_moves(&mut moves, all_enemy_attack_squares, u64::MAX);
+            }
             //2 checks, only king moves possible
             2 => {
-                // self.generate_king_moves::<true>();
+                self.generate_king_moves(&mut moves, all_enemy_attack_squares, u64::MAX);
             }
             _ => panic!(
                 "There cant be more than 2 checkers, but there are{}",
