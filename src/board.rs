@@ -617,14 +617,13 @@ impl Board {
                 };
                 let pins = my_pieces & ray;
                 rook_pinned_pieces |= pins;
-                println!("rook pins: {}", pins);
             }
         }
 
         let mut potential_bishop_piners = FREE_BISHOP_LOOKUP[bitboard_to_square_index(kingsquare)]
             & (enemy_queens_squares | enemy_bishop_squares);
 
-        let mut bishop_pinned_pieces = 064;
+        let mut bishop_pinned_pieces = 0u64;
         while potential_bishop_piners != 0 {
             let bishop_or_queen_square_index = pop_lsb(&mut potential_bishop_piners);
             let ray = BISHOP_SQUARE_TO_SQUARE_RAY_LOOKUP
@@ -643,7 +642,6 @@ impl Board {
                 };
                 let pins = my_pieces & ray;
                 bishop_pinned_pieces |= pins;
-                println!("bishop pins: {}", pins);
             }
         }
         //todo!()

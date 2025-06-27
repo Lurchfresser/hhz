@@ -146,7 +146,6 @@ pub fn get_rook_moves(square: u32, blockers: u64) -> u64 {
             as *const u64;
         *ptr
     };
-    println!("{}", test);
     test
 }
 
@@ -160,6 +159,5 @@ pub fn get_bishop_moves(square: usize, blockers: u64) -> u64 {
             as *const u64;
         *ptr
     };
-    println!("{}", test);
     test
 }
