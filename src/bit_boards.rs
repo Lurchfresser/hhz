@@ -53,6 +53,12 @@ pub static FREE_ROOK_LOOKUP: [u64; 64] = gen_free_rook_moves();
 pub static ROOK_SQUARE_TO_SQUARE_RAY_LOOKUP: [u64; 64 * 64] = gen_rook_square_to_square_ray();
 pub static FREE_KING_LOOKUP: [u64; 65] = gen_free_king_moves();
 
+pub static HORIZONTALS_LOOKUP: [u64; 64] = gen_horizontal_rays();
+pub static VERTICALSS_LOOKUP: [u64; 64] = gen_vertical_rays();
+
+pub static NORTH_EAST_LOOKUP: [u64; 64] = gen_north_east_rays();
+pub static NORTH_WEST_LOOKUP: [u64; 64] = gen_north_west_rays();
+
 pub static BISHOP_LOOKUP_MASK: [u64; 64] = gen_free_bishop_mask_edges_removed();
 static BISHOP_LOOKUP: &[u8] = include_bytes_align_as!(u64, "../assets/bishop_lookup.bin");
 

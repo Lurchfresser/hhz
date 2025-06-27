@@ -1,5 +1,10 @@
 use crate::bit_boards::*;
 use regex::Regex;
+use std::fmt;
+use std::fmt::{Display, Formatter};
+
+pub const MAX_NUM_MOVES: usize = 218;
+pub type MoveList = arrayvec::ArrayVec<Move, MAX_NUM_MOVES>;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum CastlingRights {
@@ -10,7 +15,14 @@ pub enum CastlingRights {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct Move {}
+pub enum PieceKind {
+    Pawn = 0,
+    Knight = 1,
+    Bishop = 2,
+    Rook = 3,
+    Queen = 4,
+    King = 5,
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Board {
@@ -217,7 +229,46 @@ impl Board {
             fullmove_number,
         }
     }
-    pub fn generate_pawn_moves(&self) {
+
+    pub fn get_enemy_pawn_and_knight_checkers(&self) -> u64 {
+        let king_index = if self.white_to_move {
+            bitboard_to_square_index(self.white_king)
+        } else {
+            bitboard_to_square_index(self.black_king)
+        };
+
+        let enemy_pawns = if self.white_to_move {
+            self.black_pawns
+        } else {
+            self.white_pawns
+        };
+
+        let enemy_knights = if self.white_to_move {
+            self.black_knights
+        } else {
+            self.white_knights
+        };
+
+        #[allow(non_snake_case)]
+        let ATTACKS_LOOKUP = if self.white_to_move {
+            &WHITE_FREE_PAWN_ATTACKS_LOOKUP
+        } else {
+            &BLACK_FREE_PAWN_ATTACKS_LOOKUP
+        };
+
+        let pawn_attacks = ATTACKS_LOOKUP[king_index] & enemy_pawns;
+
+        let knight_attacks = FREE_KNIGHT_LOOKUP[king_index] & enemy_knights;
+
+        knight_attacks | pawn_attacks
+    }
+
+    pub fn generate_pawn_moves(
+        &self,
+        moves: &MoveList,
+        rook_pinned_pieces: u64,
+        bishop_pinned_pieces: u64,
+    ) {
         let mut pawns = if self.white_to_move {
             self.white_pawns
         } else {
@@ -249,11 +300,11 @@ impl Board {
             let square_index = pop_lsb(&mut pawns) as usize;
             let pawn_bit_board = square_index_to_bitboard(square_index);
 
-            // 1. Generate attacks (this part was already correct)
+            // 1. Generate attacks
             moves_for_pawn |=
                 ATTACKS_LOOKUP[square_index] & (enemy_pieces | self.en_passant_target);
 
-            // 2. Generate advances (this is the corrected part)
+            // 2. Generate advances
             let blockers = self.all_pieces ^ pawn_bit_board;
             let advances = ADVANCE_LOOKUP[square_index];
 
@@ -266,20 +317,15 @@ impl Board {
                 let invalid_advances = blockers | (blockers >> 8);
                 moves_for_pawn |= advances & !invalid_advances;
             }
-
-            if moves_for_pawn != 0 {
-                println!("pawn: {}", pawn_bit_board);
-                println!("moves {}", moves_for_pawn);
-            }
         }
     }
 
-    pub fn generate_knight_moves(&self) {
-        let mut knights = if self.white_to_move {
+    pub fn generate_knight_moves(&self, moves: &mut MoveList, all_pinned_pieces: u64) {
+        let mut unpinned_knights = if self.white_to_move {
             self.white_knights
         } else {
             self.black_knights
-        };
+        } & !all_pinned_pieces;
 
         let own_pieces = if self.white_to_move {
             self.white_pieces
@@ -287,14 +333,22 @@ impl Board {
             self.black_pieces
         };
 
-        while knights != 0 {
-            let knight_index = pop_lsb(&mut knights) as usize;
-            let knight_attacks = FREE_KNIGHT_LOOKUP[knight_index] & !own_pieces;
-            println!("knight attacks {}", knight_attacks);
+        while unpinned_knights != 0 {
+            let knight_index = pop_lsb(&mut unpinned_knights) as usize;
+            let mut knight_attacks = FREE_KNIGHT_LOOKUP[knight_index] & !own_pieces;
+            while knight_attacks != 0 {
+                let to_index = pop_lsb(&mut knight_attacks) as usize;
+                moves.push(Move::new(knight_index, to_index))
+            }
         }
     }
 
-    pub fn generate_bishop_moves(&self) {
+    pub fn generate_bishop_moves(
+        &self,
+        moves: &mut MoveList,
+        bishop_pinned_pieces: u64,
+        rook_pinned_pieces: u64,
+    ) {
         let mut bishops = if self.white_to_move {
             self.white_bishops
         } else {
@@ -307,11 +361,37 @@ impl Board {
             self.black_pieces
         };
 
+        let own_king = if self.white_to_move {
+            self.white_king
+        } else {
+            self.black_king
+        };
+
         while bishops != 0 {
-            let bishop_attacks_looked_up =
-                get_bishop_moves(pop_lsb(&mut bishops).try_into().unwrap(), self.all_pieces);
-            let bishop_attacks = bishop_attacks_looked_up & !own_pieces;
-            println!("bishop attacks {}", bishop_attacks);
+            let square_index = pop_lsb(&mut bishops) as usize;
+            let bit_board = square_index_to_bitboard(square_index as usize);
+            if bit_board & rook_pinned_pieces != 0 {
+                // cant move along rook pin
+                continue;
+            }
+
+            let bishop_attacks_looked_up = get_bishop_moves(square_index as u32, self.all_pieces);
+            let mut bishop_attacks = bishop_attacks_looked_up & !own_pieces;
+
+            if (bit_board & bishop_pinned_pieces) != 0 {
+                if NORTH_EAST_LOOKUP[square_index as usize] & own_king != 0 {
+                    bishop_attacks &= NORTH_EAST_LOOKUP[square_index as usize]
+                } else if NORTH_WEST_LOOKUP[square_index as usize] & own_king != 0 {
+                    bishop_attacks &= NORTH_WEST_LOOKUP[square_index as usize]
+                } else {
+                    panic!("No overlap with king, even though pinned")
+                }
+            }
+
+            while bishop_attacks != 0 {
+                let to_index = pop_lsb(&mut bishop_attacks) as usize;
+                moves.push(Move::new(square_index, to_index));
+            }
         }
     }
 
@@ -336,18 +416,17 @@ impl Board {
         }
     }
 
-    pub fn generate_king_moves(&self) -> u64 {
+    pub fn generate_king_moves<const IN_CHECK: bool>(&self, moves: MoveList) -> u64 {
         let king_moves = if self.white_to_move {
             FREE_KING_LOOKUP[self.white_king.trailing_zeros() as usize] & !self.white_pieces
         } else {
             FREE_KING_LOOKUP[self.black_king.trailing_zeros() as usize] & !self.black_pieces
         };
 
-        println!("{}", king_moves);
-        king_moves
+        if IN_CHECK { king_moves } else { king_moves }
     }
 
-    pub fn generate_pins(&self) {
+    pub fn generate_pins_and_sliding_checkers(&self) -> (u64, u64, u64) {
         let kingsquare = if self.white_to_move {
             self.white_king
         } else {
@@ -376,7 +455,8 @@ impl Board {
         let mut potential_rook_piners = FREE_ROOK_LOOKUP[bitboard_to_square_index(kingsquare)]
             & (enemy_queens_squares | enemy_rooks_squares);
 
-        println!("potential_rook_piners: {}", potential_rook_piners);
+        let mut rook_pinned_pieces = 0u64;
+        let mut sliding_checkers = 0u64;
 
         while potential_rook_piners != 0 {
             let rook_or_queen_square_index = pop_lsb(&mut potential_rook_piners);
@@ -386,8 +466,8 @@ impl Board {
             // this is later masked out to 0 with the "my_pieces & ray" instruction
             let pieces_between = ray & self.all_pieces;
             if pieces_between.count_ones() == 0 {
-                println!("rook check detected");
-                //TODO: this is check
+                //Check detected
+                sliding_checkers |= square_index_to_bitboard(rook_or_queen_square_index as usize);
             } else if pieces_between.count_ones() == 1 {
                 let my_pieces = if self.white_to_move {
                     self.white_pieces
@@ -395,6 +475,7 @@ impl Board {
                     self.black_pieces
                 };
                 let pins = my_pieces & ray;
+                rook_pinned_pieces |= pins;
                 println!("rook pins: {}", pins);
             }
         }
@@ -402,8 +483,7 @@ impl Board {
         let mut potential_bishop_piners = FREE_BISHOP_LOOKUP[bitboard_to_square_index(kingsquare)]
             & (enemy_queens_squares | enemy_bishop_squares);
 
-        println!("potential_bishop_piners: {}", potential_bishop_piners);
-
+        let mut bishop_pinned_pieces = 064;
         while potential_bishop_piners != 0 {
             let bishop_or_queen_square_index = pop_lsb(&mut potential_bishop_piners);
             let ray = BISHOP_SQUARE_TO_SQUARE_RAY_LOOKUP
@@ -412,8 +492,8 @@ impl Board {
             // this is later masked out to 0 with the "my_pieces & ray" instruction
             let pieces_between = ray & self.all_pieces;
             if pieces_between.count_ones() == 0 {
-                println!("bishop check detected");
-                //TODO: this is check
+                //Check detected
+                sliding_checkers |= square_index_to_bitboard(bishop_or_queen_square_index as usize);
             } else if pieces_between.count_ones() == 1 {
                 let my_pieces = if self.white_to_move {
                     self.white_pieces
@@ -421,10 +501,43 @@ impl Board {
                     self.black_pieces
                 };
                 let pins = my_pieces & ray;
+                bishop_pinned_pieces |= pins;
                 println!("bishop pins: {}", pins);
             }
         }
         //todo!()
+        //TODO: move in struct
+        (sliding_checkers, bishop_pinned_pieces, rook_pinned_pieces)
+    }
+
+    pub fn generate_legal_moves_temp(&self) -> MoveList {
+        let mut moves = MoveList::default();
+
+        let (sliding_checkers, bishop_pinned_pieces, rook_pinned_pieces) =
+            self.generate_pins_and_sliding_checkers();
+        let all_pinned_pieces = bishop_pinned_pieces | rook_pinned_pieces;
+        let checkers = sliding_checkers | self.get_enemy_pawn_and_knight_checkers();
+
+        match checkers.count_ones() {
+            //No checks
+            0 => {
+                // self.generate_pawn_moves(&moves, rook_pinned_pieces, bishop_pinned_pieces);
+                self.generate_knight_moves(&mut moves, all_pinned_pieces);
+                self.generate_bishop_moves(&mut moves, bishop_pinned_pieces, rook_pinned_pieces);
+            }
+            //One check, king and blocking moves only
+            1 => {}
+            //2 checks, only king moves possible
+            2 => {
+                // self.generate_king_moves::<true>();
+            }
+            _ => panic!(
+                "There cant be more than 2 checkers, but there are{}",
+                checkers.count_ones()
+            ),
+        }
+
+        moves
     }
 }
 
@@ -432,5 +545,66 @@ impl Default for Board {
     fn default() -> Self {
         // Initialize the board to the starting position
         Board::from_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
+    }
+}
+
+pub struct Move {
+    mask: u16,
+}
+
+impl Move {
+    /// Mask for the source ("from") bits.
+    const FROM_MASK: u16 = 0b0000_0000_0011_1111;
+    /// Mask for the destination ("to") bits.
+    const TO_MASK: u16 = 0b0000_1111_1100_0000;
+    const CAPTURE_MASK: u16 = 0b0001_000000_000000;
+
+    const TO_BITS: u16 = 6;
+    const FLAG_BITS: u16 = 12;
+    #[inline(always)]
+    pub fn new(from: usize, to: usize) -> Self {
+        let mask = from | to << Self::TO_BITS;
+        Self { mask: mask as u16 }
+    }
+
+    #[inline(always)]
+    pub fn from(&self) -> usize {
+        (self.mask & Self::FROM_MASK) as usize
+    }
+
+    #[inline(always)]
+    pub fn to(&self) -> usize {
+        ((self.mask & Self::TO_MASK) >> Self::TO_BITS) as usize
+    }
+
+    pub fn to_algebraic(&self) -> String {
+        //TODO: Promotion and castling
+        let from_square = square_index_to_square(self.from());
+        let to_square = square_index_to_square(self.to());
+        format!(
+            "{}{}",
+            square_to_algebraic(from_square),
+            square_to_algebraic(to_square)
+        )
+    }
+}
+
+pub fn square_to_algebraic(square: Square) -> String {
+    format!("{}{}", ((square.file + 97) as u8) as char, square.rank + 1)
+}
+
+impl fmt::Debug for Move {
+    /// Debug formatting will call the [`fmt::Display`] implementation
+    /// (taking into account the alternate formatter, if provided)
+    /// and will also display it's [`MoveKind`] in a human-readable format.
+    #[inline(always)]
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.to_algebraic())
+    }
+}
+
+impl Display for Move {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.to_algebraic())
     }
 }

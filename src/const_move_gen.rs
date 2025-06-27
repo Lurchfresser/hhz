@@ -1,8 +1,6 @@
-use crate::bit_boards::{
-    FILE_A, FILE_H, RANK_1, RANK_2, RANK_7, RANK_8, Square, square_index_to_bitboard,
-    square_index_to_square,
-};
+use crate::bit_boards::*;
 
+//TODO: make for whole board, for check-checks, check?
 pub const fn gen_free_white_pawn_attacks() -> [u64; 64] {
     let mut pawn_attacks = [0u64; 64];
     let mut i: u64 = 0;
@@ -22,6 +20,7 @@ pub const fn gen_free_white_pawn_attacks() -> [u64; 64] {
     pawn_attacks
 }
 
+//TODO: make for whole board, for check-checks, check?
 pub const fn gen_free_black_pawn_attacks() -> [u64; 64] {
     let mut pawn_attacks = [0u64; 64];
     let mut i = 8u64;
@@ -472,4 +471,138 @@ pub const fn gen_free_king_moves() -> [u64; 65] {
         i += 1;
     }
     king_moves
+}
+
+pub const fn gen_horizontal_rays() -> [u64; 64] {
+    let mut horizontal_ray_lookup = [0u64; 64];
+    let mut square_index = 0usize;
+    while square_index < 64 {
+        let square = square_index_to_square(square_index);
+        let bitboard = match square.rank {
+            0 => RANK_1,
+            1 => RANK_2,
+            2 => RANK_3,
+            3 => RANK_4,
+            4 => RANK_5,
+            5 => RANK_6,
+            6 => RANK_7,
+            7 => RANK_8,
+            _ => panic!("to large rank"), // Default case, though it should not be reached
+        };
+
+        horizontal_ray_lookup[square_index] = bitboard;
+        square_index += 1
+    }
+    horizontal_ray_lookup
+}
+
+pub const fn gen_vertical_rays() -> [u64; 64] {
+    let mut vertical_ray_lookup = [0u64; 64];
+    let mut square_index = 0usize;
+    while square_index < 64 {
+        let square = square_index_to_square(square_index);
+        let bitboard = match square.file {
+            0 => FILE_A,
+            1 => FILE_B,
+            2 => FILE_C,
+            3 => FILE_D,
+            4 => FILE_E,
+            5 => FILE_F,
+            6 => FILE_G,
+            7 => FILE_H,
+            _ => panic!("to large file"), // Default case, though it should not be reached
+        };
+
+        vertical_ray_lookup[square_index] = bitboard;
+        square_index += 1
+    }
+    vertical_ray_lookup
+}
+
+pub const fn gen_north_east_rays() -> [u64; 64] {
+    let mut nort_east_rays_lookup = [064; 64];
+    let mut square_index = 0usize;
+    while square_index < 64 {
+        let square = square_index_to_square(square_index);
+        let mut move_bit_board = 0u64;
+
+        // North-East direction
+        let mut north_east_index = 0;
+        loop {
+            let next_square = Square {
+                file: square.file + north_east_index,
+                rank: square.rank + north_east_index,
+            };
+            if next_square.file > 7 || next_square.rank > 7 {
+                break;
+            }
+            move_bit_board |= next_square.to_bit_board();
+            north_east_index += 1;
+        } // South-West direction
+        let mut south_west_index = 1;
+        loop {
+            if square.file < south_west_index || square.rank < south_west_index {
+                break;
+            }
+            let next_square = Square {
+                file: square.file - south_west_index,
+                rank: square.rank - south_west_index,
+            };
+            if next_square.file < 0 || next_square.rank < 0 {
+                break;
+            }
+            move_bit_board |= next_square.to_bit_board();
+            south_west_index += 1;
+        }
+
+        nort_east_rays_lookup[square_index] = move_bit_board;
+        square_index += 1
+    }
+    nort_east_rays_lookup
+}
+
+pub const fn gen_north_west_rays() -> [u64; 64] {
+    let mut north_west_rays_lookup = [0u64; 64];
+    let mut square_index = 0usize;
+    while square_index < 64 {
+        let square = square_index_to_square(square_index);
+        let mut move_bit_board = 0u64;
+
+        // South-East direction
+        let mut south_east_index = 0;
+        loop {
+            if square.rank < south_east_index {
+                break;
+            }
+            let next_square = Square {
+                file: square.file + south_east_index,
+                rank: square.rank - south_east_index,
+            };
+            if next_square.file > 7 || next_square.rank < 0 {
+                break;
+            }
+            move_bit_board |= next_square.to_bit_board();
+            south_east_index += 1;
+        }
+
+        let mut north_west_index = 0;
+        loop {
+            if square.file < north_west_index {
+                break;
+            }
+            let next_square = Square {
+                file: square.file - north_west_index,
+                rank: square.rank + north_west_index,
+            };
+            if next_square.file < 0 || next_square.rank > 7 {
+                break;
+            }
+            move_bit_board |= next_square.to_bit_board();
+            north_west_index += 1;
+        }
+
+        north_west_rays_lookup[square_index] = move_bit_board;
+        square_index += 1;
+    }
+    north_west_rays_lookup
 }
