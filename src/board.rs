@@ -422,6 +422,7 @@ impl Board {
         }
     }
 
+    /// masks out enemy king, because is used for legal king moves
     pub fn generate_bishop_and_queen_attack_squares(&self, for_white: bool) -> u64 {
         let mut bishops = if for_white {
             self.white_bishops | self.white_queens
@@ -429,10 +430,17 @@ impl Board {
             self.black_bishops | self.black_queens
         };
 
+        let enemy_king = if for_white {
+            self.black_king
+        } else {
+            self.white_king
+        };
+
         let mut bishop_attacks = 0u64;
         while bishops != 0 {
             let bishop_index = pop_lsb(&mut bishops);
-            let bishop_attacks_looked_up = get_bishop_moves(bishop_index, self.all_pieces);
+            let bishop_attacks_looked_up =
+                get_bishop_moves(bishop_index, self.all_pieces ^ enemy_king);
             bishop_attacks |= bishop_attacks_looked_up
         }
         bishop_attacks
@@ -496,14 +504,20 @@ impl Board {
         let mut rooks = if for_white {
             self.white_rooks | self.white_queens
         } else {
-            self.black_rooks | self.white_queens
+            self.black_rooks | self.black_queens
+        };
+
+        let enemy_king = if for_white {
+            self.black_king
+        } else {
+            self.white_king
         };
 
         let mut rook_attacks = 0u64;
 
         while rooks != 0 {
             let rook_index = pop_lsb(&mut rooks) as usize;
-            rook_attacks |= get_rook_moves(rook_index as u32, self.all_pieces);
+            rook_attacks |= get_rook_moves(rook_index as u32, self.all_pieces ^ enemy_king);
         }
         rook_attacks
     }
@@ -518,7 +532,7 @@ impl Board {
         let mut rooks = if self.white_to_move {
             self.white_rooks | self.white_queens
         } else {
-            self.black_rooks | self.white_queens
+            self.black_rooks | self.black_queens
         };
 
         let own_pieces = if self.white_to_move {
@@ -586,6 +600,49 @@ impl Board {
 
             moves.push(Move::new(king_index, to_index))
         }
+    }
+
+    pub fn generate_castling_moves(&self, moves: &mut MoveList, enemy_attack_square: u64) {
+        //function assumes king is not in check
+        let castling_rights = if self.white_to_move {
+            self.white_castling_rights
+        } else {
+            self.black_castling_rights
+        };
+
+        let king_side_mask = if self.white_to_move {
+            WHITE_KINGSIDE_CASTLING_MASK
+        } else {
+            BLACK_KINGSIDE_CASTLING_MASK
+        };
+
+        let quen_side_mask = if self.white_to_move {
+            WHITE_QUEENSIDE_CASTLING_MASK
+        } else {
+            BLACK_QUEENSIDE_CASTLING_MASK
+        };
+
+        match castling_rights {
+            CastlingRights::All => {
+                if quen_side_mask & enemy_attack_square == 0 {
+                    moves.push(Move::castles(false, self.white_to_move));
+                }
+                if king_side_mask & enemy_attack_square == 0 {
+                    moves.push(Move::castles(true, self.white_to_move));
+                }
+            }
+            CastlingRights::OnlyKingSide => {
+                if king_side_mask & enemy_attack_square == 0 {
+                    moves.push(Move::castles(true, self.white_to_move));
+                }
+            }
+            CastlingRights::OnlyQueenSide => {
+                if quen_side_mask & enemy_attack_square == 0 {
+                    moves.push(Move::castles(false, self.white_to_move));
+                }
+            }
+            CastlingRights::None => {}
+        };
     }
 
     pub fn generate_pins_and_sliding_checkers(&self) -> PinAndCheckInfos {
@@ -782,10 +839,31 @@ impl Move {
 
     const TO_BITS: u16 = 6;
     const FLAG_BITS: u16 = 12;
+
+    const CASTLES_MASK: u16 = Self::FLAG_BITS;
     #[inline(always)]
     pub fn new(from: usize, to: usize) -> Self {
         let mask = from | to << Self::TO_BITS;
         Self { mask: mask as u16 }
+    }
+
+    pub fn castles(is_king_side: bool, white_to_move: bool) -> Self {
+        let from = if white_to_move {
+            if is_king_side {
+                WHITE_KINGSIDE_CASTLE_INDEX
+            } else {
+                WHITE_QUEENSIDE_CASTLE_INDEX
+            }
+        } else {
+            if is_king_side {
+                BLACK_KINGSIDE_CASTLE_INDEX
+            } else {
+                BLACK_QUEENSIDE_CASTLE_INDEX
+            }
+        } as u16;
+        let to = if white_to_move { 4 } else { 60 };
+        let mask: u16 = (from | to << Self::TO_BITS) | (is_king_side as u16) << Self::CASTLES_MASK;
+        Self { mask }
     }
 
     #[inline(always)]
