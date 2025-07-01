@@ -839,11 +839,11 @@ impl Board {
                 }
                 // for detecting illegal en passant captures, see:
                 // 8/6k1/8/K1Pp1r2/8/8/8/8 w - - 0 1
-                2 => {
+                2 => 'match_arm: {
                     // only care for same rank
                     if ((rook_or_queen_square_index as i32) - (king_square_index as i32)).abs() >= 8
                     {
-                        break;
+                        break 'match_arm;
                     }
                     let own_pawns = if self.white_to_move {
                         self.white_pawns
@@ -852,7 +852,7 @@ impl Board {
                     };
                     let maybe_own_pawn = own_pawns & ray;
                     if maybe_own_pawn.count_ones() != 1 {
-                        break;
+                        break 'match_arm;
                     }
                     let pawn_attacks = if self.white_to_move {
                         WHITE_FREE_PAWN_ATTACKS_LOOKUP

@@ -10,8 +10,9 @@ fn main() {
     let fens: Vec<&str> = file_content.split("\n").collect();
 
     for fen in fens {
-        recursive_check(4, fen)
+        recursive_check(3, fen)
     }
+    // recursive_check(1, "r6r/3k4/8/8/3Q4/3q4/8/3RK2R b K - 3 2");
 }
 
 fn recursive_check(depth: i32, fen: &str) {
