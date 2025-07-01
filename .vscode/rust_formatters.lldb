@@ -1,0 +1,10 @@
+# .vscode/rust_formatters.lldb
+
+# 1. Load the python script containing our formatter functions
+command script import .vscode/move_formatter.py
+
+# 2. Tell LLDB to use the `format_move` function for the `hhz::board::Move` type
+#    NOTE: Replace `hhz` with your actual crate name if it's different.
+type summary add --python-function move_formatter.format_move hhz::board::Move
+
+type summary add --python-function move_formatter.format_move_list hhz::board::MoveList

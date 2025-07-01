@@ -1,10 +1,80 @@
 use crate::bit_boards::*;
 use regex::Regex;
 use std::fmt;
-use std::fmt::{Display, Formatter};
+use std::fmt::{Debug, Display, Formatter};
+use std::ops::{Deref, DerefMut};
+use std::slice::Iter;
 
 pub const MAX_NUM_MOVES: usize = 218;
-pub type MoveList = arrayvec::ArrayVec<Move, MAX_NUM_MOVES>;
+
+// --- START: Corrected MoveList for proper debugging ---
+
+// Changed to a standard struct with a private field to enforce encapsulation.
+// This forces the debugger to use our custom `Debug` implementation.
+pub struct MoveList {
+    moves: arrayvec::ArrayVec<Move, MAX_NUM_MOVES>,
+}
+
+/// Custom Debug implementation for MoveList.
+impl fmt::Debug for MoveList {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        // This is the key change: we pass an iterator of `&Move` objects.
+        // The debugger can then render each `Move` interactively using its own `Debug` impl.
+        // Your previous version mapped them to Strings, which the debugger cannot expand.
+        f.debug_list()
+            .entries(self.moves.iter().map(|m| m.to_algebraic()))
+            .finish()
+    }
+}
+
+/// Implement Default to allow creating a new, empty MoveList with `MoveList::default()`.
+impl Default for MoveList {
+    fn default() -> Self {
+        Self {
+            moves: arrayvec::ArrayVec::new(),
+        }
+    }
+}
+
+/// Implement Deref to allow the MoveList wrapper to be used transparently
+/// like the underlying ArrayVec (e.g., for iteration, `len()`, `is_empty()`).
+impl Deref for MoveList {
+    type Target = arrayvec::ArrayVec<Move, MAX_NUM_MOVES>;
+
+    #[inline(always)]
+    fn deref(&self) -> &Self::Target {
+        &self.moves
+    }
+}
+
+/// Implement DerefMut to allow mutating the MoveList wrapper transparently
+/// (e.g., calling `moves.push()`).
+impl DerefMut for MoveList {
+    #[inline(always)]
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.moves
+    }
+}
+
+/// Implementation for consuming iteration (e.g., `for move in move_list`).
+impl IntoIterator for MoveList {
+    type Item = Move;
+    type IntoIter = arrayvec::IntoIter<Move, MAX_NUM_MOVES>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.moves.into_iter()
+    }
+}
+
+/// Implementation for shared-reference iteration (e.g., `for move in &move_list`).
+impl<'a> IntoIterator for &'a MoveList {
+    type Item = &'a Move;
+    type IntoIter = Iter<'a, Move>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.moves.iter()
+    }
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum CastlingRights {
@@ -280,7 +350,7 @@ impl Board {
         };
 
         #[allow(non_snake_case)]
-        let ATTACKS_LOOKUP = if self.white_to_move {
+        let ATTACKS_LOOKUP = if for_white {
             &WHITE_FREE_PAWN_ATTACKS_LOOKUP
         } else {
             &BLACK_FREE_PAWN_ATTACKS_LOOKUP
@@ -372,12 +442,22 @@ impl Board {
 
             moves_for_pawn &= to_mask;
 
+            let promotion_rank = if self.white_to_move { RANK_8 } else { RANK_1 };
+
             while moves_for_pawn != 0 {
-                let to_index = pop_lsb(&mut moves_for_pawn) as usize;
-                //TODO: add en passant target
+                let to_index = pop_lsb(&mut moves_for_pawn);
+                let to_bit_board = square_index_to_bitboard(to_index);
+                if to_bit_board & promotion_rank != 0 {
+                    self.push_promotion_moves(moves, to_bit_board, pawn_index);
+                }
+                //TODO: add en passant
                 moves.push(Move::new(pawn_index, to_index));
             }
         }
+    }
+
+    #[inline(always)]
+    fn push_promotion_moves(&self, moves: &mut MoveList, promotion_square: u64, from_index: usize) {
     }
 
     pub fn generate_knight_attack_squares(&self, for_white: bool) -> u64 {
@@ -574,6 +654,22 @@ impl Board {
         all_rook_attacks
     }
 
+    pub fn generate_king_attack_squares(&self, for_white: bool) -> u64 {
+        let king_square = if for_white {
+            self.white_king
+        } else {
+            self.black_king
+        };
+
+        let blocking_pieces = if for_white {
+            self.white_pieces
+        } else {
+            self.black_pieces
+        };
+
+        FREE_KING_LOOKUP[bitboard_to_square_index(king_square)] & !blocking_pieces
+    }
+
     pub fn generate_king_moves(
         &self,
         moves: &mut MoveList,
@@ -616,28 +712,40 @@ impl Board {
             BLACK_KINGSIDE_CASTLING_MASK
         };
 
-        let quen_side_mask = if self.white_to_move {
-            WHITE_QUEENSIDE_CASTLING_MASK
+        let queen_side_check_mask = if self.white_to_move {
+            WHITE_QUEENSIDE_CASTLING_CHECK_MASK
         } else {
-            BLACK_QUEENSIDE_CASTLING_MASK
+            BLACK_QUEENSIDE_CASTLING_CHECK_MASK
+        };
+
+        let queen_side_free_squares_mask = if self.white_to_move {
+            WHITE_QUEENSIDE_CASTLING_FREE_SQUARES_MASK
+        } else {
+            BLACK_QUEENSIDE_CASTLING_FREE_SQUARES_MASK
         };
 
         match castling_rights {
             CastlingRights::All => {
-                if quen_side_mask & enemy_attack_square == 0 {
+                if (queen_side_check_mask & enemy_attack_square)
+                    | (self.all_pieces & queen_side_free_squares_mask)
+                    == 0
+                {
                     moves.push(Move::castles(false, self.white_to_move));
                 }
-                if king_side_mask & enemy_attack_square == 0 {
+                if king_side_mask & (enemy_attack_square | self.all_pieces) == 0 {
                     moves.push(Move::castles(true, self.white_to_move));
                 }
             }
             CastlingRights::OnlyKingSide => {
-                if king_side_mask & enemy_attack_square == 0 {
+                if king_side_mask & (enemy_attack_square | self.all_pieces) == 0 {
                     moves.push(Move::castles(true, self.white_to_move));
                 }
             }
             CastlingRights::OnlyQueenSide => {
-                if quen_side_mask & enemy_attack_square == 0 {
+                if (queen_side_check_mask & enemy_attack_square)
+                    | (self.all_pieces & queen_side_free_squares_mask)
+                    == 0
+                {
                     moves.push(Move::castles(false, self.white_to_move));
                 }
             }
@@ -751,10 +859,12 @@ impl Board {
             self.generate_bishop_and_queen_attack_squares(!self.white_to_move);
         let enemy_rook_and_queen_attacks =
             self.generate_rook_and_queen_attack_squares(!self.white_to_move);
+        let enemy_king_attacks = self.generate_king_attack_squares(!self.white_to_move);
         let all_enemy_attack_squares = enemy_pawn_attacks
             | enemy_knight_attacks
             | enemy_bishop_and_queen_attacks
-            | enemy_rook_and_queen_attacks;
+            | enemy_rook_and_queen_attacks
+            | enemy_king_attacks;
 
         match checkers.count_ones() {
             //No checks
@@ -779,6 +889,7 @@ impl Board {
                     u64::MAX,
                 );
                 self.generate_king_moves(&mut moves, all_enemy_attack_squares, u64::MAX);
+                self.generate_castling_moves(&mut moves, all_enemy_attack_squares);
             }
             //One check, king and blocking moves or capturing checker only
             1 => {
@@ -847,23 +958,27 @@ impl Move {
         Self { mask: mask as u16 }
     }
 
+    #[inline(always)]
     pub fn castles(is_king_side: bool, white_to_move: bool) -> Self {
-        let from = if white_to_move {
+        let to = if white_to_move {
             if is_king_side {
                 WHITE_KINGSIDE_CASTLE_INDEX
             } else {
                 WHITE_QUEENSIDE_CASTLE_INDEX
             }
+        } else if is_king_side {
+            BLACK_KINGSIDE_CASTLE_INDEX
         } else {
-            if is_king_side {
-                BLACK_KINGSIDE_CASTLE_INDEX
-            } else {
-                BLACK_QUEENSIDE_CASTLE_INDEX
-            }
+            BLACK_QUEENSIDE_CASTLE_INDEX
         } as u16;
-        let to = if white_to_move { 4 } else { 60 };
+        let from = if white_to_move { 4 } else { 60 };
         let mask: u16 = (from | to << Self::TO_BITS) | (is_king_side as u16) << Self::CASTLES_MASK;
         Self { mask }
+    }
+
+    #[inline(always)]
+    pub fn promotion(from_index: usize, to_index: usize) {
+        
     }
 
     #[inline(always)]
@@ -886,6 +1001,15 @@ impl Move {
             square_to_algebraic(to_square)
         )
     }
+
+    pub fn debug_string(&self) -> String {
+        format!(
+            "{} (from:{}, to:{})",
+            self.to_algebraic(),
+            self.from(),
+            self.to()
+        )
+    }
 }
 
 pub fn square_to_algebraic(square: Square) -> String {
@@ -893,12 +1017,14 @@ pub fn square_to_algebraic(square: Square) -> String {
 }
 
 impl fmt::Debug for Move {
-    /// Debug formatting will call the [`fmt::Display`] implementation
-    /// (taking into account the alternate formatter, if provided)
-    /// and will also display it's [`MoveKind`] in a human-readable format.
-    #[inline(always)]
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.to_algebraic())
+        f.debug_struct("Move")
+            .field("algebraic", &self.to_algebraic())
+            .field("from", &self.from())
+            .field("to", &self.to())
+            .field("mask", &format!("{:#06x}", self.mask))
+            // Add any other fields you want to see
+            .finish()
     }
 }
 

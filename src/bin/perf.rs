@@ -7,7 +7,7 @@ fn main() {
     // let fen = "3r4/5N2/8/8/1B5B/8/1R5q/3K4 w - - 0 1";
     let fen = "r3k2r/8/1r4N1/8/8/8/7P/R3K2R w KQkq - 0 1";
 
-    recursive_check(1, fen)
+    recursive_check(5, fen)
 }
 
 fn recursive_check(depth: i32, fen: &str) {

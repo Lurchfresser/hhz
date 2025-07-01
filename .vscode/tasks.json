@@ -1,0 +1,16 @@
+{
+    "version": "2.0,0",
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug",
+            "program": "/usr/bin/cargo",
+            "args": [
+                "run",
+                "${workspaceFolder}/perf"
+            ],
+            "cwd": "${fileDirname}"
+        }
+    ]
+}
