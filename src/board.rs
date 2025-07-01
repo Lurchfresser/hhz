@@ -22,7 +22,7 @@ impl fmt::Debug for MoveList {
         // The debugger can then render each `Move` interactively using its own `Debug` impl.
         // Your previous version mapped them to Strings, which the debugger cannot expand.
         f.debug_list()
-            .entries(self.moves.iter().map(|m| m.to_algebraic()))
+            .entries(self.moves.iter().map(|m| m.to_uci()))
             .finish()
     }
 }
@@ -162,51 +162,51 @@ impl Board {
                     file += c.to_string().parse::<i32>().unwrap();
                 }
                 'p' => {
-                    black_pawns |= 1 << square - 1;
+                    black_pawns |= 1 << (square - 1);
                     file += 1;
                 }
                 'r' => {
-                    black_rooks |= 1 << square - 1;
+                    black_rooks |= 1 << (square - 1);
                     file += 1;
                 }
                 'n' => {
-                    black_knights |= 1 << square - 1;
+                    black_knights |= 1 << (square - 1);
                     file += 1;
                 }
                 'b' => {
-                    black_bishops |= 1 << square - 1;
+                    black_bishops |= 1 << (square - 1);
                     file += 1;
                 }
                 'q' => {
-                    black_queens |= 1 << square - 1;
+                    black_queens |= 1 << (square - 1);
                     file += 1;
                 }
                 'k' => {
-                    black_king |= 1 << square - 1;
+                    black_king |= 1 << (square - 1);
                     file += 1;
                 }
                 'P' => {
-                    white_pawns |= 1 << square - 1;
+                    white_pawns |= 1 << (square - 1);
                     file += 1;
                 }
                 'R' => {
-                    white_rooks |= 1 << square - 1;
+                    white_rooks |= 1 << (square - 1);
                     file += 1;
                 }
                 'N' => {
-                    white_knights |= 1 << square - 1;
+                    white_knights |= 1 << (square - 1);
                     file += 1;
                 }
                 'B' => {
-                    white_bishops |= 1 << square - 1;
+                    white_bishops |= 1 << (square - 1);
                     file += 1;
                 }
                 'Q' => {
-                    white_queens |= 1 << square - 1;
+                    white_queens |= 1 << (square - 1);
                     file += 1;
                 }
                 'K' => {
-                    white_king |= 1 << square - 1;
+                    white_king |= 1 << (square - 1);
                     file += 1;
                 }
                 '/' => {
@@ -358,7 +358,7 @@ impl Board {
 
         let mut pawn_attacks = 0u64;
         while pawns != 0 {
-            let pawn_index = pop_lsb(&mut pawns) as usize;
+            let pawn_index = pop_lsb(&mut pawns);
             // 1. Generate attacks
             pawn_attacks |= ATTACKS_LOOKUP[pawn_index];
         }
@@ -406,11 +406,13 @@ impl Board {
 
         while pawns != 0 {
             let mut moves_for_pawn = 0u64;
-            let pawn_index = pop_lsb(&mut pawns) as usize;
+            let pawn_index = pop_lsb(&mut pawns);
             let pawn_bit_board = square_index_to_bitboard(pawn_index);
 
             // 1. Generate attacks
-            moves_for_pawn |= ATTACKS_LOOKUP[pawn_index] & (enemy_pieces | self.en_passant_target);
+            moves_for_pawn |= ATTACKS_LOOKUP[pawn_index]
+            //                      mask out illegal en passant captures
+                & (enemy_pieces | (self.en_passant_target & !rook_pinned_pieces));
 
             // 2. Generate advances
             let blockers = self.all_pieces ^ pawn_bit_board;
@@ -448,16 +450,46 @@ impl Board {
                 let to_index = pop_lsb(&mut moves_for_pawn);
                 let to_bit_board = square_index_to_bitboard(to_index);
                 if to_bit_board & promotion_rank != 0 {
-                    self.push_promotion_moves(moves, to_bit_board, pawn_index);
+                    self.push_promotion_moves(moves, to_index, pawn_index);
+                } else {
+                    //TODO: add en passant
+                    moves.push(Move::new(pawn_index, to_index));
                 }
-                //TODO: add en passant
-                moves.push(Move::new(pawn_index, to_index));
             }
         }
     }
 
     #[inline(always)]
-    fn push_promotion_moves(&self, moves: &mut MoveList, promotion_square: u64, from_index: usize) {
+    fn push_promotion_moves(&self, moves: &mut MoveList, to_index: usize, from_index: usize) {
+        let is_capture = (self.all_pieces) & square_index_to_bitboard(to_index) != 0;
+
+        if is_capture {
+            moves.push(Move::capture_promotion(
+                PieceKind::Queen,
+                from_index,
+                to_index,
+            ));
+            moves.push(Move::capture_promotion(
+                PieceKind::Knight,
+                from_index,
+                to_index,
+            ));
+            moves.push(Move::capture_promotion(
+                PieceKind::Rook,
+                from_index,
+                to_index,
+            ));
+            moves.push(Move::capture_promotion(
+                PieceKind::Bishop,
+                from_index,
+                to_index,
+            ));
+        } else {
+            moves.push(Move::promotion(PieceKind::Queen, from_index, to_index));
+            moves.push(Move::promotion(PieceKind::Knight, from_index, to_index));
+            moves.push(Move::promotion(PieceKind::Rook, from_index, to_index));
+            moves.push(Move::promotion(PieceKind::Bishop, from_index, to_index));
+        }
     }
 
     pub fn generate_knight_attack_squares(&self, for_white: bool) -> u64 {
@@ -468,7 +500,7 @@ impl Board {
         };
         let mut knight_attacks = 0u64;
         while knights != 0 {
-            let knight_index = pop_lsb(&mut knights) as usize;
+            let knight_index = pop_lsb(&mut knights);
             knight_attacks |= FREE_KNIGHT_LOOKUP[knight_index];
         }
         knight_attacks
@@ -654,6 +686,7 @@ impl Board {
         all_rook_attacks
     }
 
+    #[inline(always)]
     pub fn generate_king_attack_squares(&self, for_white: bool) -> u64 {
         let king_square = if for_white {
             self.white_king
@@ -661,13 +694,7 @@ impl Board {
             self.black_king
         };
 
-        let blocking_pieces = if for_white {
-            self.white_pieces
-        } else {
-            self.black_pieces
-        };
-
-        FREE_KING_LOOKUP[bitboard_to_square_index(king_square)] & !blocking_pieces
+        FREE_KING_LOOKUP[bitboard_to_square_index(king_square)]
     }
 
     pub fn generate_king_moves(
@@ -753,7 +780,7 @@ impl Board {
         };
     }
 
-    pub fn generate_pins_and_sliding_checkers(&self) -> PinAndCheckInfos {
+    fn generate_pins_and_sliding_checkers(&self) -> PinAndCheckInfos {
         let mut stop_check_targets = 0u64;
 
         let kingsquare = if self.white_to_move {
@@ -790,22 +817,52 @@ impl Board {
         while potential_rook_piners != 0 {
             let rook_or_queen_square_index = pop_lsb(&mut potential_rook_piners);
             let ray = ROOK_SQUARE_TO_SQUARE_RAY_LOOKUP
-                [(rook_or_queen_square_index as usize) * 64 + king_square_index];
+                [rook_or_queen_square_index * 64 + king_square_index];
             // we need to check for all pieces, so no enemy pieces block the pin
             // this is later masked out to 0 with the "my_pieces & ray" instruction
             let pieces_between = ray & self.all_pieces;
-            if pieces_between.count_ones() == 0 {
-                //Check detected
-                sliding_checkers |= square_index_to_bitboard(rook_or_queen_square_index as usize);
-                stop_check_targets |= ray | sliding_checkers;
-            } else if pieces_between.count_ones() == 1 {
-                let my_pieces = if self.white_to_move {
-                    self.white_pieces
-                } else {
-                    self.black_pieces
-                };
-                let pins = my_pieces & ray;
-                rook_pinned_pieces |= pins;
+            match pieces_between.count_ones() {
+                0 => {
+                    //Check detected
+                    sliding_checkers |= square_index_to_bitboard(rook_or_queen_square_index);
+                    stop_check_targets |= ray | sliding_checkers;
+                }
+                1 => {
+                    // let my_pieces = if self.white_to_move {
+                    //     self.white_pieces
+                    // } else {
+                    //     self.black_pieces
+                    // };
+                    //TODO: maybe also divide in 2 bitboards (now discoverers and pins together)
+                    let pins = self.all_pieces & ray;
+                    rook_pinned_pieces |= pins;
+                }
+                // for detecting illegal en passant captures, see:
+                // 8/6k1/8/K1Pp1r2/8/8/8/8 w - - 0 1
+                2 => {
+                    // only care for same rank
+                    if ((rook_or_queen_square_index as i32) - (king_square_index as i32)).abs() >= 8
+                    {
+                        break;
+                    }
+                    let own_pawns = if self.white_to_move {
+                        self.white_pawns
+                    } else {
+                        self.black_pawns
+                    };
+                    let maybe_own_pawn = own_pawns & ray;
+                    if maybe_own_pawn.count_ones() != 1 {
+                        break;
+                    }
+                    let pawn_attacks = if self.white_to_move {
+                        WHITE_FREE_PAWN_ATTACKS_LOOKUP
+                    } else {
+                        BLACK_FREE_PAWN_ATTACKS_LOOKUP
+                    };
+                    rook_pinned_pieces |= (pawn_attacks[bitboard_to_square_index(maybe_own_pawn)]
+                        & self.en_passant_target)
+                }
+                _ => {}
             }
         }
 
@@ -816,13 +873,13 @@ impl Board {
         while potential_bishop_piners != 0 {
             let bishop_or_queen_square_index = pop_lsb(&mut potential_bishop_piners);
             let ray = BISHOP_SQUARE_TO_SQUARE_RAY_LOOKUP
-                [(bishop_or_queen_square_index as usize) * 64 + king_square_index];
+                [bishop_or_queen_square_index * 64 + king_square_index];
             // we need to check for all pieces, so no enemy pieces block the pin
             // this is later masked out to 0 with the "my_pieces & ray" instruction
             let pieces_between = ray & self.all_pieces;
             if pieces_between.count_ones() == 0 {
                 //Check detected
-                sliding_checkers |= square_index_to_bitboard(bishop_or_queen_square_index as usize);
+                sliding_checkers |= square_index_to_bitboard(bishop_or_queen_square_index);
                 stop_check_targets |= ray | sliding_checkers;
             } else if pieces_between.count_ones() == 1 {
                 let my_pieces = if self.white_to_move {
@@ -830,7 +887,8 @@ impl Board {
                 } else {
                     self.black_pieces
                 };
-                let pins = my_pieces & ray;
+                //TODO: maybe also divide in 2 bitboards (now discoverers and pins together)
+                let pins = self.all_pieces & ray;
                 bishop_pinned_pieces |= pins;
             }
         }
@@ -943,23 +1001,39 @@ pub struct Move {
 
 impl Move {
     /// Mask for the source ("from") bits.
-    const FROM_MASK: u16 = 0b0000_0000_0011_1111;
+    const SRC_MASK: u16 = 0b0000_0000_0011_1111;
     /// Mask for the destination ("to") bits.
-    const TO_MASK: u16 = 0b0000_1111_1100_0000;
-    const CAPTURE_MASK: u16 = 0b0001_000000_000000;
+    const DST_MASK: u16 = 0b0000_1111_1100_0000;
+    /// Mask for the flag (promotions, captures, etc.) bits.
+    const FLG_MASK: u16 = 0b1111_0000_0000_0000;
+    /// Start index of destination bits.
+    const DST_BITS: u16 = 6;
+    /// Start index of flag bits.
+    const FLG_BITS: u16 = 12;
 
-    const TO_BITS: u16 = 6;
-    const FLAG_BITS: u16 = 12;
+    const FLAG_QUIET: u16 = 0 << Self::FLG_BITS;
+    const FLAG_CASTLE_SHORT: u16 = 2 << Self::FLG_BITS;
+    const FLAG_CASTLE_LONG: u16 = 3 << Self::FLG_BITS;
+    const FLAG_CAPTURE: u16 = 4 << Self::FLG_BITS;
+    const FLAG_EP_CAPTURE: u16 = 5 << Self::FLG_BITS;
+    const FLAG_PROMO_KNIGHT: u16 = 8 << Self::FLG_BITS;
+    const FLAG_PROMO_BISHOP: u16 = 9 << Self::FLG_BITS;
+    const FLAG_PROMO_ROOK: u16 = 10 << Self::FLG_BITS;
+    const FLAG_PROMO_QUEEN: u16 = 11 << Self::FLG_BITS;
+    const FLAG_CAPTURE_PROMO_KNIGHT: u16 = 12 << Self::FLG_BITS;
+    const FLAG_CAPTURE_PROMO_BISHOP: u16 = 13 << Self::FLG_BITS;
+    const FLAG_CAPTURE_PROMO_ROOK: u16 = 14 << Self::FLG_BITS;
+    const FLAG_CAPTURE_PROMO_QUEEN: u16 = 15 << Self::FLG_BITS;
 
-    const CASTLES_MASK: u16 = Self::FLAG_BITS;
     #[inline(always)]
     pub fn new(from: usize, to: usize) -> Self {
-        let mask = from | to << Self::TO_BITS;
-        Self { mask: mask as u16 }
+        let mask = from as u16 | (to as u16) << Self::DST_BITS | Self::FLAG_QUIET;
+        Self { mask }
     }
 
     #[inline(always)]
     pub fn castles(is_king_side: bool, white_to_move: bool) -> Self {
+        let from = if white_to_move { 4 } else { 60 };
         let to = if white_to_move {
             if is_king_side {
                 WHITE_KINGSIDE_CASTLE_INDEX
@@ -970,45 +1044,112 @@ impl Move {
             BLACK_KINGSIDE_CASTLE_INDEX
         } else {
             BLACK_QUEENSIDE_CASTLE_INDEX
-        } as u16;
-        let from = if white_to_move { 4 } else { 60 };
-        let mask: u16 = (from | to << Self::TO_BITS) | (is_king_side as u16) << Self::CASTLES_MASK;
-        Self { mask }
+        };
+
+        let flag = if is_king_side {
+            Self::FLAG_CASTLE_SHORT
+        } else {
+            Self::FLAG_CASTLE_LONG
+        };
+
+        Self {
+            mask: from as u16 | (to as u16) << Self::DST_BITS | flag,
+        }
     }
 
     #[inline(always)]
-    pub fn promotion(from_index: usize, to_index: usize) {
-        
+    pub fn capture(from: usize, to: usize) -> Self {
+        Self {
+            mask: from as u16 | (to as u16) << Self::DST_BITS | Self::FLAG_CAPTURE,
+        }
+    }
+
+    #[inline(always)]
+    pub fn en_passant(from: usize, to: usize) -> Self {
+        Self {
+            mask: from as u16 | (to as u16) << Self::DST_BITS | Self::FLAG_EP_CAPTURE,
+        }
+    }
+
+    #[inline(always)]
+    pub fn promotion(piece_kind: PieceKind, from_index: usize, to_index: usize) -> Self {
+        let flag = match piece_kind {
+            PieceKind::Knight => Self::FLAG_PROMO_KNIGHT,
+            PieceKind::Bishop => Self::FLAG_PROMO_BISHOP,
+            PieceKind::Rook => Self::FLAG_PROMO_ROOK,
+            PieceKind::Queen => Self::FLAG_PROMO_QUEEN,
+            _ => panic!("Invalid promotion piece"),
+        };
+
+        Self {
+            mask: from_index as u16 | (to_index as u16) << Self::DST_BITS | flag,
+        }
+    }
+
+    #[inline(always)]
+    pub fn capture_promotion(piece_kind: PieceKind, from_index: usize, to_index: usize) -> Self {
+        let flag = match piece_kind {
+            PieceKind::Knight => Self::FLAG_CAPTURE_PROMO_KNIGHT,
+            PieceKind::Bishop => Self::FLAG_CAPTURE_PROMO_BISHOP,
+            PieceKind::Rook => Self::FLAG_CAPTURE_PROMO_ROOK,
+            PieceKind::Queen => Self::FLAG_CAPTURE_PROMO_QUEEN,
+            _ => panic!("Invalid promotion piece"),
+        };
+
+        Self {
+            mask: from_index as u16 | (to_index as u16) << Self::DST_BITS | flag,
+        }
     }
 
     #[inline(always)]
     pub fn from(&self) -> usize {
-        (self.mask & Self::FROM_MASK) as usize
+        (self.mask & Self::SRC_MASK) as usize
     }
 
     #[inline(always)]
     pub fn to(&self) -> usize {
-        ((self.mask & Self::TO_MASK) >> Self::TO_BITS) as usize
+        ((self.mask & Self::DST_MASK) >> Self::DST_BITS) as usize
     }
 
-    pub fn to_algebraic(&self) -> String {
-        //TODO: Promotion and castling
+    #[inline(always)]
+    pub fn flag(&self) -> u16 {
+        self.mask & Self::FLG_MASK
+    }
+
+    #[inline(always)]
+    pub fn is_promotion(&self) -> bool {
+        let flag = self.flag();
+        flag >= Self::FLAG_PROMO_KNIGHT && flag <= Self::FLAG_CAPTURE_PROMO_QUEEN
+    }
+
+    #[inline(always)]
+    pub fn is_capture(&self) -> bool {
+        let flag = self.flag();
+        flag == Self::FLAG_CAPTURE
+            || flag == Self::FLAG_EP_CAPTURE
+            || (flag >= Self::FLAG_CAPTURE_PROMO_KNIGHT && flag <= Self::FLAG_CAPTURE_PROMO_QUEEN)
+    }
+
+    pub fn to_uci(&self) -> String {
         let from_square = square_index_to_square(self.from());
         let to_square = square_index_to_square(self.to());
-        format!(
+        let mut uci = format!(
             "{}{}",
             square_to_algebraic(from_square),
             square_to_algebraic(to_square)
-        )
-    }
+        );
 
-    pub fn debug_string(&self) -> String {
-        format!(
-            "{} (from:{}, to:{})",
-            self.to_algebraic(),
-            self.from(),
-            self.to()
-        )
+        // Add promotion letter if this is a promotion move
+        match self.flag() {
+            // Regular promotions
+            Self::FLAG_PROMO_KNIGHT | Self::FLAG_CAPTURE_PROMO_KNIGHT => uci.push('n'),
+            Self::FLAG_PROMO_BISHOP | Self::FLAG_CAPTURE_PROMO_BISHOP => uci.push('b'),
+            Self::FLAG_PROMO_ROOK | Self::FLAG_CAPTURE_PROMO_ROOK => uci.push('r'),
+            Self::FLAG_PROMO_QUEEN | Self::FLAG_CAPTURE_PROMO_QUEEN => uci.push('q'),
+            _ => {}
+        }
+
+        uci
     }
 }
 
@@ -1019,7 +1160,7 @@ pub fn square_to_algebraic(square: Square) -> String {
 impl fmt::Debug for Move {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("Move")
-            .field("algebraic", &self.to_algebraic())
+            .field("algebraic", &self.to_uci())
             .field("from", &self.from())
             .field("to", &self.to())
             .field("mask", &format!("{:#06x}", self.mask))
@@ -1030,6 +1171,6 @@ impl fmt::Debug for Move {
 
 impl Display for Move {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.to_algebraic())
+        write!(f, "{}", self.to_uci())
     }
 }

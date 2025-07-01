@@ -184,6 +184,7 @@ fn gen_bishop_look_up() {
                     }
                     south_west_index += 1;
                 }
+                move_bit_board &= !bishop_square.to_bit_board();
                 bishop_lookup[(bishop_square_index * BISHOP_LOOK_UP_SIZE + sub_index) as usize] =
                     move_bit_board;
             }

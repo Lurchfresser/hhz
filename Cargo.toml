@@ -6,6 +6,7 @@ edition = "2024"
 [features]
 metrics = ["dep:csv"]
 server = ["dep:rouille", "dep:serde"]
+gen_look_up = ["dep:bytemuck"]
 
 [dependencies]
 chessie = "2.0.0"

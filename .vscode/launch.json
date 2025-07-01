@@ -4,7 +4,7 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug with perf",
+            "name": "Perf",
             "cargo": {
                 "args": [
                     "build",
@@ -13,6 +13,23 @@
             },
             "args": [],
             "program": "${workspaceFolder}/target/debug/perf",
+            "initCommands": [
+                "command source '${workspaceFolder}/.vscode/rust_formatters.lldb'"
+            ]
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Gen attacks",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=generate_attack_lookup",
+                    "-F gen_look_up"
+                ]
+            },
+            "args": [],
+            "program": "${workspaceFolder}/target/debug/generate_attack_lookup",
             "initCommands": [
                 "command source '${workspaceFolder}/.vscode/rust_formatters.lldb'"
             ]

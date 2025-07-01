@@ -1,7 +1,7 @@
 #[macro_export]
 macro_rules! include_bytes_align_as {
     ($align_ty:ty, $path:literal) => {{
-        use crate::bit_boards::my_macros::AlignedAs;
+        use $crate::bit_boards::my_macros::AlignedAs;
 
         static ALIGNED: &AlignedAs<$align_ty, [u8]> = &AlignedAs {
             _align: [],
@@ -153,25 +153,25 @@ pub fn pop_lsb(bit_board: &mut u64) -> usize {
 pub fn get_rook_moves(square: u32, blockers: u64) -> u64 {
     let rook_moves = ROOK_LOOKUP_MASK[square as usize];
     let lookup_index = unsafe { _pext_u64(blockers, rook_moves) };
-    let test = unsafe {
+    
+    unsafe {
         let ptr: *const u64 = ROOK_LOOKUP
             .as_ptr()
             .add(((square as u64) * 8u64 * ROOK_LOOK_UP_SIZE + lookup_index * 8u64) as usize)
             as *const u64;
         *ptr
-    };
-    test
+    }
 }
 
 pub fn get_bishop_moves(square: usize, blockers: u64) -> u64 {
     let bishop_moves = BISHOP_LOOKUP_MASK[square];
     let lookup_index = unsafe { _pext_u64(blockers, bishop_moves) };
-    let test = unsafe {
+    
+    unsafe {
         let ptr: *const u64 = BISHOP_LOOKUP
             .as_ptr()
             .add(((square as u64) * 8u64 * BISHOP_LOOK_UP_SIZE + lookup_index * 8u64) as usize)
             as *const u64;
         *ptr
-    };
-    test
+    }
 }

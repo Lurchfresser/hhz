@@ -1,13 +1,17 @@
 use hhz::board::Board;
 use hhz::const_move_gen::*;
 use std::collections::HashSet;
+use std::fs;
 
 fn main() {
-    // let fen = "8/8/8/8/3K1N1R/8/8/8 w - - 0 1";
-    // let fen = "3r4/5N2/8/8/1B5B/8/1R5q/3K4 w - - 0 1";
-    let fen = "r3k2r/8/1r4N1/8/8/8/7P/R3K2R w KQkq - 0 1";
+    let file_content =
+        fs::read_to_string("assets/test-fens.txt").expect("Should have been able to read the file");
 
-    recursive_check(5, fen)
+    let fens: Vec<&str> = file_content.split("\n").collect();
+
+    for fen in fens {
+        recursive_check(4, fen)
+    }
 }
 
 fn recursive_check(depth: i32, fen: &str) {
@@ -26,10 +30,10 @@ fn recursive_check(depth: i32, fen: &str) {
 
     let mut my_move_set: HashSet<String> = HashSet::new();
     for _move in moves {
-        if my_move_set.contains(&_move.to_algebraic()) {
+        if my_move_set.contains(&_move.to_uci()) {
             panic!("Double move generated. Move: {}", _move);
         }
-        my_move_set.insert(_move.to_algebraic());
+        my_move_set.insert(_move.to_uci());
         // println!("my: {}", _move.to_algebraic());
     }
 
