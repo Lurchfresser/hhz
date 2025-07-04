@@ -1,0 +1,18 @@
+meta {
+  name: Make Move
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://localhost:42069/move
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "uci_move":"a2a3",
+    "resul_fen":"rnbqkbnr/pppppppp/8/8/8/P7/1PPPPPPP/RNBQKBNR b KQkq - 0 1"
+  }
+}

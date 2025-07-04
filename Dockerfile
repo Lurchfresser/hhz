@@ -20,6 +20,8 @@ FROM debian:bookworm-slim AS runtime
 # Both stages use Bookworm, so there is no GLIBC mismatch.
 COPY --from=builder /usr/src/hhz-bot/target/release/make_api /usr/local/bin/hhz-bot
 
+ENV URL_BASE=0.0.0.0
+
 EXPOSE 42069
 
 # Set the command to run your application

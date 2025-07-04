@@ -20,6 +20,23 @@
         {
             "type": "lldb",
             "request": "launch",
+            "name": "Make Api",
+            "cargo": {
+                "args": [
+                    "build",
+                    "-F server",
+                    "--bin=make_api"
+                ]
+            },
+            "args": [],
+            "program": "${workspaceFolder}/target/debug/make_api",
+            "initCommands": [
+                "command source '${workspaceFolder}/.vscode/rust_formatters.lldb'"
+            ]
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
             "name": "Gen attacks",
             "cargo": {
                 "args": [

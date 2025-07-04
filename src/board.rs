@@ -173,10 +173,43 @@ pub struct Board {
     pieces: [Piece; 64],
 }
 
+#[derive(Debug, Clone)]
+pub enum FenError {
+    InvalidCharacter(char),
+    InvalidSideToMove(String),
+    InvalidCastlingRights(String),
+    MissingParts,
+    InvalidEnPassant(String),
+    InvalidHalfmoveClock(String),
+    InvalidFullmoveNumber(String),
+    InvalidRank,
+    InvalidFile,
+    InvalidNumericParse(String),
+}
+
+impl std::fmt::Display for FenError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            FenError::InvalidCharacter(c) => write!(f, "Invalid FEN character: {}", c),
+            FenError::InvalidSideToMove(s) => write!(f, "Invalid side to move in FEN: {}", s),
+            FenError::InvalidCastlingRights(s) => {
+                write!(f, "Invalid castling rights in FEN: {}", s)
+            }
+            FenError::MissingParts => write!(f, "FEN string is missing required parts"),
+            FenError::InvalidEnPassant(s) => write!(f, "Invalid en passant square: {}", s),
+            FenError::InvalidHalfmoveClock(s) => write!(f, "Invalid halfmove clock: {}", s),
+            FenError::InvalidFullmoveNumber(s) => write!(f, "Invalid fullmove number: {}", s),
+            FenError::InvalidRank => write!(f, "Invalid rank in FEN"),
+            FenError::InvalidFile => write!(f, "Invalid file in FEN"),
+            FenError::InvalidNumericParse(s) => write!(f, "Could not parse numeric value: {}", s),
+        }
+    }
+}
+
+impl std::error::Error for FenError {}
+
 impl Board {
-    pub fn from_fen(fen: &str) -> Self {
-        // Parse the FEN string and initialize the board
-        // This is a placeholder implementation
+    pub fn from_fen(fen: &str) -> Result<Self, FenError> {
         let mut white_pawns = 0;
         let mut white_knights = 0;
         let mut white_bishops = 0;
@@ -193,83 +226,98 @@ impl Board {
 
         let mut pieces = [Piece::None; 64];
 
-        let mut file: i32 = 1;
-        let mut rank: i32 = 8;
+        let mut file: i32 = 0; // Changed to 0-based indexing
+        let mut rank: i32 = 7; // Changed to 0-based indexing, top rank is 7
 
+        // Parse piece placement
         for c in fen.chars() {
-            let square_index = ((rank - 1) * 8 + (file - 1)) as usize;
-            let square = ((rank - 1) * 8 + (file)) as u64;
+            if rank < 0 || rank > 7 {
+                // Updated range check
+                return Err(FenError::InvalidRank);
+            }
+            if file < 0 || file > 8 {
+                // Updated range check
+                return Err(FenError::InvalidFile);
+            }
+
+            let square_index = (rank * 8 + file) as usize;
+            let bit_position = square_index;
 
             match c {
                 '1'..='8' => {
-                    file += c.to_string().parse::<i32>().unwrap();
+                    let skip_count = c.to_digit(10).unwrap() as i32;
+                    file += skip_count;
                 }
                 'p' => {
-                    black_pawns |= 1 << (square - 1);
+                    black_pawns |= 1u64 << bit_position;
                     pieces[square_index] = Piece::Pawn { white: false };
                     file += 1;
                 }
                 'r' => {
-                    black_rooks |= 1 << (square - 1);
+                    black_rooks |= 1u64 << bit_position;
                     pieces[square_index] = Piece::Rook { white: false };
                     file += 1;
                 }
                 'n' => {
-                    black_knights |= 1 << (square - 1);
+                    black_knights |= 1u64 << bit_position;
                     pieces[square_index] = Piece::Knight { white: false };
                     file += 1;
                 }
                 'b' => {
-                    black_bishops |= 1 << (square - 1);
+                    black_bishops |= 1u64 << bit_position;
                     pieces[square_index] = Piece::Bishop { white: false };
                     file += 1;
                 }
                 'q' => {
-                    black_queens |= 1 << (square - 1);
+                    black_queens |= 1u64 << bit_position;
                     pieces[square_index] = Piece::Queen { white: false };
                     file += 1;
                 }
                 'k' => {
-                    black_king |= 1 << (square - 1);
+                    black_king |= 1u64 << bit_position;
                     pieces[square_index] = Piece::King { white: false };
                     file += 1;
                 }
                 'P' => {
-                    white_pawns |= 1 << (square - 1);
+                    white_pawns |= 1u64 << bit_position;
                     pieces[square_index] = Piece::Pawn { white: true };
                     file += 1;
                 }
                 'R' => {
-                    white_rooks |= 1 << (square - 1);
+                    white_rooks |= 1u64 << bit_position;
                     pieces[square_index] = Piece::Rook { white: true };
                     file += 1;
                 }
                 'N' => {
-                    white_knights |= 1 << (square - 1);
+                    white_knights |= 1u64 << bit_position;
                     pieces[square_index] = Piece::Knight { white: true };
                     file += 1;
                 }
                 'B' => {
-                    white_bishops |= 1 << (square - 1);
+                    white_bishops |= 1u64 << bit_position;
                     pieces[square_index] = Piece::Bishop { white: true };
                     file += 1;
                 }
                 'Q' => {
-                    white_queens |= 1 << (square - 1);
+                    white_queens |= 1u64 << bit_position;
                     pieces[square_index] = Piece::Queen { white: true };
                     file += 1;
                 }
                 'K' => {
-                    white_king |= 1 << (square - 1);
+                    white_king |= 1u64 << bit_position;
                     pieces[square_index] = Piece::King { white: true };
                     file += 1;
                 }
                 '/' => {
-                    file = 1; // Reset file for the next rank
-                    rank -= 1; // Move to the next rank
+                    if file != 8 {
+                        // Updated check
+                        return Err(FenError::InvalidFile);
+                    }
+                    file = 0; // Reset to start of next rank
+                    rank -= 1; // Move down one rank
                 }
                 ' ' => break,
-                _ => panic!("Invalid FEN character: {}", c),
+                _ => return Err(FenError::InvalidCharacter(c)),
             }
         }
 
@@ -279,65 +327,86 @@ impl Board {
             black_pawns | black_knights | black_bishops | black_rooks | black_queens | black_king;
         let all_pieces = white_pieces | black_pieces;
 
-        // Parse the rest of the FEN string for additional information
+        // Parse the rest of the FEN string
         let mut parts = fen.split_whitespace();
-
         parts.next(); // Skip the piece placement part
 
-        let side_move_str = parts.next().unwrap();
-        assert!(
-            side_move_str == "w" || side_move_str == "b",
-            "Invalid side to move in FEN: {}",
-            fen
-        );
-        let white_to_move = side_move_str == "w";
-
-        let castling_rights_str = parts.next().unwrap();
-        assert!(
-            Regex::new("(-|K?Q?k?q?)")
-                .unwrap()
-                .is_match(castling_rights_str),
-            "Invalid castling rights in FEN: {}",
-            fen
-        );
-
-        let white_castling_rights = if castling_rights_str.contains("KQ") {
-            CastlingRights::All
-        } else if castling_rights_str.contains("Q") {
-            CastlingRights::OnlyQueenSide
-        } else if castling_rights_str.contains("K") {
-            CastlingRights::OnlyKingSide
-        } else {
-            CastlingRights::None
+        // Parse active color
+        let side_move_str = parts.next().ok_or(FenError::MissingParts)?;
+        let white_to_move = match side_move_str {
+            "w" => true,
+            "b" => false,
+            _ => return Err(FenError::InvalidSideToMove(side_move_str.to_string())),
         };
 
-        let black_castling_rights = if castling_rights_str.contains("kq") {
-            CastlingRights::All
-        } else if castling_rights_str.contains("q") {
-            CastlingRights::OnlyQueenSide
-        } else if castling_rights_str.contains("k") {
-            CastlingRights::OnlyKingSide
-        } else {
-            CastlingRights::None
-        };
+        // Parse castling rights
+        let castling_rights_str = parts.next().ok_or(FenError::MissingParts)?;
 
-        let en_passant_target = if let Some(s) = parts.next() {
-            if s == "-" {
-                0u64
+        // Validate castling rights format
+        if !Regex::new(r"^(-|K?Q?k?q?)$")
+            .unwrap()
+            .is_match(castling_rights_str)
+        {
+            return Err(FenError::InvalidCastlingRights(
+                castling_rights_str.to_string(),
+            ));
+        }
+
+        let white_castling_rights =
+            if castling_rights_str.contains('K') && castling_rights_str.contains('Q') {
+                CastlingRights::All
+            } else if castling_rights_str.contains('Q') {
+                CastlingRights::OnlyQueenSide
+            } else if castling_rights_str.contains('K') {
+                CastlingRights::OnlyKingSide
             } else {
-                // Convert the square to a bitboard position
-                let file = s.chars().next().unwrap() as u8 - b'a';
-                let rank = s.chars().nth(1).unwrap() as u8 - b'1';
-                1u64 << (rank * 8 + file)
-            }
-        } else {
+                CastlingRights::None
+            };
+
+        let black_castling_rights =
+            if castling_rights_str.contains('k') && castling_rights_str.contains('q') {
+                CastlingRights::All
+            } else if castling_rights_str.contains('q') {
+                CastlingRights::OnlyQueenSide
+            } else if castling_rights_str.contains('k') {
+                CastlingRights::OnlyKingSide
+            } else {
+                CastlingRights::None
+            };
+
+        // Parse en passant target
+        let en_passant_str = parts.next().ok_or(FenError::MissingParts)?;
+        let en_passant_target = if en_passant_str == "-" {
             0u64
+        } else {
+            if en_passant_str.len() != 2 {
+                return Err(FenError::InvalidEnPassant(en_passant_str.to_string()));
+            }
+            let file_char = en_passant_str.chars().next().unwrap();
+            let rank_char = en_passant_str.chars().nth(1).unwrap();
+
+            if !('a'..='h').contains(&file_char) || !('1'..='8').contains(&rank_char) {
+                return Err(FenError::InvalidEnPassant(en_passant_str.to_string()));
+            }
+
+            let file = file_char as u8 - b'a';
+            let rank = rank_char as u8 - b'1';
+            1u64 << (rank * 8 + file)
         };
 
-        let halfmove_clock = parts.next().unwrap().parse::<u32>().unwrap();
-        let fullmove_number = parts.next().unwrap().parse::<u32>().unwrap();
+        // Parse halfmove clock
+        let halfmove_str = parts.next().ok_or(FenError::MissingParts)?;
+        let halfmove_clock = halfmove_str
+            .parse::<u32>()
+            .map_err(|_| FenError::InvalidHalfmoveClock(halfmove_str.to_string()))?;
 
-        Board {
+        // Parse fullmove number
+        let fullmove_str = parts.next().ok_or(FenError::MissingParts)?;
+        let fullmove_number = fullmove_str
+            .parse::<u32>()
+            .map_err(|_| FenError::InvalidFullmoveNumber(fullmove_str.to_string()))?;
+
+        Ok(Board {
             white_pawns,
             white_knights,
             white_bishops,
@@ -360,7 +429,7 @@ impl Board {
             halfmove_clock,
             fullmove_number,
             pieces,
-        }
+        })
     }
 
     pub fn to_fen(&self) -> String {
@@ -1456,7 +1525,11 @@ impl Board {
 impl Default for Board {
     fn default() -> Self {
         // Initialize the board to the starting position
-        Board::from_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
+        let board = Board::from_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+        match board {
+            Ok(b) => b,
+            Err(e) => panic!("{}", e),
+        }
     }
 }
 

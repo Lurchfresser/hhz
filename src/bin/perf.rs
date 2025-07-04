@@ -46,7 +46,6 @@ fn recursive_check(depth: i32, chessie_board: chessie::Game, my_board: Board) {
         let mut move_not_found = false;
         let uci = _move.to_uci();
         chessie_move_set.insert(uci.clone());
-        // println!("chessie: {}", uci);
         if my_move_set.get(&uci).is_none() && !move_not_found {
             println!("Did not find move {}", _move.to_uci());
             move_not_found = true;
