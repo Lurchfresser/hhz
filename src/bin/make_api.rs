@@ -80,8 +80,8 @@ fn main() {
                     eprintln!("FEN mismatch! Expected: {}, Got: {}", move_request.resul_fen, current_fen);
                     return Response::text(format!(
                         "FEN mismatch! Expected: {}, Got: {}", 
-                        move_request.resul_fen,
-                        current_fen
+                        current_fen,
+                        move_request.resul_fen
                     )).with_status_code(409); // 409 Conflict
                 }
                 
