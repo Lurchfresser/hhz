@@ -84,6 +84,32 @@ pub enum CastlingRights {
     None,
 }
 
+impl CastlingRights {
+    pub fn remove_side(&self, castling_rights: CastlingRights) -> Self {
+        match self {
+            CastlingRights::All => match castling_rights {
+                CastlingRights::All => CastlingRights::None,
+                CastlingRights::OnlyKingSide => CastlingRights::OnlyQueenSide,
+                CastlingRights::OnlyQueenSide => Self::OnlyKingSide,
+                CastlingRights::None => CastlingRights::All,
+            },
+            CastlingRights::OnlyKingSide => match castling_rights {
+                CastlingRights::All => CastlingRights::None,
+                CastlingRights::OnlyKingSide => CastlingRights::None,
+                CastlingRights::OnlyQueenSide => CastlingRights::OnlyKingSide,
+                CastlingRights::None => CastlingRights::OnlyKingSide,
+            },
+            CastlingRights::OnlyQueenSide => match castling_rights {
+                CastlingRights::All => CastlingRights::None,
+                CastlingRights::OnlyKingSide => CastlingRights::OnlyQueenSide,
+                CastlingRights::OnlyQueenSide => CastlingRights::None,
+                CastlingRights::None => CastlingRights::OnlyQueenSide,
+            },
+            CastlingRights::None => CastlingRights::None,
+        }
+    }
+}
+
 struct PinAndCheckInfos {
     sliding_checkers: u64,
     stop_check_targets: u64,
@@ -99,6 +125,17 @@ pub enum PieceKind {
     Rook = 3,
     Queen = 4,
     King = 5,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Piece {
+    None,
+    Pawn { white: bool },
+    Knight { white: bool },
+    Bishop { white: bool },
+    Rook { white: bool },
+    Queen { white: bool },
+    King { white: bool },
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -132,6 +169,8 @@ pub struct Board {
     fullmove_number: u32,
 
     white_to_move: bool,
+
+    pieces: [Piece; 64],
 }
 
 impl Board {
@@ -152,65 +191,81 @@ impl Board {
         let mut black_queens = 0;
         let mut black_king = 0;
 
+        let mut pieces = [Piece::None; 64];
+
         let mut file: i32 = 1;
         let mut rank: i32 = 8;
 
         for c in fen.chars() {
+            let square_index = ((rank - 1) * 8 + (file - 1)) as usize;
             let square = ((rank - 1) * 8 + (file)) as u64;
+
             match c {
                 '1'..='8' => {
                     file += c.to_string().parse::<i32>().unwrap();
                 }
                 'p' => {
                     black_pawns |= 1 << (square - 1);
+                    pieces[square_index] = Piece::Pawn { white: false };
                     file += 1;
                 }
                 'r' => {
                     black_rooks |= 1 << (square - 1);
+                    pieces[square_index] = Piece::Rook { white: false };
                     file += 1;
                 }
                 'n' => {
                     black_knights |= 1 << (square - 1);
+                    pieces[square_index] = Piece::Knight { white: false };
                     file += 1;
                 }
                 'b' => {
                     black_bishops |= 1 << (square - 1);
+                    pieces[square_index] = Piece::Bishop { white: false };
                     file += 1;
                 }
                 'q' => {
                     black_queens |= 1 << (square - 1);
+                    pieces[square_index] = Piece::Queen { white: false };
                     file += 1;
                 }
                 'k' => {
                     black_king |= 1 << (square - 1);
+                    pieces[square_index] = Piece::King { white: false };
                     file += 1;
                 }
                 'P' => {
                     white_pawns |= 1 << (square - 1);
+                    pieces[square_index] = Piece::Pawn { white: true };
                     file += 1;
                 }
                 'R' => {
                     white_rooks |= 1 << (square - 1);
+                    pieces[square_index] = Piece::Rook { white: true };
                     file += 1;
                 }
                 'N' => {
                     white_knights |= 1 << (square - 1);
+                    pieces[square_index] = Piece::Knight { white: true };
                     file += 1;
                 }
                 'B' => {
                     white_bishops |= 1 << (square - 1);
+                    pieces[square_index] = Piece::Bishop { white: true };
                     file += 1;
                 }
                 'Q' => {
                     white_queens |= 1 << (square - 1);
+                    pieces[square_index] = Piece::Queen { white: true };
                     file += 1;
                 }
                 'K' => {
                     white_king |= 1 << (square - 1);
+                    pieces[square_index] = Piece::King { white: true };
                     file += 1;
                 }
                 '/' => {
-                    file = 1; // Reset file for the next
+                    file = 1; // Reset file for the next rank
                     rank -= 1; // Move to the next rank
                 }
                 ' ' => break,
@@ -304,7 +359,97 @@ impl Board {
             black_castling_rights,
             halfmove_clock,
             fullmove_number,
+            pieces,
         }
+    }
+
+    pub fn to_fen(&self) -> String {
+        let mut fen = String::with_capacity(90);
+
+        // 1. Piece placement
+        for rank in (0..8).rev() {
+            let mut empty_squares = 0;
+            for file in 0..8 {
+                let index = rank * 8 + file;
+                let piece = self.pieces[index];
+
+                if piece == Piece::None {
+                    empty_squares += 1;
+                } else {
+                    if empty_squares > 0 {
+                        fen.push_str(&empty_squares.to_string());
+                        empty_squares = 0;
+                    }
+                    let piece_char = match piece {
+                        Piece::Pawn { white: true } => 'P',
+                        Piece::Knight { white: true } => 'N',
+                        Piece::Bishop { white: true } => 'B',
+                        Piece::Rook { white: true } => 'R',
+                        Piece::Queen { white: true } => 'Q',
+                        Piece::King { white: true } => 'K',
+                        Piece::Pawn { white: false } => 'p',
+                        Piece::Knight { white: false } => 'n',
+                        Piece::Bishop { white: false } => 'b',
+                        Piece::Rook { white: false } => 'r',
+                        Piece::Queen { white: false } => 'q',
+                        Piece::King { white: false } => 'k',
+                        Piece::None => unreachable!(),
+                    };
+                    fen.push(piece_char);
+                }
+            }
+            if empty_squares > 0 {
+                fen.push_str(&empty_squares.to_string());
+            }
+            if rank > 0 {
+                fen.push('/');
+            }
+        }
+
+        // 2. Active color
+        fen.push(' ');
+        fen.push(if self.white_to_move { 'w' } else { 'b' });
+
+        // 3. Castling availability
+        fen.push(' ');
+        let mut castling_str = String::new();
+        match self.white_castling_rights {
+            CastlingRights::All => castling_str.push_str("KQ"),
+            CastlingRights::OnlyKingSide => castling_str.push('K'),
+            CastlingRights::OnlyQueenSide => castling_str.push('Q'),
+            CastlingRights::None => {}
+        }
+        match self.black_castling_rights {
+            CastlingRights::All => castling_str.push_str("kq"),
+            CastlingRights::OnlyKingSide => castling_str.push('k'),
+            CastlingRights::OnlyQueenSide => castling_str.push('q'),
+            CastlingRights::None => {}
+        }
+        if castling_str.is_empty() {
+            fen.push('-');
+        } else {
+            fen.push_str(&castling_str);
+        }
+
+        // 4. En passant target square
+        fen.push(' ');
+        if self.en_passant_target == 0 {
+            fen.push('-');
+        } else {
+            let ep_index = bitboard_to_square_index(self.en_passant_target);
+            let ep_square = square_index_to_square(ep_index);
+            fen.push_str(&square_to_algebraic(ep_square));
+        }
+
+        // 5. Halfmove clock
+        fen.push(' ');
+        fen.push_str(&self.halfmove_clock.to_string());
+
+        // 6. Fullmove number
+        fen.push(' ');
+        fen.push_str(&self.fullmove_number.to_string());
+
+        fen
     }
 
     //TODO: merge with gen-pseudo-legal-move-gen
@@ -451,9 +596,14 @@ impl Board {
                 let to_bit_board = square_index_to_bitboard(to_index);
                 if to_bit_board & promotion_rank != 0 {
                     self.push_promotion_moves(moves, to_index, pawn_index);
+                } else if to_bit_board & self.en_passant_target != 0 {
+                    moves.push(Move::en_passant(pawn_index, to_index));
                 } else {
-                    //TODO: add en passant
-                    moves.push(Move::new(pawn_index, to_index));
+                    moves.push(Move::new(
+                        pawn_index,
+                        to_index,
+                        to_bit_board & enemy_pieces != 0,
+                    ));
                 }
             }
         }
@@ -529,7 +679,11 @@ impl Board {
             let mut knight_attacks = (FREE_KNIGHT_LOOKUP[knight_index] & !own_pieces) & to_mask;
             while knight_attacks != 0 {
                 let to_index = pop_lsb(&mut knight_attacks) as usize;
-                moves.push(Move::new(knight_index, to_index))
+                moves.push(Move::new(
+                    knight_index,
+                    to_index,
+                    self.pieces[to_index] != Piece::None,
+                ))
             }
         }
     }
@@ -607,7 +761,11 @@ impl Board {
             bishop_attacks &= to_mask;
             while bishop_attacks != 0 {
                 let to_index = pop_lsb(&mut bishop_attacks) as usize;
-                moves.push(Move::new(square_index, to_index));
+                moves.push(Move::new(
+                    square_index,
+                    to_index,
+                    self.pieces[to_index] != Piece::None,
+                ));
             }
         }
     }
@@ -680,7 +838,11 @@ impl Board {
             all_rook_attacks |= rook_attacks;
             while rook_attacks != 0 {
                 let to_index = pop_lsb(&mut rook_attacks);
-                moves.push(Move::new(rook_index, to_index as usize))
+                moves.push(Move::new(
+                    rook_index,
+                    to_index as usize,
+                    self.pieces[to_index] != Piece::None,
+                ))
             }
         }
         all_rook_attacks
@@ -721,7 +883,11 @@ impl Board {
         while legal_king_moves != 0 {
             let to_index = pop_lsb(&mut legal_king_moves);
 
-            moves.push(Move::new(king_index, to_index))
+            moves.push(Move::new(
+                king_index,
+                to_index,
+                self.pieces[to_index] != Piece::None,
+            ))
         }
     }
 
@@ -986,6 +1152,305 @@ impl Board {
 
         moves
     }
+
+    pub fn make_move_temp(&self, _move: Move) -> Self {
+        let mut new_board = *self;
+        new_board.en_passant_target = 0;
+
+        let from = _move.from();
+        let to = _move.to();
+        let from_bb = square_index_to_bitboard(from);
+        let to_bb = square_index_to_bitboard(to);
+        let move_mask = from_bb | to_bb;
+
+        let moved_piece = self.pieces[from];
+
+        if _move.is_castle_short() {
+            new_board.pieces[from] = Piece::None;
+            if new_board.white_to_move {
+                new_board.white_castling_rights = CastlingRights::None;
+                new_board.white_king = WHITE_KINGSIDE_CASTLE_KING_BIT_BOARD;
+                new_board.white_rooks ^= WHITE_KINGSIDE_CASTLE_ROOK_MASK;
+                new_board.pieces[WHITE_KINGSIDE_CASTLE_ROOK_INDEX] = Piece::None;
+                new_board.pieces[WHITE_KINGSIDE_CASTLE_ROOK_INDEX - 2] =
+                    Piece::Rook { white: true };
+                new_board.pieces[WHITE_KINGSIDE_CASTLE_INDEX] = Piece::King { white: true };
+            } else {
+                new_board.black_castling_rights = CastlingRights::None;
+                new_board.black_king = BLACK_KINGSIDE_CASTLE_KING_BIT_BOARD;
+                new_board.black_rooks ^= BLACK_KINGSIDE_CASTLE_ROOK_MASK;
+                new_board.pieces[BLACK_KINGSIDE_CASTLE_ROOK_INDEX] = Piece::None;
+                new_board.pieces[BLACK_KINGSIDE_CASTLE_ROOK_INDEX - 2] =
+                    Piece::Rook { white: false };
+                new_board.pieces[BLACK_KINGSIDE_CASTLE_INDEX] = Piece::King { white: false };
+            }
+            new_board.recompute_combined_bit_boards();
+            new_board.update_board_state(false, false);
+
+            return new_board;
+        } else if _move.is_castle_long() {
+            new_board.pieces[from] = Piece::None;
+            if new_board.white_to_move {
+                new_board.white_castling_rights = CastlingRights::None;
+                new_board.white_king = WHITE_QUEENSIDE_CASTLE_KING_BIT_BOARD;
+                new_board.white_rooks ^= WHITE_QUEENSIDE_CASTLE_ROOK_MASK;
+                new_board.pieces[WHITE_QUEENSIDE_CASTLE_ROOK_INDEX] = Piece::None;
+                new_board.pieces[WHITE_QUEENSIDE_CASTLE_ROOK_INDEX + 3] =
+                    Piece::Rook { white: true };
+                new_board.pieces[WHITE_QUEENSIDE_CASTLE_INDEX] = Piece::King { white: true };
+            } else {
+                new_board.black_castling_rights = CastlingRights::None;
+                new_board.black_king = BLACK_QUEENSIDE_CASTLE_KING_BIT_BOARD;
+                new_board.black_rooks ^= BLACK_QUEENSIDE_CASTLE_ROOK_MASK;
+                new_board.pieces[BLACK_QUEENSIDE_CASTLE_ROOK_INDEX] = Piece::None;
+                new_board.pieces[BLACK_QUEENSIDE_CASTLE_ROOK_INDEX + 3] =
+                    Piece::Rook { white: false };
+                new_board.pieces[BLACK_QUEENSIDE_CASTLE_INDEX] = Piece::King { white: false };
+            }
+            new_board.recompute_combined_bit_boards();
+            new_board.update_board_state(false, false);
+
+            return new_board;
+        }
+
+        if _move.is_capture() {
+            let mut captured_piece = new_board.pieces[to];
+            // Additional logic for en-passant capture
+            let captured_piece_bb = if _move.is_en_passant() {
+                if new_board.white_to_move {
+                    captured_piece = new_board.pieces[to + 8];
+                    to_bb >> 8
+                } else {
+                    captured_piece = new_board.pieces[to - 8];
+                    to_bb << 8
+                }
+            } else {
+                to_bb
+            };
+
+            match captured_piece {
+                Piece::Pawn { .. } => {
+                    if new_board.white_to_move {
+                        new_board.black_pawns ^= captured_piece_bb;
+                    } else {
+                        new_board.white_pawns ^= captured_piece_bb;
+                    }
+                }
+                Piece::Knight { .. } => {
+                    if new_board.white_to_move {
+                        new_board.black_knights ^= captured_piece_bb;
+                    } else {
+                        new_board.white_knights ^= captured_piece_bb;
+                    }
+                }
+                Piece::Bishop { .. } => {
+                    if new_board.white_to_move {
+                        new_board.black_bishops ^= captured_piece_bb;
+                    } else {
+                        new_board.white_bishops ^= captured_piece_bb;
+                    }
+                }
+                Piece::Rook { .. } => {
+                    if new_board.white_to_move {
+                        new_board.black_rooks ^= captured_piece_bb;
+                    } else {
+                        new_board.white_rooks ^= captured_piece_bb;
+                    }
+                }
+                Piece::Queen { .. } => {
+                    if new_board.white_to_move {
+                        new_board.black_queens ^= captured_piece_bb;
+                    } else {
+                        new_board.white_queens ^= captured_piece_bb;
+                    }
+                }
+                // King capture is illegal and should not happen
+                Piece::King { .. } => panic!("Cannot capture a king"),
+                Piece::None => {
+                    if !_move.is_en_passant() {
+                        panic!("Capture flag set, but no piece on target square.")
+                    }
+                }
+            }
+        }
+
+        new_board.pieces[to] = moved_piece;
+        new_board.pieces[from] = Piece::None;
+
+        // Update the bitboard of the moving piece
+
+        match moved_piece {
+            Piece::Pawn { .. } => {
+                if new_board.white_to_move {
+                    new_board.white_pawns ^= move_mask;
+                    if to - from == 16 {
+                        new_board.en_passant_target = square_index_to_bitboard(to - 8);
+                    }
+                } else {
+                    if from - to == 16 {
+                        new_board.en_passant_target = square_index_to_bitboard(to + 8);
+                    }
+                    new_board.black_pawns ^= move_mask;
+                }
+            }
+            Piece::Knight { .. } => {
+                if new_board.white_to_move {
+                    new_board.white_knights ^= move_mask;
+                } else {
+                    new_board.black_knights ^= move_mask;
+                }
+            }
+            Piece::Bishop { .. } => {
+                if new_board.white_to_move {
+                    new_board.white_bishops ^= move_mask;
+                } else {
+                    new_board.black_bishops ^= move_mask;
+                }
+            }
+            Piece::Rook { .. } => {
+                if new_board.white_to_move {
+                    new_board.white_rooks ^= move_mask;
+                } else {
+                    new_board.black_rooks ^= move_mask;
+                }
+            }
+            Piece::Queen { .. } => {
+                if new_board.white_to_move {
+                    new_board.white_queens ^= move_mask;
+                } else {
+                    new_board.black_queens ^= move_mask;
+                }
+            }
+            Piece::King { .. } => {
+                if new_board.white_to_move {
+                    new_board.white_king ^= move_mask;
+                    new_board.white_castling_rights = CastlingRights::None;
+                } else {
+                    new_board.black_king ^= move_mask;
+                    new_board.black_castling_rights = CastlingRights::None;
+                }
+            }
+            Piece::None => panic!(
+                "make_move tried to move a piece from an empty square: {}",
+                _move.to_uci()
+            ),
+        }
+
+        // Update castling rights if a rook is moved or captured
+        if from == WHITE_KINGSIDE_CASTLE_ROOK_INDEX || to == WHITE_KINGSIDE_CASTLE_ROOK_INDEX {
+            new_board.white_castling_rights = new_board
+                .white_castling_rights
+                .remove_side(CastlingRights::OnlyKingSide);
+        }
+        if from == WHITE_QUEENSIDE_CASTLE_ROOK_INDEX || to == WHITE_QUEENSIDE_CASTLE_ROOK_INDEX {
+            new_board.white_castling_rights = new_board
+                .white_castling_rights
+                .remove_side(CastlingRights::OnlyQueenSide);
+        }
+        if from == BLACK_KINGSIDE_CASTLE_ROOK_INDEX || to == BLACK_KINGSIDE_CASTLE_ROOK_INDEX {
+            new_board.black_castling_rights = new_board
+                .black_castling_rights
+                .remove_side(CastlingRights::OnlyKingSide);
+        }
+        if from == BLACK_QUEENSIDE_CASTLE_ROOK_INDEX || to == BLACK_QUEENSIDE_CASTLE_ROOK_INDEX {
+            new_board.black_castling_rights = new_board
+                .black_castling_rights
+                .remove_side(CastlingRights::OnlyQueenSide);
+        }
+
+        // Handle promotions
+        if _move.is_promotion() {
+            let promoted_piece = match _move.promotion_piece() {
+                Some(PieceKind::Queen) => Piece::Queen {
+                    white: new_board.white_to_move,
+                },
+                Some(PieceKind::Rook) => Piece::Rook {
+                    white: new_board.white_to_move,
+                },
+                Some(PieceKind::Bishop) => Piece::Bishop {
+                    white: new_board.white_to_move,
+                },
+                Some(PieceKind::Knight) => Piece::Knight {
+                    white: new_board.white_to_move,
+                },
+                _ => panic!("Invalid promotion"),
+            };
+            new_board.pieces[to] = promoted_piece;
+            // Remove pawn, add promoted piece to bitboard
+            if new_board.white_to_move {
+                new_board.white_pawns ^= to_bb; // remove pawn from to square
+                match promoted_piece {
+                    Piece::Queen { .. } => new_board.white_queens |= to_bb,
+                    Piece::Rook { .. } => new_board.white_rooks |= to_bb,
+                    Piece::Bishop { .. } => new_board.white_bishops |= to_bb,
+                    Piece::Knight { .. } => new_board.white_knights |= to_bb,
+                    _ => {}
+                }
+            } else {
+                new_board.black_pawns ^= to_bb;
+                match promoted_piece {
+                    Piece::Queen { .. } => new_board.black_queens |= to_bb,
+                    Piece::Rook { .. } => new_board.black_rooks |= to_bb,
+                    Piece::Bishop { .. } => new_board.black_bishops |= to_bb,
+                    Piece::Knight { .. } => new_board.black_knights |= to_bb,
+                    _ => {}
+                }
+            }
+        }
+
+        if _move.is_en_passant() {
+            let ep_target_index = if new_board.white_to_move {
+                to - 8
+            } else {
+                to + 8
+            };
+
+            new_board.pieces[ep_target_index] = Piece::None;
+            if new_board.white_to_move {
+                new_board.black_pawns ^= square_index_to_bitboard(ep_target_index);
+            } else {
+                new_board.white_pawns ^= square_index_to_bitboard(ep_target_index);
+            }
+        }
+
+        new_board.update_board_state(
+            moved_piece
+                == Piece::Pawn {
+                    white: new_board.white_to_move,
+                },
+            _move.is_capture(),
+        );
+        new_board.recompute_combined_bit_boards();
+        new_board
+    }
+    fn update_board_state(&mut self, pawn_moved: bool, was_capture: bool) {
+        if pawn_moved || was_capture {
+            self.halfmove_clock = 0;
+        } else {
+            self.halfmove_clock += 1;
+        }
+
+        if !self.white_to_move {
+            self.fullmove_number += 1;
+        }
+        self.white_to_move = !self.white_to_move;
+    }
+
+    fn recompute_combined_bit_boards(&mut self) {
+        self.white_pieces = self.white_pawns
+            | self.white_knights
+            | self.white_bishops
+            | self.white_rooks
+            | self.white_queens
+            | self.white_king;
+        self.black_pieces = self.black_pawns
+            | self.black_knights
+            | self.black_bishops
+            | self.black_rooks
+            | self.black_queens
+            | self.black_king;
+        self.all_pieces = self.white_pieces | self.black_pieces;
+    }
 }
 
 impl Default for Board {
@@ -995,6 +1460,7 @@ impl Default for Board {
     }
 }
 
+#[derive(PartialEq, Eq, Hash, Copy, Clone)]
 pub struct Move {
     mask: u16,
 }
@@ -1026,9 +1492,15 @@ impl Move {
     const FLAG_CAPTURE_PROMO_QUEEN: u16 = 15 << Self::FLG_BITS;
 
     #[inline(always)]
-    pub fn new(from: usize, to: usize) -> Self {
+    pub fn new(from: usize, to: usize, capture: bool) -> Self {
         let mask = from as u16 | (to as u16) << Self::DST_BITS | Self::FLAG_QUIET;
-        Self { mask }
+        if capture {
+            Self {
+                mask: mask | Self::FLAG_CAPTURE,
+            }
+        } else {
+            Self { mask }
+        }
     }
 
     #[inline(always)]
@@ -1054,13 +1526,6 @@ impl Move {
 
         Self {
             mask: from as u16 | (to as u16) << Self::DST_BITS | flag,
-        }
-    }
-
-    #[inline(always)]
-    pub fn capture(from: usize, to: usize) -> Self {
-        Self {
-            mask: from as u16 | (to as u16) << Self::DST_BITS | Self::FLAG_CAPTURE,
         }
     }
 
@@ -1119,7 +1584,19 @@ impl Move {
     #[inline(always)]
     pub fn is_promotion(&self) -> bool {
         let flag = self.flag();
-        flag >= Self::FLAG_PROMO_KNIGHT && flag <= Self::FLAG_CAPTURE_PROMO_QUEEN
+        //todo. DONT USE RANGE, IT IS SLOW
+        (Self::FLAG_PROMO_KNIGHT..=Self::FLAG_CAPTURE_PROMO_QUEEN).contains(&flag)
+    }
+
+    #[inline(always)]
+    pub fn promotion_piece(&self) -> Option<PieceKind> {
+        match self.flag() {
+            Self::FLAG_PROMO_KNIGHT | Self::FLAG_CAPTURE_PROMO_KNIGHT => Some(PieceKind::Knight),
+            Self::FLAG_PROMO_BISHOP | Self::FLAG_CAPTURE_PROMO_BISHOP => Some(PieceKind::Bishop),
+            Self::FLAG_PROMO_ROOK | Self::FLAG_CAPTURE_PROMO_ROOK => Some(PieceKind::Rook),
+            Self::FLAG_PROMO_QUEEN | Self::FLAG_CAPTURE_PROMO_QUEEN => Some(PieceKind::Queen),
+            _ => None,
+        }
     }
 
     #[inline(always)]
@@ -1128,6 +1605,27 @@ impl Move {
         flag == Self::FLAG_CAPTURE
             || flag == Self::FLAG_EP_CAPTURE
             || (flag >= Self::FLAG_CAPTURE_PROMO_KNIGHT && flag <= Self::FLAG_CAPTURE_PROMO_QUEEN)
+    }
+
+    #[inline(always)]
+    pub fn is_castle(&self) -> bool {
+        let flag = self.flag();
+        flag == Self::FLAG_CASTLE_SHORT || flag == Self::FLAG_CASTLE_LONG
+    }
+
+    #[inline(always)]
+    pub fn is_castle_short(&self) -> bool {
+        self.flag() == Self::FLAG_CASTLE_SHORT
+    }
+
+    #[inline(always)]
+    pub fn is_en_passant(&self) -> bool {
+        self.flag() == Self::FLAG_EP_CAPTURE
+    }
+
+    #[inline(always)]
+    pub fn is_castle_long(&self) -> bool {
+        self.flag() == Self::FLAG_CASTLE_LONG
     }
 
     pub fn to_uci(&self) -> String {

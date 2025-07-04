@@ -7,6 +7,11 @@ struct GameRequest {
     pub fen: String, // Changed from &'a str to String
 }
 
+struct MoveRepresentation {
+    pub uci_move: String,
+    pub fen_after: String,
+}
+
 fn main() {
     println!("Starting server on 0.0.0.0:42069");
     rouille::start_server("0.0.0.0:42069", move |request| {
@@ -20,8 +25,17 @@ fn main() {
         }
         router!(request,
             // first route
-            (POST) (/new-game) => {
+            (POST) (/startgame) => {
                 let game_request: GameRequest = try_or_400!(
+                    json_input(
+                        request,
+                    )
+                );
+                println!("game fen: {}", game_request.fen);
+                Response::text("succes").with_status_code(200)
+            },
+            (POST) (/move) => {
+                let move_request: MoveRepresentation = try_or_400!(
                     json_input(
                         request,
                     )
