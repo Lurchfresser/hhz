@@ -1252,6 +1252,16 @@ impl Board {
         checkers > 0
     }
 
+    pub fn make_uci_move_temp(&self,uci_move:&str) -> Self {
+        let moves = self.generate_legal_moves_temp();
+        for m in moves {
+            if m.to_uci() == uci_move {
+                return self.make_move_temp(m)
+            };
+        }
+        panic!("uci move not found");
+    }
+
     pub fn make_move_temp(&self, _move: Move) -> Self {
         let mut new_board = *self;
         new_board.en_passant_target = 0;

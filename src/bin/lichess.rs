@@ -1,9 +1,8 @@
-use chessie::prelude::*;
 use dotenv::dotenv;
 use futures_util::StreamExt;
 use licheszter::models::game::{Color as LichessColor, GameStatus};
 use licheszter::{client::Licheszter, models::board::BoardState};
-
+use hhz::board::Board;
 use hhz::search::search_entry;
 
 #[tokio::main]
@@ -23,15 +22,11 @@ async fn main() {
         match event {
             licheszter::models::board::Event::GameStart { game } => {
                 let result = client.bot_game_connect(&game.id).await;
-                let mut chessie_game = Game::from_fen(&game.fen).unwrap();
-                let my_color = if game.color == LichessColor::White {
-                    chessie::Color::White
-                } else {
-                    chessie::Color::Black
-                };
-                if chessie_game.position().side_to_move() == my_color {
+                let mut board = Board::from_fen(&game.fen).unwrap();
+                let playing_white = game.color == LichessColor::White;
+                if board.white_to_move == playing_white {
                     println!("Playing first move of session");
-                    calculate_and_play_move(chessie_game, depth, &client, &game.id).await;
+                    calculate_and_play_move(board, depth, &client, &game.id).await;
                 }
                 match result {
                     Ok(mut stream) => {
@@ -47,19 +42,15 @@ async fn main() {
                                     if game_state.status != GameStatus::Started {
                                         continue;
                                     }
-                                    let chessie_result = chessie_game
-                                        .make_move_uci(game_state.moves.split(" ").last().unwrap());
-                                    if let Err(e) = chessie_result {
-                                        eprintln!("Failed to make move: {}", e);
-                                        panic!();
-                                    }
-                                    if chessie_game.position().side_to_move() != my_color {
+                                    board = board
+                                        .make_uci_move_temp(game_state.moves.split(" ").last().unwrap());
+                                    if board.white_to_move != playing_white {
                                         println!(
                                             "It's not my turn, waiting for opponent's move..."
                                         );
                                         continue; // Wait for the opponent's move
                                     }
-                                    calculate_and_play_move(chessie_game, depth, &client, &game.id)
+                                    calculate_and_play_move(board, depth, &client, &game.id)
                                         .await;
                                 }
                                 BoardState::ChatLine(chat_line) => {
@@ -103,13 +94,13 @@ async fn main() {
 }
 
 async fn calculate_and_play_move(
-    chessie_game: Game,
+    board: Board,
     depth: u32,
     client: &Licheszter,
     game_id: &str,
 ) {
     println!("Calculating best move for depth: {}", depth);
-    if let Some(best_move) = search_entry(&chessie_game, depth) {
+    if let Some(best_move) = search_entry(&board, depth) {
         println!("Best move: {}", best_move);
         let best_move_uci = best_move.to_uci();
         // Send the best move back to the game

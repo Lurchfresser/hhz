@@ -8,6 +8,7 @@ metrics = ["dep:csv","dep:serde"]
 server = ["dep:rouille", "dep:serde"]
 #gen_look_up = ["dep:bytemuck"]
 chessie = ["dep:chessie"]
+lichess = ["dep:licheszter","dep:futures-util", "dep:dotenv", "dep:tokio"]
 
 [dependencies]
 chessie = {version =  "2.0.0", optional = true }
