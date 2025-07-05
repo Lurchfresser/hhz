@@ -2,6 +2,7 @@ use crate::bit_boards::*;
 use regex::Regex;
 use std::fmt;
 use std::fmt::{Debug, Display, Formatter};
+use std::iter::FromIterator;
 use std::ops::{Deref, DerefMut};
 use std::slice::Iter;
 
@@ -15,6 +16,26 @@ pub struct MoveList {
     moves: arrayvec::ArrayVec<Move, MAX_NUM_MOVES>,
 }
 
+// For owned Move values
+impl FromIterator<Move> for MoveList {
+    fn from_iter<I: IntoIterator<Item = Move>>(iter: I) -> Self {
+        let mut movelist = MoveList::default();
+        for m in iter {
+            movelist.push(m);
+        }
+        movelist
+    }
+}
+
+impl<'a> FromIterator<&'a Move> for MoveList {
+    fn from_iter<I: IntoIterator<Item = &'a Move>>(iter: I) -> Self {
+        let mut movelist = MoveList::default();
+        for &m in iter {
+            movelist.push(m);
+        }
+        movelist
+    }
+}
 /// Custom Debug implementation for MoveList.
 impl fmt::Debug for MoveList {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
@@ -140,37 +161,37 @@ pub enum Piece {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Board {
-    white_pawns: u64,
-    white_knights: u64,
-    white_bishops: u64,
-    white_rooks: u64,
-    white_queens: u64,
-    white_king: u64,
+    pub white_pawns: u64,
+    pub white_knights: u64,
+    pub white_bishops: u64,
+    pub white_rooks: u64,
+    pub white_queens: u64,
+    pub white_king: u64,
 
-    white_pieces: u64,
+    pub white_pieces: u64,
 
-    black_pawns: u64,
-    black_knights: u64,
-    black_bishops: u64,
-    black_rooks: u64,
-    black_queens: u64,
-    black_king: u64,
+    pub black_pawns: u64,
+    pub black_knights: u64,
+    pub black_bishops: u64,
+    pub black_rooks: u64,
+    pub black_queens: u64,
+    pub black_king: u64,
 
-    black_pieces: u64,
+    pub black_pieces: u64,
 
-    all_pieces: u64,
+    pub all_pieces: u64,
 
-    en_passant_target: u64,
+    pub en_passant_target: u64,
 
-    white_castling_rights: CastlingRights,
-    black_castling_rights: CastlingRights,
+    pub white_castling_rights: CastlingRights,
+    pub black_castling_rights: CastlingRights,
 
-    halfmove_clock: u32,
-    fullmove_number: u32,
+    pub halfmove_clock: u32,
+    pub full_move_number: u32,
 
-    white_to_move: bool,
+    pub white_to_move: bool,
 
-    pieces: [Piece; 64],
+    pub pieces: [Piece; 64],
 }
 
 #[derive(Debug, Clone)]
@@ -427,7 +448,7 @@ impl Board {
             white_castling_rights,
             black_castling_rights,
             halfmove_clock,
-            fullmove_number,
+            full_move_number: fullmove_number,
             pieces,
         })
     }
@@ -516,7 +537,7 @@ impl Board {
 
         // 6. Fullmove number
         fen.push(' ');
-        fen.push_str(&self.fullmove_number.to_string());
+        fen.push_str(&self.full_move_number.to_string());
 
         fen
     }
@@ -1222,6 +1243,15 @@ impl Board {
         moves
     }
 
+    pub fn in_check_temp(&self) -> bool {
+        let pin_and_check_infos = self.generate_pins_and_sliding_checkers();
+        let all_pinned_pieces =
+            pin_and_check_infos.bishop_pinned_pieces | pin_and_check_infos.rook_pinned_pieces;
+        let checkers =
+            pin_and_check_infos.sliding_checkers | self.get_enemy_pawn_and_knight_checkers();
+        checkers > 0
+    }
+
     pub fn make_move_temp(&self, _move: Move) -> Self {
         let mut new_board = *self;
         new_board.en_passant_target = 0;
@@ -1500,7 +1530,7 @@ impl Board {
         }
 
         if !self.white_to_move {
-            self.fullmove_number += 1;
+            self.full_move_number += 1;
         }
         self.white_to_move = !self.white_to_move;
     }

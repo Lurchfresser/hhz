@@ -11,7 +11,7 @@ fn main() {
 
     for fen in fens {
         let chessie_board = chessie::Game::from_fen(fen).unwrap();
-        let my_board = Board::from_fen(fen);
+        let my_board = Board::from_fen(fen).unwrap();
         recursive_check(5, chessie_board, my_board);
     }
 

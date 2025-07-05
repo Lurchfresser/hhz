@@ -1,12 +1,12 @@
-use chessie::Game;
 use csv::Writer;
 use hhz::metrics::{SearchMetrics, SearchMetricsData};
 use hhz::search::search_entry;
 use std::time::{Instant, SystemTime};
+use hhz::board::Board;
 
 pub mod generate_attack_lookup;
 
-static FEATURE_NAME: &str = "fixed stalemate-detection in q-search";
+static FEATURE_NAME: &str = "Own move gen";
 static FEATURE_NUMBER: u32 = 6;
 
 fn main() {
@@ -62,7 +62,7 @@ fn main() {
             SearchMetrics::new_measurement(FEATURE_NAME, depth);
 
             // Parse FEN to create game
-            let game = Game::from_fen(position).unwrap();
+            let board = Board::from_fen(position).unwrap();
 
             // Measure time with Rust's timing
             let start = Instant::now();
@@ -70,7 +70,7 @@ fn main() {
             //
             //
             // -------- full measurement --------
-            let best_move = search_entry(&game, depth);
+            let best_move = search_entry(&board, depth);
             // ----------------------------------------
             //
             //
