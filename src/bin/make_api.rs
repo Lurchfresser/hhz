@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 use std::sync::{Arc, Mutex};
 use std::env::{var};
 use std::fmt::format;
+use hhz::search::search_entry;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 struct GameRequest {
@@ -85,27 +86,16 @@ fn main() {
                     )).with_status_code(409); // 409 Conflict
                 }
                 
-                // Generate legal moves for the current position
-                let my_legal_moves = new_board.generate_legal_moves_temp();
-                
-                // Check if there are any legal moves available
-                let next_move = match my_legal_moves.first() {
-                    Some(mv) => *mv,
-                    None => {
-                        eprintln!("No legal moves available");
-                        return Response::text("No legal moves available")
-                            .with_status_code(422); // 422 Unprocessable Entity
-                    }
-                };
+                let next_move = search_entry(&new_board,0);
                 
                 // Make the AI's move
-                let after_my_move = new_board.make_move_temp(next_move);
+                let after_my_move = new_board.make_move_temp(next_move.expect("No move found, maybe stalemate or checkmate?"));
 
                 *board.lock().unwrap() = after_my_move;
 
                 Response::json(
                     &MoveRepresentation {
-                        uci_move: next_move.to_uci(),
+                        uci_move: next_move.expect("No move found, maybe stalemate or checkmate?").to_uci(),
                         resul_fen: after_my_move.to_fen()
                     }
                 ).with_status_code(200)

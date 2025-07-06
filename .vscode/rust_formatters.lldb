@@ -8,3 +8,6 @@ command script import .vscode/move_formatter.py
 type summary add --python-function move_formatter.format_move hhz::board::Move
 
 type summary add --python-function move_formatter.format_move_list hhz::board::MoveList
+
+# 3. Tell LLDB to use the `format_board` function for the `hhz::board::Board` type
+type summary add --python-function move_formatter.format_board hhz::board::Board

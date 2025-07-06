@@ -1,8 +1,7 @@
+use crate::board::{Board, MAX_NUM_MOVES};
 use crate::board::{Move, MoveList};
-use crate::board::{Board,MAX_NUM_MOVES};
 use crate::eval::{eval, pieces_score};
 use crate::metrics::{SearchMetrics, TimingKind};
-
 
 pub fn search_entry(board: &Board, depth: u32) -> Option<Move> {
     SearchMetrics::increment_normal_search_entries();
@@ -11,7 +10,11 @@ pub fn search_entry(board: &Board, depth: u32) -> Option<Move> {
     SearchMetrics::change_timing_kind(TimingKind::Search);
     let maximize_score = board.white_to_move;
 
-    let legal_moves = sort_moves(board.generate_legal_moves_temp(), board.clone(), maximize_score);
+    let legal_moves = sort_moves(
+        board.generate_legal_moves_temp(),
+        board.clone(),
+        maximize_score,
+    );
 
     if legal_moves.is_empty() {
         return None; // No legal moves available
@@ -57,7 +60,6 @@ fn min_max_search(board: &Board, depth: u32, mut alpha: i32, mut beta: i32) -> i
         return q_search_score;
     }
 
-
     SearchMetrics::change_timing_kind(TimingKind::Search);
 
     SearchMetrics::increment_normal_search_entries();
@@ -92,7 +94,6 @@ fn min_max_search(board: &Board, depth: u32, mut alpha: i32, mut beta: i32) -> i
 
     SearchMetrics::change_timing_kind(TimingKind::Search);
 
-
     for move_ in legal_moves {
         let new_game = board.make_move_temp(move_);
 
@@ -121,14 +122,23 @@ fn q_search(board: &Board, mut alpha: i32, mut beta: i32) -> i32 {
 
     SearchMetrics::change_timing_kind(TimingKind::QSearch);
 
-    //TODO: make function on board
     let maximize_score = board.white_to_move;
 
-    let mut best_score = if maximize_score {
-        i32::MIN + 1
+    SearchMetrics::change_timing_kind(TimingKind::Evaluation);
+    let stand_pat = eval(board);
+    SearchMetrics::change_timing_kind(TimingKind::QSearch);
+
+    let mut best_score = stand_pat;
+
+    if maximize_score {
+        alpha = best_score.max(alpha);
     } else {
-        i32::MAX - 1
-    };
+        beta = best_score.min(beta);
+    }
+    if beta <= alpha {
+        SearchMetrics::increment_alpha_beta_cutoffs();
+        return best_score;
+    }
 
     SearchMetrics::change_timing_kind(TimingKind::MoveGen);
 
@@ -147,11 +157,15 @@ fn q_search(board: &Board, mut alpha: i32, mut beta: i32) -> i32 {
         GameResult::Ongoing => {}
     }
 
-    let legal_captures_unordered: MoveList = legal_moves.iter().filter(|m| {m.is_capture()}).map(|m| {*m}).collect();
+    let legal_captures_unordered: MoveList = legal_moves
+        .iter()
+        .filter(|m| m.is_capture())
+        .copied()
+        .collect();
 
     SearchMetrics::change_timing_kind(TimingKind::MoveOrdering);
 
-    let legal_captures = sort_moves(legal_captures_unordered, board.clone(), maximize_score);
+    let legal_captures = sort_moves(legal_captures_unordered, *board, maximize_score);
 
     SearchMetrics::change_timing_kind(TimingKind::QSearch);
 
