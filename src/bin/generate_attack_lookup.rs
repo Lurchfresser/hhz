@@ -133,7 +133,7 @@ fn gen_bishop_look_up() {
                         file: bishop_square.file - north_west_index,
                         rank: bishop_square.rank + north_west_index,
                     };
-                    if next_square.file < 0 || next_square.rank > 7 {
+                    if  next_square.rank > 7 {
                         break;
                     }
                     move_bit_board |= next_square.to_bit_board();
@@ -153,7 +153,7 @@ fn gen_bishop_look_up() {
                         file: bishop_square.file + south_east_index,
                         rank: bishop_square.rank - south_east_index,
                     };
-                    if next_square.file > 7 || next_square.rank < 0 {
+                    if next_square.file > 7 {
                         break;
                     }
                     move_bit_board |= next_square.to_bit_board();
@@ -175,9 +175,9 @@ fn gen_bishop_look_up() {
                         file: bishop_square.file - south_west_index,
                         rank: bishop_square.rank - south_west_index,
                     };
-                    if next_square.file < 0 || next_square.rank < 0 {
-                        break;
-                    }
+                    // if next_square.file < 0 || next_square.rank < 0 {
+                    //     break;
+                    // }
                     move_bit_board |= next_square.to_bit_board();
                     if next_square.to_bit_board() & blockers != 0 {
                         break;

@@ -1,11 +1,9 @@
+use hhz::search::search_entry;
 use hhz::board::Board;
 use rouille::input::json_input;
 use rouille::{Response, router, try_or_400};
 use serde::{Deserialize, Serialize};
 use std::sync::{Arc, Mutex};
-use std::env::{var};
-use std::fmt::format;
-use hhz::search::search_entry;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 struct GameRequest {
@@ -21,7 +19,7 @@ struct MoveRepresentation {
 fn main() {
     let board = Arc::new(Mutex::new(Board::default()));
 
-    let url_base = std::env::var("URL_BASE").unwrap_or("localhost".parse().unwrap());
+    let url_base = std::env::var("URL_BASE").unwrap_or("0.0.0.0".parse().unwrap());
 
     let url = url_base + ":42069";
     println!("Starting server on {}", url);

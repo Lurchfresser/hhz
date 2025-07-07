@@ -1,5 +1,5 @@
-use crate::board::{Board, MAX_NUM_MOVES};
-use crate::board::{Move, MoveList};
+use crate::board::{Board};
+use crate::moves::{Move, MoveList};
 use crate::eval::{eval, pieces_score};
 use crate::metrics::{SearchMetrics, TimingKind};
 

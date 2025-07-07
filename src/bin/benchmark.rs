@@ -6,8 +6,8 @@ use hhz::board::Board;
 
 pub mod generate_attack_lookup;
 
-static FEATURE_NAME: &str = "Own move gen";
-static FEATURE_NUMBER: u32 = 6;
+static FEATURE_NAME: &str = "Stand pat";
+static FEATURE_NUMBER: u32 = 7;
 
 fn main() {
     let file_path = &format!(
@@ -36,7 +36,7 @@ fn main() {
                                                                     // Add more positions as needed
     ];
 
-    let max_depth = 7; // Depths to test
+    let max_depth = 10; // Depths to test
 
     println!("Chess Engine Benchmark");
     println!("=====================");

@@ -1,4 +1,5 @@
 use crate::bit_boards::*;
+use const_random::const_random;
 
 //TODO: make for whole board, for check-checks, check?
 pub const fn gen_free_white_pawn_attacks() -> [u64; 64] {
@@ -83,38 +84,38 @@ pub const fn gen_free_kight_moves() -> [u64; 64] {
         if rank <= 5 {
             // north-west
             if file >= 1 {
-                moves |= 1 << i + 15; // up-right
+                moves |= 1 << (i + 15); // up-right
             }
             if file <= 6 {
-                moves |= 1 << i + 17; // up-left
+                moves |= 1 << (i + 17); // up-left
             }
         }
         // south
         if rank >= 2 {
             // south-west
             if file >= 1 {
-                moves |= 1 << i - 17; // down-right
+                moves |= 1 << (i - 17); // down-right
             }
             if file <= 6 {
-                moves |= 1 << i - 15; // down-left
+                moves |= 1 << (i - 15); // down-left
             }
         }
         // west
         if file >= 2 {
             if rank >= 1 {
-                moves |= 1 << i - 10; // up-left
+                moves |= 1 << (i - 10); // up-left
             }
             if rank <= 6 {
-                moves |= 1 << i + 6; // down-left
+                moves |= 1 << (i + 6); // down-left
             }
         }
         // east
         if file <= 5 {
             if rank >= 1 {
-                moves |= 1 << i - 6; // up-right
+                moves |= 1 << (i - 6); // up-right
             }
             if rank <= 6 {
-                moves |= 1 << i + 10; // down-right
+                moves |= 1 << (i + 10); // down-right
             }
         }
         knight_lookup[i as usize] = moves;
@@ -322,7 +323,7 @@ pub const fn gen_free_rook_moves() -> [u64; 64] {
         bit_board ^= square.get_whole_file();
         bit_board ^= square.get_whole_rank();
 
-        free_rook_lookup[s as usize] = bit_board;
+        free_rook_lookup[s] = bit_board;
         s += 1;
     }
     free_rook_lookup
@@ -352,7 +353,7 @@ pub const fn gen_free_rook_mask_edges_removed() -> [u64; 64] {
         if square.file != 7 {
             bit_board &= !FILE_H
         }
-        rook_free_board_lookup[s as usize] = bit_board;
+        rook_free_board_lookup[s] = bit_board;
         s += 1;
     }
     rook_free_board_lookup
@@ -467,7 +468,7 @@ pub const fn gen_free_king_moves() -> [u64; 65] {
             attacks |= 1 << (i + 1);
         }
 
-        king_moves[i as usize] = attacks;
+        king_moves[i] = attacks;
         i += 1;
     }
     king_moves
@@ -520,7 +521,7 @@ pub const fn gen_vertical_rays() -> [u64; 64] {
 }
 
 pub const fn gen_north_east_rays() -> [u64; 64] {
-    let mut nort_east_rays_lookup = [064; 64];
+    let mut nort_east_rays_lookup = [0u64; 64];
     let mut square_index = 0usize;
     while square_index < 64 {
         let square = square_index_to_square(square_index);
@@ -548,9 +549,9 @@ pub const fn gen_north_east_rays() -> [u64; 64] {
                 file: square.file - south_west_index,
                 rank: square.rank - south_west_index,
             };
-            if next_square.file < 0 || next_square.rank < 0 {
-                break;
-            }
+            // if next_square.  < 0 || next_square.rank < 0 {
+            //     break;
+            // }
             move_bit_board |= next_square.to_bit_board();
             south_west_index += 1;
         }
@@ -578,7 +579,7 @@ pub const fn gen_north_west_rays() -> [u64; 64] {
                 file: square.file + south_east_index,
                 rank: square.rank - south_east_index,
             };
-            if next_square.file > 7 || next_square.rank < 0 {
+            if next_square.file > 7 {
                 break;
             }
             move_bit_board |= next_square.to_bit_board();
@@ -594,7 +595,7 @@ pub const fn gen_north_west_rays() -> [u64; 64] {
                 file: square.file - north_west_index,
                 rank: square.rank + north_west_index,
             };
-            if next_square.file < 0 || next_square.rank > 7 {
+            if next_square.rank > 7 {
                 break;
             }
             move_bit_board |= next_square.to_bit_board();
@@ -605,4 +606,14 @@ pub const fn gen_north_west_rays() -> [u64; 64] {
         square_index += 1;
     }
     north_west_rays_lookup
+}
+
+pub const fn random_pieces_lookup() -> [u64; 64] {
+    let mut i = 0;
+    let mut lookup = [0; 64];
+    while i < 64 {
+        lookup[i] = const_random!(u64);
+        i += 1;
+    }
+    lookup
 }

@@ -55,6 +55,23 @@
         {
             "type": "lldb",
             "request": "launch",
+            "name": "Benchmark",
+            "cargo": {
+                "args": [
+                    "build",
+                    "-F metrics",
+                    "--bin=benchmark"
+                ]
+            },
+            "args": [],
+            "program": "${workspaceFolder}/target/debug/benchmark",
+            "initCommands": [
+                "command source '${workspaceFolder}/.vscode/rust_formatters.lldb'"
+            ]
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
             "name": "Gen attacks",
             "cargo": {
                 "args": [

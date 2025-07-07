@@ -23,6 +23,7 @@ bytemuck = { version = "1.23.1", optional = false }
 rouille = { version = "3.6.2", optional = true }
 arrayvec = "0.7.6"
 log = "0.4.27"
+const-random = "0.1.18"
 
 [profile.release]
 opt-level = 3        # Use the highest standard optimization level (this is the default for release).

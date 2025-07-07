@@ -1,4 +1,4 @@
-use hhz::board::{Board, Move, Piece};
+use hhz::board::{Board, Move};
 use hhz::const_move_gen::*;
 use std::collections::{HashMap, HashSet};
 use std::{fs, mem};
