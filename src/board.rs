@@ -2,7 +2,6 @@ use crate::{bit_boards::*, moves::square_to_algebraic};
 use regex::Regex;
 use std::fmt::Debug;
 
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum CastlingRights {
     All,
@@ -421,14 +420,26 @@ impl Board {
             fen.push_str(&castling_str);
         }
 
+        let lookup = if self.white_to_move {
+            &BLACK_FREE_PAWN_ADVANCE_LOOKUP
+        } else {
+            &WHITE_FREE_PAWN_ATTACKS_LOOKUP
+        };
+        let enemypawns = if self.white_to_move {
+            self.black_pawns
+        } else {
+            self.white_pawns
+        };
         // 4. En passant target square
         fen.push(' ');
-        if self.en_passant_target == 0 {
-            fen.push('-');
-        } else {
+        if self.en_passant_target != 0
+            && lookup[bitboard_to_square_index(self.en_passant_target)] & enemypawns != 0
+        {
             let ep_index = bitboard_to_square_index(self.en_passant_target);
             let ep_square = square_index_to_square(ep_index);
             fen.push_str(&square_to_algebraic(ep_square));
+        } else {
+            fen.push('-');
         }
 
         // 5. Halfmove clock
