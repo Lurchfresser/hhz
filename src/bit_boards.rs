@@ -56,7 +56,6 @@ pub const WHITE_QUEENSIDE_CASTLE_INDEX: usize = 2;
 pub const BLACK_KINGSIDE_CASTLE_INDEX: usize = 62;
 pub const BLACK_QUEENSIDE_CASTLE_INDEX: usize = 58;
 
-
 pub const WHITE_KINGSIDE_CASTLE_KING_BIT_BOARD: u64 = 64;
 pub const BLACK_KINGSIDE_CASTLE_KING_BIT_BOARD: u64 = 4611686018427387904;
 
@@ -69,14 +68,11 @@ pub const BLACK_KINGSIDE_CASTLE_ROOK_MASK: u64 = 11529215046068469760;
 pub const WHITE_QUEENSIDE_CASTLE_ROOK_MASK: u64 = 9;
 pub const BLACK_QUEENSIDE_CASTLE_ROOK_MASK: u64 = 648518346341351424;
 
-
 pub const WHITE_KINGSIDE_CASTLE_ROOK_INDEX: usize = 7;
 pub const BLACK_KINGSIDE_CASTLE_ROOK_INDEX: usize = 63;
 
 pub const WHITE_QUEENSIDE_CASTLE_ROOK_INDEX: usize = 0;
 pub const BLACK_QUEENSIDE_CASTLE_ROOK_INDEX: usize = 63 - 7;
-
-
 
 pub static WHITE_FREE_PAWN_ADVANCE_LOOKUP: [u64; 64] = gen_free_white_pawn_advances();
 pub static BLACK_FREE_PAWN_ADVANCE_LOOKUP: [u64; 64] = gen_free_black_pawn_advances();
@@ -175,7 +171,7 @@ pub fn pop_lsb(bit_board: &mut u64) -> usize {
 pub fn get_rook_moves(square: u32, blockers: u64) -> u64 {
     let rook_moves = ROOK_LOOKUP_MASK[square as usize];
     let lookup_index = unsafe { _pext_u64(blockers, rook_moves) };
-    
+
     unsafe {
         let ptr: *const u64 = ROOK_LOOKUP
             .as_ptr()
@@ -188,7 +184,7 @@ pub fn get_rook_moves(square: u32, blockers: u64) -> u64 {
 pub fn get_bishop_moves(square: usize, blockers: u64) -> u64 {
     let bishop_moves = BISHOP_LOOKUP_MASK[square];
     let lookup_index = unsafe { _pext_u64(blockers, bishop_moves) };
-    
+
     unsafe {
         let ptr: *const u64 = BISHOP_LOOKUP
             .as_ptr()

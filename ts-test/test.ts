@@ -1,11 +1,13 @@
 import {Chess} from 'chess.js'
 
 const chess = new Chess(
-    "8/8/8/8/4k1pR/8/5P2/1K6 w - - 0 1"
+    "4k3/8/8/8/8/8/8/R3K3 w Q - 0 1"
 )
 
 
-chess.move("f2f4");
+chess.move("e1c1");
+
+// console.log(chess.moves());
 
 console.log(chess.fen({forceEnpassantSquare: true}));
 // returns:

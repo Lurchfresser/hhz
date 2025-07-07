@@ -1,4 +1,4 @@
-use crate::board::{Board, Piece, PieceKind};
+use crate::board::{Board, Piece};
 use crate::metrics::{SearchMetrics, TimingKind};
 
 pub const PAWN_SCORE: i32 = 100;
@@ -10,11 +10,41 @@ pub const QUEEN_SCORE: i32 = 900;
 pub fn pieces_score(piece: Piece) -> i32 {
     match piece {
         Piece::None => 0,
-        Piece::Pawn { white } => if white { PAWN_SCORE } else { -PAWN_SCORE },
-        Piece::Knight { white } => if white { KNIGHT_SCORE } else { -KNIGHT_SCORE },
-        Piece::Bishop { white } => if white { BISHOP_SCORE } else { -BISHOP_SCORE },
-        Piece::Rook { white } => if white { ROOK_SCORE } else { -ROOK_SCORE },
-        Piece::Queen { white } => if white { QUEEN_SCORE } else { -QUEEN_SCORE },
+        Piece::Pawn { white } => {
+            if white {
+                PAWN_SCORE
+            } else {
+                -PAWN_SCORE
+            }
+        }
+        Piece::Knight { white } => {
+            if white {
+                KNIGHT_SCORE
+            } else {
+                -KNIGHT_SCORE
+            }
+        }
+        Piece::Bishop { white } => {
+            if white {
+                BISHOP_SCORE
+            } else {
+                -BISHOP_SCORE
+            }
+        }
+        Piece::Rook { white } => {
+            if white {
+                ROOK_SCORE
+            } else {
+                -ROOK_SCORE
+            }
+        }
+        Piece::Queen { white } => {
+            if white {
+                QUEEN_SCORE
+            } else {
+                -QUEEN_SCORE
+            }
+        }
         Piece::King { .. } => 0, // King is not scored in this evaluation
     }
 }

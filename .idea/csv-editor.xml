@@ -17,6 +17,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/benchmarks/3_Simple move Ordering.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/benchmarks/4_improved-measurent-logic.csv">
           <value>
             <Attribute>

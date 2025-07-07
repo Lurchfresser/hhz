@@ -1,8 +1,8 @@
 use csv::Writer;
+use hhz::board::Board;
 use hhz::metrics::{SearchMetrics, SearchMetricsData};
 use hhz::search::search_entry;
 use std::time::{Instant, SystemTime};
-use hhz::board::Board;
 
 pub mod generate_attack_lookup;
 

@@ -1,5 +1,5 @@
-use crate::board::*;
 use crate::bit_boards::*;
+use crate::board::*;
 use crate::moves::*;
 
 struct PinAndCheckInfos {

@@ -1,7 +1,7 @@
-use crate::board::{Board};
-use crate::moves::{Move, MoveList};
+use crate::board::Board;
 use crate::eval::{eval, pieces_score};
 use crate::metrics::{SearchMetrics, TimingKind};
+use crate::moves::{Move, MoveList};
 
 pub fn search_entry(board: &Board, depth: u32) -> Option<Move> {
     SearchMetrics::increment_normal_search_entries();

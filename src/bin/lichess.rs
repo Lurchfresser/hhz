@@ -1,9 +1,9 @@
 use dotenv::dotenv;
 use futures_util::StreamExt;
-use licheszter::models::game::{Color as LichessColor, GameStatus};
-use licheszter::{client::Licheszter, models::board::BoardState};
 use hhz::board::Board;
 use hhz::search::search_entry;
+use licheszter::models::game::{Color as LichessColor, GameStatus};
+use licheszter::{client::Licheszter, models::board::BoardState};
 
 #[tokio::main]
 async fn main() {
@@ -42,16 +42,16 @@ async fn main() {
                                     if game_state.status != GameStatus::Started {
                                         continue;
                                     }
-                                    board = board
-                                        .make_uci_move_temp(game_state.moves.split(" ").last().unwrap());
+                                    board = board.make_uci_move_temp(
+                                        game_state.moves.split(" ").last().unwrap(),
+                                    );
                                     if board.white_to_move != playing_white {
                                         println!(
                                             "It's not my turn, waiting for opponent's move..."
                                         );
                                         continue; // Wait for the opponent's move
                                     }
-                                    calculate_and_play_move(board, depth, &client, &game.id)
-                                        .await;
+                                    calculate_and_play_move(board, depth, &client, &game.id).await;
                                 }
                                 BoardState::ChatLine(chat_line) => {
                                     println!("Chat line: {}", chat_line.text);
@@ -93,12 +93,7 @@ async fn main() {
     }
 }
 
-async fn calculate_and_play_move(
-    board: Board,
-    depth: u32,
-    client: &Licheszter,
-    game_id: &str,
-) {
+async fn calculate_and_play_move(board: Board, depth: u32, client: &Licheszter, game_id: &str) {
     println!("Calculating best move for depth: {}", depth);
     if let Some(best_move) = search_entry(&board, depth) {
         println!("Best move: {}", best_move);

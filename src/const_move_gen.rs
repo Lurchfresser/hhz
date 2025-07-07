@@ -1,5 +1,4 @@
 use crate::bit_boards::*;
-use const_random::const_random;
 
 //TODO: make for whole board, for check-checks, check?
 pub const fn gen_free_white_pawn_attacks() -> [u64; 64] {
@@ -606,14 +605,4 @@ pub const fn gen_north_west_rays() -> [u64; 64] {
         square_index += 1;
     }
     north_west_rays_lookup
-}
-
-pub const fn random_pieces_lookup() -> [u64; 64] {
-    let mut i = 0;
-    let mut lookup = [0; 64];
-    while i < 64 {
-        lookup[i] = const_random!(u64);
-        i += 1;
-    }
-    lookup
 }

@@ -1,7 +1,7 @@
-use hhz::board::{Board, Move};
-use hhz::const_move_gen::*;
+use hhz::board::Board;
+use hhz::moves::Move;
 use std::collections::{HashMap, HashSet};
-use std::{fs, mem};
+use std::fs;
 
 fn main() {
     let file_content =
