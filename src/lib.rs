@@ -6,4 +6,4 @@ pub mod metrics;
 pub mod move_gen;
 pub mod moves;
 pub mod search;
-mod zobrists;
+pub mod polyglot_zobrists;

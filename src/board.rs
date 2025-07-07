@@ -1,3 +1,4 @@
+use crate::polyglot_zobrists::*;
 use crate::{bit_boards::*, moves::square_to_algebraic};
 use regex::Regex;
 use std::fmt::Debug;
@@ -32,6 +33,24 @@ impl CastlingRights {
                 CastlingRights::None => CastlingRights::OnlyQueenSide,
             },
             CastlingRights::None => CastlingRights::None,
+        }
+    }
+
+    pub fn zobrist_hash(&self, for_white: bool) -> u64 {
+        if for_white {
+            match self {
+                CastlingRights::All => ZOBRISTS_CASTLING_RIGHTS[0] ^ ZOBRISTS_CASTLING_RIGHTS[1],
+                CastlingRights::OnlyKingSide => ZOBRISTS_CASTLING_RIGHTS[0],
+                CastlingRights::OnlyQueenSide => ZOBRISTS_CASTLING_RIGHTS[1],
+                CastlingRights::None => 0,
+            }
+        } else {
+            match self {
+                CastlingRights::All => ZOBRISTS_CASTLING_RIGHTS[2] ^ ZOBRISTS_CASTLING_RIGHTS[3],
+                CastlingRights::OnlyKingSide => ZOBRISTS_CASTLING_RIGHTS[2],
+                CastlingRights::OnlyQueenSide => ZOBRISTS_CASTLING_RIGHTS[3],
+                CastlingRights::None => 0,
+            }
         }
     }
 }
@@ -90,7 +109,8 @@ pub struct Board {
     pub white_to_move: bool,
 
     pub pieces: [Piece; 64],
-    // pub zobrist_hash: u64,
+
+    pub zobrist_hash: u64,
 }
 
 #[derive(Debug, Clone)]
@@ -149,6 +169,8 @@ impl Board {
         let mut file: i32 = 0; // Changed to 0-based indexing
         let mut rank: i32 = 7; // Changed to 0-based indexing, top rank is 7
 
+        let mut zobrist_hash = 0u64;
+
         // Parse piece placement
         for c in fen.chars() {
             if rank < 0 || rank > 7 {
@@ -171,61 +193,73 @@ impl Board {
                 'p' => {
                     black_pawns |= 1u64 << bit_position;
                     pieces[square_index] = Piece::Pawn { white: false };
+                    zobrist_hash ^= ZOBRISTS_BLACK_PAWNS[square_index];
                     file += 1;
                 }
                 'r' => {
                     black_rooks |= 1u64 << bit_position;
                     pieces[square_index] = Piece::Rook { white: false };
+                    zobrist_hash ^= ZOBRISTS_BLACK_ROOKS[square_index];
                     file += 1;
                 }
                 'n' => {
                     black_knights |= 1u64 << bit_position;
                     pieces[square_index] = Piece::Knight { white: false };
+                    zobrist_hash ^= ZOBRISTS_BLACK_KNIGHTS[square_index];
                     file += 1;
                 }
                 'b' => {
                     black_bishops |= 1u64 << bit_position;
                     pieces[square_index] = Piece::Bishop { white: false };
+                    zobrist_hash ^= ZOBRISTS_BLACK_BISHOPS[square_index];
                     file += 1;
                 }
                 'q' => {
                     black_queens |= 1u64 << bit_position;
                     pieces[square_index] = Piece::Queen { white: false };
+                    zobrist_hash ^= ZOBRISTS_BLACK_QUEENS[square_index];
                     file += 1;
                 }
                 'k' => {
                     black_king |= 1u64 << bit_position;
                     pieces[square_index] = Piece::King { white: false };
+                    zobrist_hash ^= ZOBRISTS_BLACK_KINGS[square_index];
                     file += 1;
                 }
                 'P' => {
                     white_pawns |= 1u64 << bit_position;
                     pieces[square_index] = Piece::Pawn { white: true };
+                    zobrist_hash ^= ZOBRISTS_WHITE_PAWNS[square_index];
                     file += 1;
                 }
                 'R' => {
                     white_rooks |= 1u64 << bit_position;
                     pieces[square_index] = Piece::Rook { white: true };
+                    zobrist_hash ^= ZOBRISTS_WHITE_ROOKS[square_index];
                     file += 1;
                 }
                 'N' => {
                     white_knights |= 1u64 << bit_position;
                     pieces[square_index] = Piece::Knight { white: true };
+                    zobrist_hash ^= ZOBRISTS_WHITE_KNIGHTS[square_index];
                     file += 1;
                 }
                 'B' => {
                     white_bishops |= 1u64 << bit_position;
                     pieces[square_index] = Piece::Bishop { white: true };
+                    zobrist_hash ^= ZOBRISTS_WHITE_BISHOPS[square_index];
                     file += 1;
                 }
                 'Q' => {
                     white_queens |= 1u64 << bit_position;
                     pieces[square_index] = Piece::Queen { white: true };
+                    zobrist_hash ^= ZOBRISTS_WHITE_QUEENS[square_index];
                     file += 1;
                 }
                 'K' => {
                     white_king |= 1u64 << bit_position;
                     pieces[square_index] = Piece::King { white: true };
+                    zobrist_hash ^= ZOBRISTS_WHITE_KINGS[square_index];
                     file += 1;
                 }
                 '/' => {
@@ -258,6 +292,9 @@ impl Board {
             "b" => false,
             _ => return Err(FenError::InvalidSideToMove(side_move_str.to_string())),
         };
+        if white_to_move {
+            zobrist_hash ^= ZOBRISTS_WHITE_TO_MOVE;
+        }
 
         // Parse castling rights
         let castling_rights_str = parts.next().ok_or(FenError::MissingParts)?;
@@ -294,6 +331,9 @@ impl Board {
                 CastlingRights::None
             };
 
+        zobrist_hash ^=
+            white_castling_rights.zobrist_hash(true) ^ black_castling_rights.zobrist_hash(false);
+
         // Parse en passant target
         let en_passant_str = parts.next().ok_or(FenError::MissingParts)?;
         let en_passant_target = if en_passant_str == "-" {
@@ -311,7 +351,31 @@ impl Board {
 
             let file = file_char as u8 - b'a';
             let rank = rank_char as u8 - b'1';
-            1u64 << (rank * 8 + file)
+            let ep_square_index = (rank * 8 + file) as usize;
+
+            // Polyglot spec: hash only if a pawn can actually perform the capture.
+            let can_capture_en_passant = if white_to_move {
+                // White to move, EP target must be on rank 6. Black pawn must be on rank 5.
+                // Check for white pawns on adjacent files on rank 5.
+                let pawn_rank_mask = 1u64 << (ep_square_index - 8);
+                let adjacent_files_mask = (pawn_rank_mask.wrapping_shl(1) & !FILE_H)
+                    | (pawn_rank_mask.wrapping_shr(1) & !FILE_A);
+                (white_pawns & adjacent_files_mask) != 0
+            } else {
+                // Black to move, EP target must be on rank 3. White pawn must be on rank 4.
+                // Check for black pawns on adjacent files on rank 4.
+                let pawn_rank_mask = 1u64 << (ep_square_index + 8);
+                let adjacent_files_mask = (pawn_rank_mask.wrapping_shl(1) & !FILE_H)
+                    | (pawn_rank_mask.wrapping_shr(1) & !FILE_A);
+                (black_pawns & adjacent_files_mask) != 0
+            };
+
+            if can_capture_en_passant {
+                zobrist_hash ^= ZOBRISTS_EN_PASSANT_FILE[file as usize];
+                1u64 << ep_square_index
+            } else {
+                0
+            }
         };
 
         // Parse halfmove clock
@@ -349,6 +413,7 @@ impl Board {
             halfmove_clock,
             full_move_number: fullmove_number,
             pieces,
+            zobrist_hash,
         })
     }
 

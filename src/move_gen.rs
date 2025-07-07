@@ -1,6 +1,7 @@
 use crate::bit_boards::*;
 use crate::board::*;
 use crate::moves::*;
+use crate::polyglot_zobrists::*;
 
 struct PinAndCheckInfos {
     sliding_checkers: u64,
@@ -429,7 +430,7 @@ impl Board {
             bitboard_to_square_index(self.black_king)
         };
 
-        let own_pieces = if (self.white_to_move) {
+        let own_pieces = if self.white_to_move {
             self.white_pieces
         } else {
             self.black_pieces
@@ -583,8 +584,8 @@ impl Board {
                     } else {
                         BLACK_FREE_PAWN_ATTACKS_LOOKUP
                     };
-                    rook_pinned_pieces |= (pawn_attacks[bitboard_to_square_index(maybe_own_pawn)]
-                        & self.en_passant_target)
+                    rook_pinned_pieces |= pawn_attacks[bitboard_to_square_index(maybe_own_pawn)]
+                        & self.en_passant_target
                 }
                 _ => {}
             }
@@ -606,11 +607,11 @@ impl Board {
                 sliding_checkers |= square_index_to_bitboard(bishop_or_queen_square_index);
                 stop_check_targets |= ray | sliding_checkers;
             } else if pieces_between.count_ones() == 1 {
-                let my_pieces = if self.white_to_move {
-                    self.white_pieces
-                } else {
-                    self.black_pieces
-                };
+                // let my_pieces = if self.white_to_move {
+                //     self.white_pieces
+                // } else {
+                //     self.black_pieces
+                // };
                 //TODO: maybe also divide in 2 bitboards (now discoverers and pins together)
                 let pins = self.all_pieces & ray;
                 bishop_pinned_pieces |= pins;
@@ -713,8 +714,6 @@ impl Board {
 
     pub fn in_check_temp(&self) -> bool {
         let pin_and_check_infos = self.generate_pins_and_sliding_checkers();
-        let all_pinned_pieces =
-            pin_and_check_infos.bishop_pinned_pieces | pin_and_check_infos.rook_pinned_pieces;
         let checkers =
             pin_and_check_infos.sliding_checkers | self.get_enemy_pawn_and_knight_checkers();
         checkers > 0
@@ -734,6 +733,12 @@ impl Board {
         let mut new_board = *self;
         new_board.en_passant_target = 0;
 
+        if self.en_passant_target != 0 {
+            let ep_file = (self.en_passant_target % 8) as usize;
+            //undo prev ep_target from zobrist hash
+            new_board.zobrist_hash ^= ZOBRISTS_EN_PASSANT_FILE[ep_file];
+        }
+
         let from = _move.from();
         let to = _move.to();
         let from_bb = square_index_to_bitboard(from);
@@ -745,7 +750,19 @@ impl Board {
         if _move.is_castle_short() {
             new_board.pieces[from] = Piece::None;
             if new_board.white_to_move {
+                // Update castling rights in hash
+                new_board.zobrist_hash ^= self.white_castling_rights.zobrist_hash(true);
                 new_board.white_castling_rights = CastlingRights::None;
+
+                // Remove king from original position and add to new position in hash
+                new_board.zobrist_hash ^= ZOBRISTS_WHITE_KINGS[from]; // Remove king from E1
+                new_board.zobrist_hash ^= ZOBRISTS_WHITE_KINGS[WHITE_KINGSIDE_CASTLE_INDEX]; // Add king to G1
+
+                // Remove rook from original position and add to new position in hash
+                new_board.zobrist_hash ^= ZOBRISTS_WHITE_ROOKS[WHITE_KINGSIDE_CASTLE_ROOK_INDEX]; // Remove rook from H1
+                new_board.zobrist_hash ^=
+                    ZOBRISTS_WHITE_ROOKS[WHITE_KINGSIDE_CASTLE_ROOK_INDEX - 2]; // Add rook to F1
+
                 new_board.white_king = WHITE_KINGSIDE_CASTLE_KING_BIT_BOARD;
                 new_board.white_rooks ^= WHITE_KINGSIDE_CASTLE_ROOK_MASK;
                 new_board.pieces[WHITE_KINGSIDE_CASTLE_ROOK_INDEX] = Piece::None;
@@ -753,7 +770,19 @@ impl Board {
                     Piece::Rook { white: true };
                 new_board.pieces[WHITE_KINGSIDE_CASTLE_INDEX] = Piece::King { white: true };
             } else {
+                // Update castling rights in hash
+                new_board.zobrist_hash ^= self.black_castling_rights.zobrist_hash(false);
                 new_board.black_castling_rights = CastlingRights::None;
+
+                // Remove king from original position and add to new position in hash
+                new_board.zobrist_hash ^= ZOBRISTS_BLACK_KINGS[from]; // Remove king from E8
+                new_board.zobrist_hash ^= ZOBRISTS_BLACK_KINGS[BLACK_KINGSIDE_CASTLE_INDEX]; // Add king to G8
+
+                // Remove rook from original position and add to new position in hash
+                new_board.zobrist_hash ^= ZOBRISTS_BLACK_ROOKS[BLACK_KINGSIDE_CASTLE_ROOK_INDEX]; // Remove rook from H8
+                new_board.zobrist_hash ^=
+                    ZOBRISTS_BLACK_ROOKS[BLACK_KINGSIDE_CASTLE_ROOK_INDEX - 2]; // Add rook to F8
+
                 new_board.black_king = BLACK_KINGSIDE_CASTLE_KING_BIT_BOARD;
                 new_board.black_rooks ^= BLACK_KINGSIDE_CASTLE_ROOK_MASK;
                 new_board.pieces[BLACK_KINGSIDE_CASTLE_ROOK_INDEX] = Piece::None;
@@ -768,7 +797,19 @@ impl Board {
         } else if _move.is_castle_long() {
             new_board.pieces[from] = Piece::None;
             if new_board.white_to_move {
+                // Update castling rights in hash
+                new_board.zobrist_hash ^= self.white_castling_rights.zobrist_hash(true);
                 new_board.white_castling_rights = CastlingRights::None;
+
+                // Remove king from original position and add to new position in hash
+                new_board.zobrist_hash ^= ZOBRISTS_WHITE_KINGS[from]; // Remove king from E1
+                new_board.zobrist_hash ^= ZOBRISTS_WHITE_KINGS[WHITE_QUEENSIDE_CASTLE_INDEX]; // Add king to C1
+
+                // Remove rook from original position and add to new position in hash
+                new_board.zobrist_hash ^= ZOBRISTS_WHITE_ROOKS[WHITE_QUEENSIDE_CASTLE_ROOK_INDEX]; // Remove rook from A1
+                new_board.zobrist_hash ^=
+                    ZOBRISTS_WHITE_ROOKS[WHITE_QUEENSIDE_CASTLE_ROOK_INDEX + 3]; // Add rook to D1
+
                 new_board.white_king = WHITE_QUEENSIDE_CASTLE_KING_BIT_BOARD;
                 new_board.white_rooks ^= WHITE_QUEENSIDE_CASTLE_ROOK_MASK;
                 new_board.pieces[WHITE_QUEENSIDE_CASTLE_ROOK_INDEX] = Piece::None;
@@ -776,7 +817,19 @@ impl Board {
                     Piece::Rook { white: true };
                 new_board.pieces[WHITE_QUEENSIDE_CASTLE_INDEX] = Piece::King { white: true };
             } else {
+                // Update castling rights in hash
+                new_board.zobrist_hash ^= self.black_castling_rights.zobrist_hash(false);
                 new_board.black_castling_rights = CastlingRights::None;
+
+                // Remove king from original position and add to new position in hash
+                new_board.zobrist_hash ^= ZOBRISTS_BLACK_KINGS[from]; // Remove king from E8
+                new_board.zobrist_hash ^= ZOBRISTS_BLACK_KINGS[BLACK_QUEENSIDE_CASTLE_INDEX]; // Add king to C8
+
+                // Remove rook from original position and add to new position in hash
+                new_board.zobrist_hash ^= ZOBRISTS_BLACK_ROOKS[BLACK_QUEENSIDE_CASTLE_ROOK_INDEX]; // Remove rook from A8
+                new_board.zobrist_hash ^=
+                    ZOBRISTS_BLACK_ROOKS[BLACK_QUEENSIDE_CASTLE_ROOK_INDEX + 3]; // Add rook to D8
+
                 new_board.black_king = BLACK_QUEENSIDE_CASTLE_KING_BIT_BOARD;
                 new_board.black_rooks ^= BLACK_QUEENSIDE_CASTLE_ROOK_MASK;
                 new_board.pieces[BLACK_QUEENSIDE_CASTLE_ROOK_INDEX] = Piece::None;
@@ -809,36 +862,56 @@ impl Board {
                 Piece::Pawn { .. } => {
                     if new_board.white_to_move {
                         new_board.black_pawns ^= captured_piece_bb;
+                        // Remove black pawn from hash
+                        if _move.is_en_passant() {
+                            new_board.zobrist_hash ^= ZOBRISTS_BLACK_PAWNS[to + 8];
+                        } else {
+                            new_board.zobrist_hash ^= ZOBRISTS_BLACK_PAWNS[to];
+                        }
                     } else {
                         new_board.white_pawns ^= captured_piece_bb;
+                        // Remove white pawn from hash
+                        if _move.is_en_passant() {
+                            new_board.zobrist_hash ^= ZOBRISTS_WHITE_PAWNS[to - 8];
+                        } else {
+                            new_board.zobrist_hash ^= ZOBRISTS_WHITE_PAWNS[to];
+                        }
                     }
                 }
                 Piece::Knight { .. } => {
                     if new_board.white_to_move {
                         new_board.black_knights ^= captured_piece_bb;
+                        new_board.zobrist_hash ^= ZOBRISTS_BLACK_KNIGHTS[to];
                     } else {
                         new_board.white_knights ^= captured_piece_bb;
+                        new_board.zobrist_hash ^= ZOBRISTS_WHITE_KNIGHTS[to];
                     }
                 }
                 Piece::Bishop { .. } => {
                     if new_board.white_to_move {
                         new_board.black_bishops ^= captured_piece_bb;
+                        new_board.zobrist_hash ^= ZOBRISTS_BLACK_BISHOPS[to];
                     } else {
                         new_board.white_bishops ^= captured_piece_bb;
+                        new_board.zobrist_hash ^= ZOBRISTS_WHITE_BISHOPS[to];
                     }
                 }
                 Piece::Rook { .. } => {
                     if new_board.white_to_move {
                         new_board.black_rooks ^= captured_piece_bb;
+                        new_board.zobrist_hash ^= ZOBRISTS_BLACK_ROOKS[to];
                     } else {
                         new_board.white_rooks ^= captured_piece_bb;
+                        new_board.zobrist_hash ^= ZOBRISTS_WHITE_ROOKS[to];
                     }
                 }
                 Piece::Queen { .. } => {
                     if new_board.white_to_move {
                         new_board.black_queens ^= captured_piece_bb;
+                        new_board.zobrist_hash ^= ZOBRISTS_BLACK_QUEENS[to];
                     } else {
                         new_board.white_queens ^= captured_piece_bb;
+                        new_board.zobrist_hash ^= ZOBRISTS_WHITE_QUEENS[to];
                     }
                 }
                 // King capture is illegal and should not happen
@@ -859,13 +932,21 @@ impl Board {
         match moved_piece {
             Piece::Pawn { .. } => {
                 if new_board.white_to_move {
+                    new_board.zobrist_hash ^= ZOBRISTS_WHITE_PAWNS[from]; // Remove from original position
+                    new_board.zobrist_hash ^= ZOBRISTS_WHITE_PAWNS[to]; // Add to new position
                     new_board.white_pawns ^= move_mask;
                     if to - from == 16 {
                         new_board.en_passant_target = square_index_to_bitboard(to - 8);
+                        let ep_file = (to % 8) as usize;
+                        new_board.zobrist_hash ^= ZOBRISTS_EN_PASSANT_FILE[ep_file];
                     }
                 } else {
+                    new_board.zobrist_hash ^= ZOBRISTS_BLACK_PAWNS[from]; // Remove from original position
+                    new_board.zobrist_hash ^= ZOBRISTS_BLACK_PAWNS[to]; // Add to new position
                     if from - to == 16 {
                         new_board.en_passant_target = square_index_to_bitboard(to + 8);
+                        let ep_file = (to % 8) as usize;
+                        new_board.zobrist_hash ^= ZOBRISTS_EN_PASSANT_FILE[ep_file];
                     }
                     new_board.black_pawns ^= move_mask;
                 }
@@ -873,37 +954,67 @@ impl Board {
             Piece::Knight { .. } => {
                 if new_board.white_to_move {
                     new_board.white_knights ^= move_mask;
+                    // Update Zobrist hash for moving piece
+                    new_board.zobrist_hash ^= ZOBRISTS_WHITE_KNIGHTS[from]; // Remove from original position
+                    new_board.zobrist_hash ^= ZOBRISTS_WHITE_KNIGHTS[to]; // Add to new position
                 } else {
                     new_board.black_knights ^= move_mask;
+                    // Update Zobrist hash for moving piece
+                    new_board.zobrist_hash ^= ZOBRISTS_BLACK_KNIGHTS[from]; // Remove from original position
+                    new_board.zobrist_hash ^= ZOBRISTS_BLACK_KNIGHTS[to]; // Add to new position
                 }
             }
             Piece::Bishop { .. } => {
                 if new_board.white_to_move {
                     new_board.white_bishops ^= move_mask;
+                    // Update Zobrist hash for moving piece
+                    new_board.zobrist_hash ^= ZOBRISTS_WHITE_BISHOPS[from]; // Remove from original position
+                    new_board.zobrist_hash ^= ZOBRISTS_WHITE_BISHOPS[to]; // Add to new position
                 } else {
                     new_board.black_bishops ^= move_mask;
+                    // Update Zobrist hash for moving piece
+                    new_board.zobrist_hash ^= ZOBRISTS_BLACK_BISHOPS[from]; // Remove from original position
+                    new_board.zobrist_hash ^= ZOBRISTS_BLACK_BISHOPS[to]; // Add to new position
                 }
             }
             Piece::Rook { .. } => {
                 if new_board.white_to_move {
                     new_board.white_rooks ^= move_mask;
+                    // Update Zobrist hash for moving piece
+                    new_board.zobrist_hash ^= ZOBRISTS_WHITE_ROOKS[from]; // Remove from original position
+                    new_board.zobrist_hash ^= ZOBRISTS_WHITE_ROOKS[to]; // Add to new position
                 } else {
                     new_board.black_rooks ^= move_mask;
+                    // Update Zobrist hash for moving piece
+                    new_board.zobrist_hash ^= ZOBRISTS_BLACK_ROOKS[from]; // Remove from original position
+                    new_board.zobrist_hash ^= ZOBRISTS_BLACK_ROOKS[to]; // Add to new position
                 }
             }
             Piece::Queen { .. } => {
                 if new_board.white_to_move {
                     new_board.white_queens ^= move_mask;
+                    // Update Zobrist hash for moving piece
+                    new_board.zobrist_hash ^= ZOBRISTS_WHITE_QUEENS[from]; // Remove from original position
+                    new_board.zobrist_hash ^= ZOBRISTS_WHITE_QUEENS[to]; // Add to new position
                 } else {
                     new_board.black_queens ^= move_mask;
+                    // Update Zobrist hash for moving piece
+                    new_board.zobrist_hash ^= ZOBRISTS_BLACK_QUEENS[from]; // Remove from original position
+                    new_board.zobrist_hash ^= ZOBRISTS_BLACK_QUEENS[to]; // Add to new position
                 }
             }
             Piece::King { .. } => {
                 if new_board.white_to_move {
                     new_board.white_king ^= move_mask;
+                    new_board.zobrist_hash ^= self.white_castling_rights.zobrist_hash(true);
+                    new_board.zobrist_hash ^= ZOBRISTS_WHITE_KINGS[from];
+                    new_board.zobrist_hash ^= ZOBRISTS_WHITE_KINGS[to];
                     new_board.white_castling_rights = CastlingRights::None;
                 } else {
                     new_board.black_king ^= move_mask;
+                    new_board.zobrist_hash ^= self.black_castling_rights.zobrist_hash(false);
+                    new_board.zobrist_hash ^= ZOBRISTS_BLACK_KINGS[from];
+                    new_board.zobrist_hash ^= ZOBRISTS_BLACK_KINGS[to];
                     new_board.black_castling_rights = CastlingRights::None;
                 }
             }
@@ -918,61 +1029,92 @@ impl Board {
             new_board.white_castling_rights = new_board
                 .white_castling_rights
                 .remove_side(CastlingRights::OnlyKingSide);
+            new_board.zobrist_hash ^= self.white_castling_rights.zobrist_hash(true);
+            new_board.zobrist_hash ^= new_board.white_castling_rights.zobrist_hash(true);
         }
         if from == WHITE_QUEENSIDE_CASTLE_ROOK_INDEX || to == WHITE_QUEENSIDE_CASTLE_ROOK_INDEX {
             new_board.white_castling_rights = new_board
                 .white_castling_rights
                 .remove_side(CastlingRights::OnlyQueenSide);
+            new_board.zobrist_hash ^= self.white_castling_rights.zobrist_hash(true);
+            new_board.zobrist_hash ^= new_board.white_castling_rights.zobrist_hash(true);
         }
         if from == BLACK_KINGSIDE_CASTLE_ROOK_INDEX || to == BLACK_KINGSIDE_CASTLE_ROOK_INDEX {
             new_board.black_castling_rights = new_board
                 .black_castling_rights
                 .remove_side(CastlingRights::OnlyKingSide);
+            new_board.zobrist_hash ^= self.black_castling_rights.zobrist_hash(false);
+            new_board.zobrist_hash ^= new_board.black_castling_rights.zobrist_hash(false);
         }
         if from == BLACK_QUEENSIDE_CASTLE_ROOK_INDEX || to == BLACK_QUEENSIDE_CASTLE_ROOK_INDEX {
             new_board.black_castling_rights = new_board
                 .black_castling_rights
                 .remove_side(CastlingRights::OnlyQueenSide);
+            new_board.zobrist_hash ^= self.black_castling_rights.zobrist_hash(false);
+            new_board.zobrist_hash ^= new_board.black_castling_rights.zobrist_hash(false);
         }
 
         // Handle promotions
         if _move.is_promotion() {
+            if new_board.white_to_move {
+                new_board.white_pawns ^= to_bb;
+                new_board.zobrist_hash ^= ZOBRISTS_WHITE_PAWNS[to]
+            } else {
+                new_board.black_pawns ^= to_bb;
+                new_board.zobrist_hash ^= ZOBRISTS_BLACK_PAWNS[to]
+            }
             let promoted_piece = match _move.promotion_piece() {
-                Some(PieceKind::Queen) => Piece::Queen {
-                    white: new_board.white_to_move,
-                },
-                Some(PieceKind::Rook) => Piece::Rook {
-                    white: new_board.white_to_move,
-                },
-                Some(PieceKind::Bishop) => Piece::Bishop {
-                    white: new_board.white_to_move,
-                },
-                Some(PieceKind::Knight) => Piece::Knight {
-                    white: new_board.white_to_move,
-                },
+                Some(PieceKind::Queen) => {
+                    if new_board.white_to_move {
+                        new_board.white_queens |= to_bb;
+                        new_board.zobrist_hash ^= ZOBRISTS_WHITE_QUEENS[to];
+                    } else {
+                        new_board.black_queens |= to_bb;
+                        new_board.zobrist_hash ^= ZOBRISTS_BLACK_QUEENS[to];
+                    }
+                    Piece::Queen {
+                        white: new_board.white_to_move,
+                    }
+                }
+                Some(PieceKind::Rook) => {
+                    if new_board.white_to_move {
+                        new_board.white_rooks |= to_bb;
+                        new_board.zobrist_hash ^= ZOBRISTS_WHITE_ROOKS[to];
+                    } else {
+                        new_board.black_rooks |= to_bb;
+                        new_board.zobrist_hash ^= ZOBRISTS_BLACK_ROOKS[to];
+                    }
+                    Piece::Rook {
+                        white: new_board.white_to_move,
+                    }
+                }
+                Some(PieceKind::Bishop) => {
+                    if new_board.white_to_move {
+                        new_board.white_bishops |= to_bb;
+                        new_board.zobrist_hash ^= ZOBRISTS_WHITE_BISHOPS[to];
+                    } else {
+                        new_board.black_bishops |= to_bb;
+                        new_board.zobrist_hash ^= ZOBRISTS_BLACK_BISHOPS[to];
+                    }
+                    Piece::Bishop {
+                        white: new_board.white_to_move,
+                    }
+                }
+                Some(PieceKind::Knight) => {
+                    if new_board.white_to_move {
+                        new_board.white_knights |= to_bb;
+                        new_board.zobrist_hash ^= ZOBRISTS_WHITE_KNIGHTS[to];
+                    } else {
+                        new_board.black_knights |= to_bb;
+                        new_board.zobrist_hash ^= ZOBRISTS_BLACK_KNIGHTS[to];
+                    }
+                    Piece::Knight {
+                        white: new_board.white_to_move,
+                    }
+                }
                 _ => panic!("Invalid promotion"),
             };
             new_board.pieces[to] = promoted_piece;
-            // Remove pawn, add promoted piece to bitboard
-            if new_board.white_to_move {
-                new_board.white_pawns ^= to_bb; // remove pawn from to square
-                match promoted_piece {
-                    Piece::Queen { .. } => new_board.white_queens |= to_bb,
-                    Piece::Rook { .. } => new_board.white_rooks |= to_bb,
-                    Piece::Bishop { .. } => new_board.white_bishops |= to_bb,
-                    Piece::Knight { .. } => new_board.white_knights |= to_bb,
-                    _ => {}
-                }
-            } else {
-                new_board.black_pawns ^= to_bb;
-                match promoted_piece {
-                    Piece::Queen { .. } => new_board.black_queens |= to_bb,
-                    Piece::Rook { .. } => new_board.black_rooks |= to_bb,
-                    Piece::Bishop { .. } => new_board.black_bishops |= to_bb,
-                    Piece::Knight { .. } => new_board.black_knights |= to_bb,
-                    _ => {}
-                }
-            }
         }
 
         if _move.is_en_passant() {
@@ -985,8 +1127,10 @@ impl Board {
             new_board.pieces[ep_target_index] = Piece::None;
             if new_board.white_to_move {
                 new_board.black_pawns ^= square_index_to_bitboard(ep_target_index);
+                new_board.zobrist_hash ^= ZOBRISTS_BLACK_PAWNS[ep_target_index];
             } else {
                 new_board.white_pawns ^= square_index_to_bitboard(ep_target_index);
+                new_board.zobrist_hash ^= ZOBRISTS_WHITE_PAWNS[ep_target_index];
             }
         }
 
@@ -1011,6 +1155,7 @@ impl Board {
             self.full_move_number += 1;
         }
         self.white_to_move = !self.white_to_move;
+        self.zobrist_hash ^= ZOBRISTS_WHITE_TO_MOVE;
     }
 
     fn recompute_combined_bit_boards(&mut self) {
@@ -1027,5 +1172,61 @@ impl Board {
             | self.black_queens
             | self.black_king;
         self.all_pieces = self.white_pieces | self.black_pieces;
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_zobrist_hashing_from_fen() {
+        let test_cases = [
+            (
+                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+                0x463b96181691fc9c,
+            ),
+            (
+                "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1",
+                0x823c9b50fd114196,
+            ),
+            (
+                "rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 2",
+                0x0756b94461c50fb0,
+            ),
+            (
+                "rnbqkbnr/ppp1pppp/8/3pP3/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 2",
+                0x662fafb965db29d4,
+            ),
+            (
+                "rnbqkbnr/ppp1p1pp/8/3pPp2/8/8/PPPP1PPP/RNBQKBNR w KQkq f6 0 3",
+                0x22a48b5a8e47ff78,
+            ),
+            (
+                "rnbqkbnr/ppp1p1pp/8/3pPp2/8/8/PPPPKPPP/RNBQ1BNR b kq - 0 3",
+                0x652a607ca3f242c1,
+            ),
+            (
+                "rnbq1bnr/ppp1pkpp/8/3pPp2/8/8/PPPPKPPP/RNBQ1BNR w - - 0 4",
+                0x00fdd303c946bdd9,
+            ),
+            (
+                "rnbqkbnr/p1pppppp/8/8/PpP4P/8/1P1PPPP1/RNBQKBNR b KQkq c3 0 3",
+                0x3c8123ea7b067637,
+            ),
+            (
+                "rnbqkbnr/p1pppppp/8/8/P6P/R1p5/1P1PPPP1/1NBQKBNR b Kkq - 0 4",
+                0x5c3f9b829b279560,
+            ),
+        ];
+
+        for (fen, expected_hash) in test_cases.iter() {
+            let board = Board::from_fen(fen).unwrap();
+            assert_eq!(
+                board.zobrist_hash, *expected_hash,
+                "Zobrist hash mismatch for FEN: {}",
+                fen
+            );
+        }
     }
 }

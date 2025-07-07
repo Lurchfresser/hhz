@@ -541,6 +541,7 @@ dependencies = [
  "dotenv",
  "futures-util",
  "licheszter",
+ "rand 0.9.1",
  "regex",
  "rouille",
  "serde",

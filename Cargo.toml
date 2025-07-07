@@ -9,6 +9,7 @@ server = ["dep:rouille", "dep:serde"]
 #gen_look_up = ["dep:bytemuck"]
 chessie = ["dep:chessie"]
 lichess = ["dep:licheszter","dep:futures-util", "dep:dotenv", "dep:tokio"]
+rand = ["dep:rand"]
 
 [dependencies]
 chessie = {version =  "2.0.0", optional = true }
@@ -22,6 +23,7 @@ regex = { version = "1.11.1" }
 bytemuck = { version = "1.23.1", optional = false }
 rouille = { version = "3.6.2", optional = true }
 arrayvec = "0.7.6"
+rand = {version = "0.9.1" , optional = true}
 
 [profile.release]
 opt-level = 3        # Use the highest standard optimization level (this is the default for release).
