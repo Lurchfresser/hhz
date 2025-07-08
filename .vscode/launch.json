@@ -54,6 +54,12 @@
         },
         {
             "type": "lldb",
+            "request": "attach",
+            "pid": "${command:pickProcess}",
+            "name": "Attach debugger",
+        },
+        {
+            "type": "lldb",
             "request": "launch",
             "name": "Benchmark",
             "cargo": {

@@ -7,3 +7,4 @@ pub mod move_gen;
 pub mod moves;
 pub mod search;
 pub mod polyglot_zobrists;
+pub mod bot;

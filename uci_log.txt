@@ -1,0 +1,13 @@
+Received: uci
+Received: isready
+Received: uci
+Received: isready
+Received: Received: ucinewgame
+ucinewgame
+Received: position startpos
+Received: position startpos
+Received: isready
+Received: go wtime 60000 btime 60000 movestogo 40 
+Received: stop
+Received: isready
+Received: quit

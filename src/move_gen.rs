@@ -719,6 +719,7 @@ impl Board {
         checkers > 0
     }
 
+    //TODO: return result
     pub fn make_uci_move_temp(&self, uci_move: &str) -> Self {
         let moves = self.generate_legal_moves_temp();
         for m in moves {
@@ -1198,7 +1199,6 @@ impl Board {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use crate::board::Board;
 
     const ZOBRIST_TEST_CASES: &[(&str, &[&str], &str, u64)] = &[
