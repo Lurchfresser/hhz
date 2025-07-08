@@ -1376,10 +1376,33 @@ mod tests {
         path2 = path2.make_uci_move_temp("g5d8");
         path2 = path2.make_uci_move_temp("f3g1");
 
-
         assert_eq!(
             path1.zobrist_hash, path2.zobrist_hash,
             "Capture transposition failed: hashes do not match"
+        );
+    }
+
+    #[test]
+    fn test_zobrist_transposition_with_promotion() {
+        // Path 1: Pawn on b7 captures rook on a8 and promotes to a Queen.
+        let mut board1 =
+            Board::from_fen("rnbqkbnr/pP1ppppp/8/8/8/8/PPPP1PPP/RNB1KBNR w KQkq - 0 1").unwrap();
+        board1 = board1.make_uci_move_temp("b7a8q");
+
+        // Path 2: A different sequence of moves leading to the same position.
+        // A queen on e4 moves to a8.
+        let mut board2 =
+            Board::from_fen("rnbqkbnr/p2ppppp/8/8/4Q3/8/PPPP1PPP/RNB1KBNR w KQkq - 0 1").unwrap();
+        board2 = board2.make_uci_move_temp("e4a8");
+
+        assert_eq!(
+            board1.to_fen(),
+            board2.to_fen(),
+            "Promotion transposition failed: fens do not match"
+        );
+        assert_eq!(
+            board1.zobrist_hash, board2.zobrist_hash,
+            "Promotion transposition failed: hashes do not match"
         );
     }
 }
