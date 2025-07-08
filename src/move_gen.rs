@@ -115,7 +115,7 @@ impl Board {
 
             // 1. Generate attacks
             moves_for_pawn |= ATTACKS_LOOKUP[pawn_index]
-            //                      mask out illegal en passant captures
+                //                      mask out illegal en passant captures
                 & (enemy_pieces | (self.en_passant_target & !rook_pinned_pieces));
 
             // 2. Generate advances
@@ -726,7 +726,7 @@ impl Board {
                 return self.make_move_temp(m);
             };
         }
-        panic!("uci move not found");
+        panic!("uci move: {} not found", uci_move);
     }
 
     pub fn make_move_temp(&self, _move: Move) -> Self {
@@ -734,7 +734,8 @@ impl Board {
         new_board.en_passant_target = 0;
 
         if self.en_passant_target != 0 {
-            let ep_file = (self.en_passant_target % 8) as usize;
+            let ep_square_index = bitboard_to_square_index(self.en_passant_target);
+            let ep_file = ep_square_index % 8;
             //undo prev ep_target from zobrist hash
             new_board.zobrist_hash ^= ZOBRISTS_EN_PASSANT_FILE[ep_file];
         }
@@ -935,20 +936,38 @@ impl Board {
                     new_board.zobrist_hash ^= ZOBRISTS_WHITE_PAWNS[from]; // Remove from original position
                     new_board.zobrist_hash ^= ZOBRISTS_WHITE_PAWNS[to]; // Add to new position
                     new_board.white_pawns ^= move_mask;
-                    if to - from == 16 {
-                        new_board.en_passant_target = square_index_to_bitboard(to - 8);
-                        let ep_file = (to % 8) as usize;
-                        new_board.zobrist_hash ^= ZOBRISTS_EN_PASSANT_FILE[ep_file];
+
+                    let was_double_push = to - from == 16;
+                    if was_double_push {
+                        // Polyglot spec: hash only if a pawn can actually perform the capture.
+                        let ep_square_index = to - 8;
+                        let adjacent_files_mask = WHITE_FREE_PAWN_ATTACKS_LOOKUP[ep_square_index];
+                        let can_capture_ep = (new_board.black_pawns & adjacent_files_mask) != 0;
+
+                        if can_capture_ep {
+                            new_board.en_passant_target = square_index_to_bitboard(to - 8);
+                            let ep_file = (to % 8) as usize;
+                            new_board.zobrist_hash ^= ZOBRISTS_EN_PASSANT_FILE[ep_file];
+                        }
                     }
                 } else {
                     new_board.zobrist_hash ^= ZOBRISTS_BLACK_PAWNS[from]; // Remove from original position
                     new_board.zobrist_hash ^= ZOBRISTS_BLACK_PAWNS[to]; // Add to new position
-                    if from - to == 16 {
-                        new_board.en_passant_target = square_index_to_bitboard(to + 8);
-                        let ep_file = (to % 8) as usize;
-                        new_board.zobrist_hash ^= ZOBRISTS_EN_PASSANT_FILE[ep_file];
-                    }
                     new_board.black_pawns ^= move_mask;
+
+                    let was_double_push = from - to == 16;
+                    if was_double_push {
+                        // Polyglot spec: hash only if a pawn can actually perform the capture.
+                        let ep_square_index = to + 8;
+                        let adjacent_files_mask = BLACK_FREE_PAWN_ATTACKS_LOOKUP[ep_square_index];
+                        let can_capture_ep = (new_board.white_pawns & adjacent_files_mask) != 0;
+
+                        if can_capture_ep {
+                            new_board.en_passant_target = square_index_to_bitboard(to + 8);
+                            let ep_file = (to % 8) as usize;
+                            new_board.zobrist_hash ^= ZOBRISTS_EN_PASSANT_FILE[ep_file];
+                        }
+                    }
                 }
             }
             Piece::Knight { .. } => {
@@ -1174,59 +1193,193 @@ impl Board {
         self.all_pieces = self.white_pieces | self.black_pieces;
     }
 }
+// src/move_gen.rs
+// ... (rest of the file is unchanged)
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::board::Board;
+
+    const ZOBRIST_TEST_CASES: &[(&str, &[&str], &str, u64)] = &[
+        (
+            "starting position",
+            &[],
+            "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+            0x463b96181691fc9c,
+        ),
+        (
+            "position after e2e4",
+            &["e2e4"],
+            "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1",
+            0x823c9b50fd114196,
+        ),
+        (
+            "position after e2e4 d7d5",
+            &["e2e4", "d7d5"],
+            "rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 2",
+            0x0756b94461c50fb0,
+        ),
+        (
+            "position after e2e4 d7d5 e4e5",
+            &["e2e4", "d7d5", "e4e5"],
+            "rnbqkbnr/ppp1pppp/8/3pP3/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 2",
+            0x662fafb965db29d4,
+        ),
+        (
+            "position after e2e4 d7d5 e4e5 f7f5",
+            &["e2e4", "d7d5", "e4e5", "f7f5"],
+            "rnbqkbnr/ppp1p1pp/8/3pPp2/8/8/PPPP1PPP/RNBQKBNR w KQkq f6 0 3",
+            0x22a48b5a8e47ff78,
+        ),
+        (
+            "position after e2e4 d7d5 e4e5 f7f5 e1e2",
+            &["e2e4", "d7d5", "e4e5", "f7f5", "e1e2"],
+            "rnbqkbnr/ppp1p1pp/8/3pPp2/8/8/PPPPKPPP/RNBQ1BNR b kq - 0 3",
+            0x652a607ca3f242c1,
+        ),
+        (
+            "position after e2e4 d7d5 e4e5 f7f5 e1e2 e8f7",
+            &["e2e4", "d7d5", "e4e5", "f7f5", "e1e2", "e8f7"],
+            "rnbq1bnr/ppp1pkpp/8/3pPp2/8/8/PPPPKPPP/RNBQ1BNR w - - 0 4",
+            0x00fdd303c946bdd9,
+        ),
+        (
+            "position after a2a4 b7b5 h2h4 b5b4 c2c4",
+            &["a2a4", "b7b5", "h2h4", "b5b4", "c2c4"],
+            "rnbqkbnr/p1pppppp/8/8/PpP4P/8/1P1PPPP1/RNBQKBNR b KQkq c3 0 3",
+            0x3c8123ea7b067637,
+        ),
+        (
+            "position after a2a4 b7b5 h2h4 b5b4 c2c4 b4c3 a1a3",
+            &["a2a4", "b7b5", "h2h4", "b5b4", "c2c4", "b4c3", "a1a3"],
+            "rnbqkbnr/p1pppppp/8/8/P6P/R1p5/1P1PPPP1/1NBQKBNR b Kkq - 0 4",
+            0x5c3f9b829b279560,
+        ),
+    ];
+
+    #[test]
+    fn test_incremental_zobrist_hashing() {
+        for (description, moves, _fen, expected_hash) in ZOBRIST_TEST_CASES.iter() {
+            if moves.is_empty() {
+                continue;
+            }
+            let mut board =
+                Board::from_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
+                    .unwrap();
+            for uci_move in *moves {
+                board = board.make_uci_move_temp(uci_move);
+            }
+            assert_eq!(
+                board.zobrist_hash, *expected_hash,
+                "Failed at: {}",
+                description
+            );
+        }
+    }
 
     #[test]
     fn test_zobrist_hashing_from_fen() {
-        let test_cases = [
-            (
-                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
-                0x463b96181691fc9c,
-            ),
-            (
-                "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1",
-                0x823c9b50fd114196,
-            ),
-            (
-                "rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 2",
-                0x0756b94461c50fb0,
-            ),
-            (
-                "rnbqkbnr/ppp1pppp/8/3pP3/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 2",
-                0x662fafb965db29d4,
-            ),
-            (
-                "rnbqkbnr/ppp1p1pp/8/3pPp2/8/8/PPPP1PPP/RNBQKBNR w KQkq f6 0 3",
-                0x22a48b5a8e47ff78,
-            ),
-            (
-                "rnbqkbnr/ppp1p1pp/8/3pPp2/8/8/PPPPKPPP/RNBQ1BNR b kq - 0 3",
-                0x652a607ca3f242c1,
-            ),
-            (
-                "rnbq1bnr/ppp1pkpp/8/3pPp2/8/8/PPPPKPPP/RNBQ1BNR w - - 0 4",
-                0x00fdd303c946bdd9,
-            ),
-            (
-                "rnbqkbnr/p1pppppp/8/8/PpP4P/8/1P1PPPP1/RNBQKBNR b KQkq c3 0 3",
-                0x3c8123ea7b067637,
-            ),
-            (
-                "rnbqkbnr/p1pppppp/8/8/P6P/R1p5/1P1PPPP1/1NBQKBNR b Kkq - 0 4",
-                0x5c3f9b829b279560,
-            ),
-        ];
-
-        for (fen, expected_hash) in test_cases.iter() {
+        for (description, _moves, fen, expected_hash) in ZOBRIST_TEST_CASES.iter() {
             let board = Board::from_fen(fen).unwrap();
             assert_eq!(
                 board.zobrist_hash, *expected_hash,
-                "Zobrist hash mismatch for FEN: {}",
-                fen
+                "Failed at: {}",
+                description
             );
         }
+    }
+
+    #[test]
+    fn test_zobrist_transposition() {
+        let fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/1K3BNR w kq - 0 1";
+        let mut board = Board::from_fen(fen).unwrap();
+        let initial_hash = board.zobrist_hash;
+
+        // Sequence of moves that returns to the same position
+        board = board.make_uci_move_temp("b1a1");
+        board = board.make_uci_move_temp("b8a6");
+        board = board.make_uci_move_temp("a1b1");
+        board = board.make_uci_move_temp("a6b8");
+
+        assert_eq!(
+            initial_hash, board.zobrist_hash,
+            "Transposition failed: hashes do not match"
+        );
+    }
+
+    #[test]
+    fn test_zobrist_transposition_knight_moves() {
+        let fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+        let mut board = Board::from_fen(fen).unwrap();
+        let initial_hash = board.zobrist_hash;
+
+        // Sequence of moves that returns to the same position
+        board = board.make_uci_move_temp("g1f3");
+        board = board.make_uci_move_temp("g8f6");
+        board = board.make_uci_move_temp("f3g1");
+        board = board.make_uci_move_temp("f6g8");
+
+        assert_eq!(
+            initial_hash, board.zobrist_hash,
+            "Knight move transposition failed: hashes do not match"
+        );
+    }
+
+    #[test]
+    fn test_zobrist_transposition_different_move_orders() {
+        // Path 1: 1. e4 e5 2. Nf3 Nc6
+        let mut board1 =
+            Board::from_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1").unwrap();
+        board1 = board1.make_uci_move_temp("e2e4");
+        board1 = board1.make_uci_move_temp("e7e5");
+        board1 = board1.make_uci_move_temp("g1f3");
+        board1 = board1.make_uci_move_temp("b8c6");
+
+        // Path 2: 1. Nf3 Nc6 2. e4 e5
+        let mut board2 =
+            Board::from_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1").unwrap();
+        board2 = board2.make_uci_move_temp("g1f3");
+        board2 = board2.make_uci_move_temp("b8c6");
+        board2 = board2.make_uci_move_temp("e2e4");
+        board2 = board2.make_uci_move_temp("e7e5");
+
+        assert_eq!(
+            board1.zobrist_hash, board2.zobrist_hash,
+            "Different move order transposition failed: hashes do not match"
+        );
+    }
+
+    #[test]
+    fn test_zobrist_transposition_with_capture() {
+        let mut path1 =
+            Board::from_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1").unwrap();
+        path1 = path1.make_uci_move_temp("f2f4");
+        path1 = path1.make_uci_move_temp("b8c6");
+        path1 = path1.make_uci_move_temp("f4f5");
+        path1 = path1.make_uci_move_temp("e7e5");
+        path1 = path1.make_uci_move_temp("f5e6");
+        path1 = path1.make_uci_move_temp("d7e6");
+        path1 = path1.make_uci_move_temp("e1f2");
+
+        let mut path2 =
+            Board::from_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1").unwrap();
+        path2 = path2.make_uci_move_temp("f2f4");
+        path2 = path2.make_uci_move_temp("b8c6");
+        path2 = path2.make_uci_move_temp("e1f2");
+        path2 = path2.make_uci_move_temp("e7e6");
+        path2 = path2.make_uci_move_temp("f4f5");
+        path2 = path2.make_uci_move_temp("d8g5");
+        path2 = path2.make_uci_move_temp("f5e6");
+        path2 = path2.make_uci_move_temp("d7e6");
+        path2 = path2.make_uci_move_temp("g1f3");
+        path2 = path2.make_uci_move_temp("g5d8");
+        path2 = path2.make_uci_move_temp("f3g1");
+
+
+        assert_eq!(
+            path1.zobrist_hash, path2.zobrist_hash,
+            "Capture transposition failed: hashes do not match"
+        );
     }
 }
