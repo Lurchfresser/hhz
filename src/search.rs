@@ -12,7 +12,7 @@ pub fn search_entry(board: &Board, depth: u32) -> Option<Move> {
 
     let legal_moves = sort_moves(
         board.generate_legal_moves_temp(),
-        board.clone(),
+        *board,
         maximize_score,
     );
 
@@ -211,7 +211,7 @@ fn sort_moves(moves: MoveList, board: Board, is_maximizing: bool) -> MoveList {
 }
 
 #[derive(Debug, PartialEq)]
-enum GameResult {
+pub enum GameResult {
     Ongoing,
     WhiteWins,
     BlackWins,
@@ -219,14 +219,14 @@ enum GameResult {
 }
 
 #[derive(Debug, PartialEq)]
-enum DrawReason {
+pub enum DrawReason {
     Stalemate,
     FiftyMoveRule,
     InsufficientMaterial,
     Repetition,
 }
 
-fn check_game_result(board: &Board, num_legal_moves: usize) -> GameResult {
+pub fn check_game_result(board: &Board, num_legal_moves: usize) -> GameResult {
     if num_legal_moves == 0 {
         return if board.in_check_temp() {
             // Checkmate - the opponent wins

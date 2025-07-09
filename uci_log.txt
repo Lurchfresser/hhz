@@ -1,13 +1,36 @@
-Received: uci
+<- uci
+<- isready
+<- ucinewgame
+<- position startpos
+<- position startpos moves b1a3
+<- isready
+<- go wtime<- position startpos moves b1a3 <- position startpos moves b1a3 b8a6 a1b1
+<- isready
+<- go <- position startpos moves b1a3 b8a6 <- position startpos moves b1a3 b8a6 a1b1 a8b8 b1a1
+<- isready
+<<- position startpos moves b1a3 b8a6 a1b1 <- position startpos moves b1a3 b8a6 a1b1 a8b8 b1a1 b8a8 a1b1
+<- isre<- position startpos moves b1a3 b8a6 a1b1 a8b8 <- position startpos moves b1a3 b8a6 a1b1 a8b8 b1a1 b8a8 a1b1 a8b8 b1a1
+<-<- position startpos moves b1a3 b8a6 a1b1 a8b8 b1a1 <- position startpos moves b1a3 b8a6 a1b1 a8b8 b1a1 b8a8 a1b1 a8b8 b1a1 b8a8 a1<- position startpos moves b1a3 b8a6 a1b1 a8b8 b1a1 b8a8 <- isready
+<- ucinewgame
+<- position startpos
+<- isready
+<- go wtime 60000 b<- position startpos mov<- position startpos moves b1a3 b8a6
+<- isready
+<- go wtime 59<- position startpos moves b1<- position startpos moves b1a3 b8a6 a1b1 a8b8
+<- isready
+<- go wti<- position startpos moves b1a3 b8<- position startpos moves b1a3 b8a6 a1b1 a8b8 b1a1 b8a8
+<- isready
+<- g<- position startpos moves b1a3 b8a6 a1<- position startpos moves b1a3 b8a6 a1b1 a8b8 b1a1 b8a8 a1b1 a8b8
+<- isready<- position startpos moves b1a3 b8a6 a1b1 a8<- position startpos moves b1a3 b8a6 a1b1 a8b8 b1a1 b8a8 a1b1 a8b8 b1a1 b8a8
+<- is<- position startpos moves b1a3 b8a6 a1b1 a8b8 b1<- position startpos moves b1a3 b8a6 a1b1 a8b8 b1a1 b8a8 a1b1 a8b8 b1a1 b8a8 a1b1 a8b8
+<- isready
+<- quit
+8b8
 Received: isready
-Received: uci
+Received: go wtime 59995 btime 60000 movestogo 36 
+Received: position startpos moves b1a3 b8a6 a1b1 a8b8 b1a1 b8a8 a1b1 a8b8 b1a1 b8a8
 Received: isready
-Received: Received: ucinewgame
-ucinewgame
-Received: position startpos
-Received: position startpos
-Received: isready
-Received: go wtime 60000 btime 60000 movestogo 40 
-Received: stop
+Received: go wtime 59994 btime 60000 movestogo 35 
+Received: position startpos moves b1a3 b8a6 a1b1 a8b8 b1a1 b8a8 a1b1 a8b8 b1a1 b8a8 a1b1 a8b8
 Received: isready
 Received: quit

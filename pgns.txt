@@ -1,0 +1,36 @@
+[Event "?"]
+[Site "?"]
+[Date "2025.07.09"]
+[Round "1"]
+[White "hhz"]
+[Black "hhz"]
+[Result "1/2-1/2"]
+[ECO "A00"]
+[GameDuration "00:00:00"]
+[GameEndTime "2025-07-09T22:33:44.355 CEST"]
+[GameStartTime "2025-07-09T22:33:44.330 CEST"]
+[Opening "Durkin's attack"]
+[PlyCount "12"]
+[TimeControl "40/60"]
+
+1. Na3 Na6 2. Rb1 Rb8 3. Ra1 Ra8 4. Rb1 Rb8 5. Ra1 Ra8 6. Rb1
+Rb8 {Draw by 3-fold repetition} 1/2-1/2
+
+[Event "?"]
+[Site "?"]
+[Date "2025.07.09"]
+[Round "2"]
+[White "hhz"]
+[Black "hhz"]
+[Result "1/2-1/2"]
+[ECO "A00"]
+[GameDuration "00:00:00"]
+[GameEndTime "2025-07-09T22:33:44.376 CEST"]
+[GameStartTime "2025-07-09T22:33:44.355 CEST"]
+[Opening "Durkin's attack"]
+[PlyCount "12"]
+[TimeControl "40/60"]
+
+1. Na3 Na6 2. Rb1 Rb8 3. Ra1 Ra8 4. Rb1 Rb8 5. Ra1 Ra8 6. Rb1
+Rb8 {Draw by 3-fold repetition} 1/2-1/2
+

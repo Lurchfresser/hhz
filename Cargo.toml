@@ -26,6 +26,7 @@ rouille = { version = "3.6.2", optional = true }
 arrayvec = "0.7.6"
 rand = {version = "0.9.1" , optional = true}
 vampirc-uci = {version =  "0.11.1", optional = true }
+chrono = "0.4.41"
 
 [profile.release]
 opt-level = 3        # Use the highest standard optimization level (this is the default for release).
