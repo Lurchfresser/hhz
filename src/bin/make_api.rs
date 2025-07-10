@@ -28,7 +28,11 @@ fn main() {
     println!("Starting server on {}", url);
     rouille::start_server(url, move |request| {
         // Rest of closure remains the same
-        println!("received request on url: {}", request.url());
+        println!(
+            "{} request on url: {}",
+            request.method(),
+            request.url()
+        );
         if request.method() == "OPTIONS" {
             // CORS handling remains unchanged
             return Response::text("")

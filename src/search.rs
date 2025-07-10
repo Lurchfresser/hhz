@@ -76,7 +76,7 @@ fn min_max_search(board: &Board, depth: u32, mut alpha: i32, mut beta: i32) -> i
 
     let legal_moves_unordered = board.generate_legal_moves_temp();
 
-    match check_game_result(board, legal_moves_unordered.len()) {
+    match check_game_result::<false>(board, legal_moves_unordered.len()) {
         GameResult::WhiteWins => return i32::MAX - 1,
 
         GameResult::BlackWins => return i32::MIN + 1,
@@ -147,7 +147,7 @@ fn q_search(board: &Board, mut alpha: i32, mut beta: i32) -> i32 {
 
     SearchMetrics::increment_positions_generated(legal_moves.len() as u64);
 
-    match check_game_result(board, legal_moves.len()) {
+    match check_game_result::<false>(board, legal_moves.len()) {
         GameResult::WhiteWins => return i32::MAX - 1,
 
         GameResult::BlackWins => return i32::MIN + 1,
@@ -226,7 +226,7 @@ pub enum DrawReason {
     Repetition,
 }
 
-pub fn check_game_result(board: &Board, num_legal_moves: usize) -> GameResult {
+pub fn check_game_result<const DETECT_THREE_FOLD: bool>(board: &Board, num_legal_moves: usize) -> GameResult {
     if num_legal_moves == 0 {
         return if board.in_check_temp() {
             // Checkmate - the opponent wins
@@ -250,13 +250,36 @@ pub fn check_game_result(board: &Board, num_legal_moves: usize) -> GameResult {
     //     return GameResult::Draw(DrawReason::InsufficientMaterial);
     // }
 
-    // let mut i = board.halfmove_clock;
-    // while i > 0 || i > 102 {
-    //     if board.zobrist_hash == board.repetition_lookup[i as usize] {
-    //         return GameResult::Draw(DrawReason::Repetition);
-    //     }
-    //     i -= 2;
-    // }
+    let mut i = i16::from(board.halfmove_clock) - 4;
+
+    // Counter for how many times we've seen the current position in the history.
+    let mut count = 0;
+
+    while i >= 0 {
+        // Compare the current hash with a historical hash.
+        if board.zobrist_hash == board.repetition_lookup[i as usize] {
+            // A match was found!
+
+            if !DETECT_THREE_FOLD {
+                // --- In Search Optimization ---
+                // We only need to find one previous occurrence to score this
+                // node as a draw. If we can reach a position for the 2nd time,
+                // we assume we can force the 3rd.
+                return GameResult::Draw(DrawReason::Repetition);
+            } else {
+                // --- Strict Rule Check ---
+                // We are checking the actual game state. We need to find
+                // two previous occurrences to confirm a threefold repetition.
+                count += 1;
+                if count >= 2 {
+                    return GameResult::Draw(DrawReason::Repetition);
+                }
+            }
+        }
+        // A position can only repeat when it's the same side to move.
+        // Stepping by 2 ensures this.
+        i -= 2;
+    }
 
     GameResult::Ongoing
 }

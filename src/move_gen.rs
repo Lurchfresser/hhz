@@ -1169,7 +1169,7 @@ impl Board {
         if pawn_moved || was_capture {
             self.halfmove_clock = 0;
             //TODO: maybe there can be a speed
-            self.repetition_lookup.fill(0);
+            // self.repetition_lookup.fill(0);
         } else {
             self.repetition_lookup[self.halfmove_clock as usize] = old_board_zobrist;
             self.halfmove_clock += 1;
