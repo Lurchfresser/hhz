@@ -37,7 +37,7 @@ fn main() {
 
     // --- Bot and its result channel ---
     let (result_tx, result_rx) = mpsc::channel::<BotMessage>();
-    let mut bot = Bot::new(result_tx);
+    let bot = Bot::new(result_tx);
     loop {
         while let Ok(bot_message) = result_rx.try_recv() {
             match bot_message {

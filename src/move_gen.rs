@@ -793,7 +793,7 @@ impl Board {
                 new_board.pieces[BLACK_KINGSIDE_CASTLE_INDEX] = Piece::King { white: false };
             }
             new_board.recompute_combined_bit_boards();
-            new_board.update_board_state(false, false);
+            new_board.update_board_state(false, false, self.zobrist_hash);
 
             return new_board;
         } else if _move.is_castle_long() {
@@ -840,7 +840,7 @@ impl Board {
                 new_board.pieces[BLACK_QUEENSIDE_CASTLE_INDEX] = Piece::King { white: false };
             }
             new_board.recompute_combined_bit_boards();
-            new_board.update_board_state(false, false);
+            new_board.update_board_state(false, false, self.zobrist_hash);
 
             return new_board;
         }
@@ -1157,17 +1157,21 @@ impl Board {
         new_board.update_board_state(
             moved_piece
                 == Piece::Pawn {
-                    white: new_board.white_to_move,
-                },
+                white: new_board.white_to_move,
+            },
             _move.is_capture(),
+            self.zobrist_hash,
         );
         new_board.recompute_combined_bit_boards();
         new_board
     }
-    fn update_board_state(&mut self, pawn_moved: bool, was_capture: bool) {
+    fn update_board_state(&mut self, pawn_moved: bool, was_capture: bool, old_board_zobrist: u64) {
         if pawn_moved || was_capture {
             self.halfmove_clock = 0;
+            //TODO: maybe there can be a speed
+            self.repetition_lookup.fill(0);
         } else {
+            self.repetition_lookup[self.halfmove_clock as usize] = old_board_zobrist;
             self.halfmove_clock += 1;
         }
 

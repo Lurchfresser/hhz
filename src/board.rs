@@ -103,14 +103,14 @@ pub struct Board {
     pub white_castling_rights: CastlingRights,
     pub black_castling_rights: CastlingRights,
 
-    pub halfmove_clock: u32,
-    pub full_move_number: u32,
+    pub halfmove_clock: u8,
+    pub full_move_number: u16,
 
     pub white_to_move: bool,
 
     pub pieces: [Piece; 64],
 
-    pub repetition_lookup: [u64; 50],
+    pub repetition_lookup: [u64; 100],
 
     pub zobrist_hash: u64,
 }
@@ -383,13 +383,13 @@ impl Board {
         // Parse halfmove clock
         let halfmove_str = parts.next().ok_or(FenError::MissingParts)?;
         let halfmove_clock = halfmove_str
-            .parse::<u32>()
+            .parse::<u8>()
             .map_err(|_| FenError::InvalidHalfmoveClock(halfmove_str.to_string()))?;
 
         // Parse fullmove number
         let fullmove_str = parts.next().ok_or(FenError::MissingParts)?;
         let fullmove_number = fullmove_str
-            .parse::<u32>()
+            .parse::<u16>()
             .map_err(|_| FenError::InvalidFullmoveNumber(fullmove_str.to_string()))?;
 
         Ok(Board {
@@ -416,6 +416,7 @@ impl Board {
             full_move_number: fullmove_number,
             pieces,
             zobrist_hash,
+            repetition_lookup: [0; 100],
         })
     }
 

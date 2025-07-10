@@ -250,10 +250,12 @@ pub fn check_game_result(board: &Board, num_legal_moves: usize) -> GameResult {
     //     return GameResult::Draw(DrawReason::InsufficientMaterial);
     // }
 
-    //TODO:
-    let is_repetition = false;
-    if is_repetition {
-        return GameResult::Draw(DrawReason::Repetition);
+    let mut i = board.halfmove_clock - 4;
+    while i > 0 {
+        if board.zobrist_hash == board.repetition_lookup[i as usize] {
+            return GameResult::Draw(DrawReason::Repetition);
+        }
+        i -= 2;
     }
 
     GameResult::Ongoing
