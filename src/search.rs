@@ -251,7 +251,7 @@ pub fn check_game_result(board: &Board, num_legal_moves: usize) -> GameResult {
     // }
 
     let mut i = board.halfmove_clock;
-    while i > 0 {
+    while i > 0 || i > 102 {
         if board.zobrist_hash == board.repetition_lookup[i as usize] {
             return GameResult::Draw(DrawReason::Repetition);
         }
