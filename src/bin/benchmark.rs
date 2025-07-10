@@ -6,8 +6,8 @@ use std::time::{Instant, SystemTime};
 
 pub mod generate_attack_lookup;
 
-static FEATURE_NAME: &str = "Basic mobilty";
-static FEATURE_NUMBER: u32 = 8;
+static FEATURE_NAME: &str = "Repetition-check";
+static FEATURE_NUMBER: u32 = 9;
 
 fn main() {
     let file_path = &format!(

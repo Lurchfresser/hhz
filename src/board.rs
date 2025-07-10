@@ -520,6 +520,29 @@ impl Board {
 
         fen
     }
+
+    pub fn is_draw_by_insufficient_material(&self) -> bool {
+        match self.all_pieces.count_ones() {
+            //king vs king
+            2 => true,
+            3 => {
+                return (self.white_bishops
+                    | self.black_bishops
+                    | self.white_knights
+                    | self.black_knights)
+                    != 0;
+            }
+            4 => {
+                //same sided bishops
+                if self.black_bishops.count_ones() == 1 && self.black_bishops.count_ones() == 1 {
+                    return (self.black_bishops & WHITE_SQUARES != 0)
+                        == (self.white_bishops & WHITE_SQUARES != 0);
+                }
+                false
+            }
+            _ => false,
+        }
+    }
 }
 
 impl Default for Board {

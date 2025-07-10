@@ -1,23 +1,52 @@
 use hhz::board::Board;
 use hhz::bot::{Bot, BotMessage};
-use std::fs::OpenOptions;
-use std::io::{self, BufRead, Write, stdout};
+use log::{LevelFilter, error, info};
+use std::{env, fs};
+use std::io::{self, BufRead, Write};
+use std::panic;
+use std::path::{PathBuf};
 use std::str::FromStr;
 use std::sync::mpsc;
 use std::thread;
 use vampirc_uci::{UciMessage, UciMove, UciPiece, UciSquare, parse_one};
 
 fn main() {
-    let mut stdout = io::stdout();
+    // Read the engine name that was set at compile time.
+    let engine_name = env!("HHZ_ENGINE_NAME");
 
     // --- Setup Logging ---
-    let log_path = "/home/lurchfresser/Desktop/coding/chess/hhz/uci_log.txt";
-    let mut log_file = OpenOptions::new()
-        .create(true)
-        .write(true) // Use write to clear the file on each start
-        .truncate(true)
-        .open(log_path)
-        .unwrap();
+    // This closure will be called when a panic occurs.
+    panic::set_hook(Box::new(|panic_info| {
+        // Log the panic information before the program exits.
+        error!("PANIC OCCURRED: {}", panic_info);
+    }));
+
+    // --- Determine the correct log path, relative to the project root ---
+    // Get the path to the running executable itself.
+    let exe_path = env::current_exe().expect("Failed to get executable path");
+
+    // The executable is in '.../versions/engine_name'. We go up two parent directories
+    // to find the project root.
+    let project_root = exe_path
+        .parent() // -> gives '.../versions'
+        .and_then(|p| p.parent()) // -> gives '.../' (the project root)
+        .expect("Could not determine project root from executable path. Expected layout: '.../project_root/versions/engine_name'.");
+
+    // Now construct the absolute path to the 'logs' directory.
+    let log_dir = project_root.join("logs");
+    fs::create_dir_all(&log_dir)
+        .unwrap_or_else(|e| panic!("Failed to create log directory at {:?}: {}", log_dir, e));
+
+    // Construct the full, absolute path for the log file.
+    let log_path: PathBuf = log_dir.join(format!("{}.log", engine_name));
+
+    // Initialize the logger to write to the specified absolute path.
+    simple_logging::log_to_file(&log_path, LevelFilter::Info)
+        .unwrap_or_else(|e| panic!("Failed to initialize logger for path {:?}: {}", log_path, e));
+
+    info!("--- Logger initialized for {} ---", engine_name);
+
+    let mut stdout = io::stdout();
 
     // --- Channel for UCI commands from the GUI ---
     let (stdin_tx, stdin_rx) = mpsc::channel();
@@ -27,10 +56,11 @@ fn main() {
         let stdin = io::stdin();
         for line in stdin.lock().lines() {
             if let Ok(line_str) = line {
-                // If the main thread has shut down, we can stop.
                 if stdin_tx.send(line_str).is_err() {
                     break;
                 }
+            } else {
+                continue;
             }
         }
     });
@@ -48,57 +78,32 @@ fn main() {
                     // println!("{}", uci_msg);
                 }
                 BotMessage::BestMove(_move) => {
-
+                    info!("Found best move: {}", _move.to_uci());
                     let uci_message = UciMessage::best_move(string_to_uci_move(_move.to_uci()));
-                    if cfg!(debug_assertions) {
-                        // Use an absolute path to ensure the log file is always in your project folder
-                        let log_path = "/home/lurchfresser/Desktop/coding/chess/hhz/uci_log.txt";
-                        let mut file = OpenOptions::new()
-                            .create(true)
-                            .append(true)
-                            .open(log_path)
-                            .unwrap();
-
-                        // Write the message and immediately flush it to the file
-                        writeln!(file, "Playing: {}", _move.to_uci()).unwrap();
-                        file.flush().unwrap();
-                    }
-                    println!("{uci_message}");
+                    writeln!(stdout, "{}", uci_message).unwrap();
                 }
             }
             stdout.flush().unwrap();
         }
 
+        // Check for commands from the GUI
         if let Ok(line_str) = stdin_rx.try_recv() {
-            writeln!(log_file, "<- {}", &line_str).unwrap();
-            log_file.flush().unwrap();
-
+            info!("<- {}", &line_str);
             let msg = parse_one(&line_str);
-            // Only log in debug builds
-            if cfg!(debug_assertions) {
-                // Use an absolute path to ensure the log file is always in your project folder
-                let log_path = "/home/lurchfresser/Desktop/coding/chess/hhz/uci_log.txt";
-                let mut file = OpenOptions::new()
-                    .create(true)
-                    .append(true)
-                    .open(log_path)
-                    .unwrap();
-
-                // Write the message and immediately flush it to the file
-                writeln!(file, "Received: {}", msg).unwrap();
-                file.flush().unwrap();
-            }
 
             match msg {
                 UciMessage::Uci => {
+                    // Read the engine name that was set at compile time.
+                    let engine_name = env!("HHZ_ENGINE_NAME");
+
                     let message = UciMessage::Id {
-                        name: Some("hhz_v8".to_string()),
+                        name: Some(engine_name.to_string()),
                         author: Some("lurchfresser".to_string()),
                     };
                     println!("{message}");
                     let ok_meassage = UciMessage::UciOk;
 
-                    println!("{ok_meassage}"); // Outputs "option name Selectivity type spin default 2 min 0 max 4"
+                    println!("{ok_meassage}");
                 }
                 UciMessage::Debug(_) => todo!(),
                 UciMessage::IsReady => {
@@ -148,14 +153,14 @@ fn main() {
             }
             stdout.flush().unwrap();
         }
-        // Your engine logic would go here...
-        // println!("Received message: {}", msg);
+        thread::sleep(std::time::Duration::from_millis(1));
     }
+    info!("--- Shutting down ---");
 }
 
 fn string_to_uci_move(uci_string: String) -> UciMove {
     let from = UciSquare {
-        file: uci_string.chars().nth(0).unwrap(),
+        file: uci_string.chars().next().unwrap(),
         rank: uci_string.chars().nth(1).unwrap().to_digit(10).unwrap() as u8,
     };
     let to = UciSquare {

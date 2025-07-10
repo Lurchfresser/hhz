@@ -74,6 +74,10 @@ pub const BLACK_KINGSIDE_CASTLE_ROOK_INDEX: usize = 63;
 pub const WHITE_QUEENSIDE_CASTLE_ROOK_INDEX: usize = 0;
 pub const BLACK_QUEENSIDE_CASTLE_ROOK_INDEX: usize = 63 - 7;
 
+pub const WHITE_SQUARES: u64 = 12273903644374837845;
+pub const BLACK_SQUARES: u64 = !WHITE_SQUARES;
+
+
 pub static WHITE_FREE_PAWN_ADVANCE_LOOKUP: [u64; 64] = gen_free_white_pawn_advances();
 pub static BLACK_FREE_PAWN_ADVANCE_LOOKUP: [u64; 64] = gen_free_black_pawn_advances();
 pub static WHITE_FREE_PAWN_ATTACKS_LOOKUP: [u64; 64] = gen_free_white_pawn_attacks();

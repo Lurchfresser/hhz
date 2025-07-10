@@ -57,6 +57,11 @@
             "request": "attach",
             "pid": "${command:pickProcess}",
             "name": "Attach debugger",
+            // "initCommands": [
+            //     "command source '${workspaceFolder}/.vscode/rust_formatters.lldb'",
+            //     // Add this line to handle the SIGWINCH signal gracefully
+            //     "process handle SIGWINCH --notify false --pass true --stop false"
+            // ]
         },
         {
             "type": "lldb",

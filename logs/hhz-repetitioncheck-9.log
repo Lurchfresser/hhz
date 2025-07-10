@@ -1,0 +1,407 @@
+[00:00:00.000] (7f7fcdf487c0) INFO   --- Logger initialized for hhz-repetitioncheck-9 ---
+[00:00:00.000] (7f7fcdf487c0) INFO   <- uci
+[00:00:00.001] (7f7fcdf487c0) INFO   <- isready
+[00:00:00.010] (7f7fcdf487c0) INFO   <- ucinewgame
+[00:00:00.011] (7f7fcdf487c0) INFO   <- position startpos
+[00:00:00.019] (7f7fcdf487c0) INFO   <- position startpos moves d2d4
+[00:00:00.020] (7f7fcdf487c0) INFO   <- isready
+[00:00:00.021] (7f7fcdf487c0) INFO   <- go wtime 79992 btime 70000 winc 10000 binc 10000 movestogo 40
+[00:00:00.023] (7f7fcdf487c0) INFO   Found best move: d7d5
+[00:00:00.027] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4
+[00:00:00.028] (7f7fcdf487c0) INFO   <- isready
+[00:00:00.029] (7f7fcdf487c0) INFO   <- go wtime 89990 btime 79997 winc 10000 binc 10000 movestogo 39
+[00:00:00.032] (7f7fcdf487c0) INFO   Found best move: c8f5
+[00:00:00.037] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3
+[00:00:00.038] (7f7fcdf487c0) INFO   <- isready
+[00:00:00.039] (7f7fcdf487c0) INFO   <- go wtime 99987 btime 89993 winc 10000 binc 10000 movestogo 38
+[00:00:00.046] (7f7fcdf487c0) INFO   Found best move: b8c6
+[00:00:00.058] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3
+[00:00:00.060] (7f7fcdf487c0) INFO   <- isready
+[00:00:00.061] (7f7fcdf487c0) INFO   <- go wtime 109976 btime 99986 winc 10000 binc 10000 movestogo 37
+[00:00:00.072] (7f7fcdf487c0) INFO   Found best move: g8f6
+[00:00:00.083] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4
+[00:00:00.085] (7f7fcdf487c0) INFO   <- isready
+[00:00:00.086] (7f7fcdf487c0) INFO   <- go wtime 119966 btime 109975 winc 10000 binc 10000 movestogo 36
+[00:00:00.100] (7f7fcdf487c0) INFO   Found best move: f5g4
+[00:00:00.108] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3
+[00:00:00.110] (7f7fcdf487c0) INFO   <- isready
+[00:00:00.111] (7f7fcdf487c0) INFO   <- go wtime 129959 btime 119960 winc 10000 binc 10000 movestogo 35
+[00:00:00.138] (7f7fcdf487c0) INFO   Found best move: g4e6
+[00:00:00.146] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3
+[00:00:00.147] (7f7fcdf487c0) INFO   <- isready
+[00:00:00.148] (7f7fcdf487c0) INFO   <- go wtime 139953 btime 129932 winc 10000 binc 10000 movestogo 34
+[00:00:00.168] (7f7fcdf487c0) INFO   Found best move: f6h5
+[00:00:00.184] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2
+[00:00:00.186] (7f7fcdf487c0) INFO   <- isready
+[00:00:00.187] (7f7fcdf487c0) INFO   <- go wtime 149939 btime 139911 winc 10000 binc 10000 movestogo 33
+[00:00:00.203] (7f7fcdf487c0) INFO   Found best move: g7g5
+[00:00:00.277] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3
+[00:00:00.278] (7f7fcdf487c0) INFO   <- isready
+[00:00:00.279] (7f7fcdf487c0) INFO   <- go wtime 159867 btime 149894 winc 10000 binc 10000 movestogo 32
+[00:00:00.338] (7f7fcdf487c0) INFO   Found best move: f7f6
+[00:00:00.352] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5
+[00:00:00.354] (7f7fcdf487c0) INFO   <- isready
+[00:00:00.355] (7f7fcdf487c0) INFO   <- go wtime 169853 btime 159835 winc 10000 binc 10000 movestogo 31
+[00:00:00.382] (7f7fcdf487c0) INFO   Found best move: a8b8
+[00:00:00.422] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3
+[00:00:00.423] (7f7fcdf487c0) INFO   <- isready
+[00:00:00.424] (7f7fcdf487c0) INFO   <- go wtime 179815 btime 169807 winc 10000 binc 10000 movestogo 30
+[00:00:00.474] (7f7fcdf487c0) INFO   Found best move: a7a6
+[00:00:00.485] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5
+[00:00:00.487] (7f7fcdf487c0) INFO   <- isready
+[00:00:00.488] (7f7fcdf487c0) INFO   <- go wtime 189804 btime 179757 winc 10000 binc 10000 movestogo 29
+[00:00:00.591] (7f7fcdf487c0) INFO   Found best move: d8d7
+[00:00:00.716] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3
+[00:00:00.717] (7f7fcdf487c0) INFO   <- isready
+[00:00:00.719] (7f7fcdf487c0) INFO   <- go wtime 199681 btime 189653 winc 10000 binc 10000 movestogo 28
+[00:00:00.910] (7f7fcdf487c0) INFO   Found best move: b7b6
+[00:00:00.916] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3
+[00:00:00.918] (7f7fcdf487c0) INFO   <- isready
+[00:00:00.919] (7f7fcdf487c0) INFO   <- go wtime 209676 btime 199461 winc 10000 binc 10000 movestogo 27
+[00:00:01.022] (7f7fcdf487c0) INFO   Found best move: a6a5
+[00:00:01.071] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4
+[00:00:01.072] (7f7fcdf487c0) INFO   <- isready
+[00:00:01.074] (7f7fcdf487c0) INFO   <- go wtime 219629 btime 209357 winc 10000 binc 10000 movestogo 26
+[00:00:01.271] (7f7fcdf487c0) INFO   Found best move: h5g7
+[00:00:01.337] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5
+[00:00:01.338] (7f7fcdf487c0) INFO   <- isready
+[00:00:01.339] (7f7fcdf487c0) INFO   <- go wtime 229565 btime 219159 winc 10000 binc 10000 movestogo 25
+[00:00:01.407] (7f7fcdf487c0) INFO   Found best move: b8b7
+[00:00:01.503] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3
+[00:00:01.504] (7f7fcdf487c0) INFO   <- isready
+[00:00:01.506] (7f7fcdf487c0) INFO   <- go wtime 239471 btime 229091 winc 10000 binc 10000 movestogo 24
+[00:00:01.657] (7f7fcdf487c0) INFO   Found best move: h7h5
+[00:00:02.081] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1
+[00:00:02.082] (7f7fcdf487c0) INFO   <- isready
+[00:00:02.084] (7f7fcdf487c0) INFO   <- go wtime 249049 btime 238939 winc 10000 binc 10000 movestogo 23
+[00:00:02.382] (7f7fcdf487c0) INFO   Found best move: h5g4
+[00:00:02.429] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4
+[00:00:02.431] (7f7fcdf487c0) INFO   <- isready
+[00:00:02.432] (7f7fcdf487c0) INFO   <- go wtime 259003 btime 248640 winc 10000 binc 10000 movestogo 22
+[00:00:02.522] (7f7fcdf487c0) INFO   Found best move: e6f7
+[00:00:02.594] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4
+[00:00:02.596] (7f7fcdf487c0) INFO   <- isready
+[00:00:02.597] (7f7fcdf487c0) INFO   <- go wtime 268932 btime 258549 winc 10000 binc 10000 movestogo 21
+[00:00:02.689] (7f7fcdf487c0) INFO   Found best move: e7e6
+[00:00:02.726] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2
+[00:00:02.727] (7f7fcdf487c0) INFO   <- isready
+[00:00:02.729] (7f7fcdf487c0) INFO   <- go wtime 278897 btime 268457 winc 10000 binc 10000 movestogo 20
+[00:00:02.766] (7f7fcdf487c0) INFO   Found best move: c6b4
+[00:00:02.815] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1
+[00:00:02.817] (7f7fcdf487c0) INFO   <- isready
+[00:00:02.818] (7f7fcdf487c0) INFO   <- go wtime 288850 btime 278419 winc 10000 binc 10000 movestogo 19
+[00:00:02.836] (7f7fcdf487c0) INFO   Found best move: f7g6
+[00:00:03.009] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3
+[00:00:03.011] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.012] (7f7fcdf487c0) INFO   <- go wtime 298679 btime 288400 winc 10000 binc 10000 movestogo 18
+[00:00:03.046] (7f7fcdf487c0) INFO   Found best move: b4d3
+[00:00:03.057] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3
+[00:00:03.059] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.060] (7f7fcdf487c0) INFO   <- go wtime 308670 btime 298365 winc 10000 binc 10000 movestogo 17
+[00:00:03.097] (7f7fcdf487c0) INFO   Found best move: f8b4
+[00:00:03.110] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3
+[00:00:03.111] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.113] (7f7fcdf487c0) INFO   <- go wtime 318660 btime 308327 winc 10000 binc 10000 movestogo 16
+[00:00:03.139] (7f7fcdf487c0) INFO   Found best move: b4d6
+[00:00:03.172] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6
+[00:00:03.174] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.175] (7f7fcdf487c0) INFO   <- go wtime 328629 btime 318300 winc 10000 binc 10000 movestogo 15
+[00:00:03.182] (7f7fcdf487c0) INFO   Found best move: d7d6
+[00:00:03.203] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5
+[00:00:03.204] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.205] (7f7fcdf487c0) INFO   <- go wtime 338610 btime 328293 winc 10000 binc 10000 movestogo 14
+[00:00:03.209] (7f7fcdf487c0) INFO   Found best move: d6b4
+[00:00:03.212] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4
+[00:00:03.214] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.215] (7f7fcdf487c0) INFO   <- go wtime 348608 btime 338289 winc 10000 binc 10000 movestogo 13
+[00:00:03.217] (7f7fcdf487c0) INFO   Found best move: a5b4
+[00:00:03.223] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2
+[00:00:03.225] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.226] (7f7fcdf487c0) INFO   <- go wtime 358604 btime 348286 winc 10000 binc 10000 movestogo 12
+[00:00:03.234] (7f7fcdf487c0) INFO   Found best move: h8h3
+[00:00:03.237] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3
+[00:00:03.239] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.240] (7f7fcdf487c0) INFO   <- go wtime 368602 btime 358278 winc 10000 binc 10000 movestogo 11
+[00:00:03.242] (7f7fcdf487c0) INFO   Found best move: h3h8
+[00:00:03.251] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1
+[00:00:03.252] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.253] (7f7fcdf487c0) INFO   <- go wtime 378595 btime 368275 winc 10000 binc 10000 movestogo 10
+[00:00:03.267] (7f7fcdf487c0) INFO   Found best move: e8d7
+[00:00:03.299] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4
+[00:00:03.301] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.302] (7f7fcdf487c0) INFO   <- go wtime 388565 btime 378260 winc 10000 binc 10000 movestogo 9
+[00:00:03.343] (7f7fcdf487c0) INFO   Found best move: d5e4
+[00:00:03.371] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4
+[00:00:03.373] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.374] (7f7fcdf487c0) INFO   <- go wtime 398539 btime 388219 winc 10000 binc 10000 movestogo 8
+[00:00:03.385] (7f7fcdf487c0) INFO   Found best move: c7c6
+[00:00:03.419] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3
+[00:00:03.420] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.422] (7f7fcdf487c0) INFO   <- go wtime 408507 btime 398207 winc 10000 binc 10000 movestogo 7
+[00:00:03.428] (7f7fcdf487c0) INFO   Found best move: c6b5
+[00:00:03.440] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5
+[00:00:03.441] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.443] (7f7fcdf487c0) INFO   <- go wtime 418497 btime 408200 winc 10000 binc 10000 movestogo 6
+[00:00:03.445] (7f7fcdf487c0) INFO   Found best move: b7a7
+[00:00:03.449] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4
+[00:00:03.451] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.452] (7f7fcdf487c0) INFO   <- go wtime 428494 btime 418197 winc 10000 binc 10000 movestogo 5
+[00:00:03.455] (7f7fcdf487c0) INFO   Found best move: a7a4
+[00:00:03.459] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1
+[00:00:03.461] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.462] (7f7fcdf487c0) INFO   <- go wtime 438492 btime 428193 winc 10000 binc 10000 movestogo 4
+[00:00:03.469] (7f7fcdf487c0) INFO   Found best move: h8h3
+[00:00:03.472] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1 h8h3 d3e3
+[00:00:03.473] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.475] (7f7fcdf487c0) INFO   <- go wtime 448491 btime 438186 winc 10000 binc 10000 movestogo 3
+[00:00:03.484] (7f7fcdf487c0) INFO   Found best move: g7e8
+[00:00:03.489] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1 h8h3 d3e3 g7e8 g1c1
+[00:00:03.490] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.491] (7f7fcdf487c0) INFO   <- go wtime 458488 btime 448176 winc 10000 binc 10000 movestogo 2
+[00:00:03.501] (7f7fcdf487c0) INFO   Found best move: e8d6
+[00:00:03.505] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1 h8h3 d3e3 g7e8 g1c1 e8d6 c4c7
+[00:00:03.507] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.508] (7f7fcdf487c0) INFO   <- go wtime 528486 btime 458165 winc 10000 binc 10000 movestogo 1
+[00:00:03.509] (7f7fcdf487c0) INFO   Found best move: d7d8
+[00:00:03.515] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1 h8h3 d3e3 g7e8 g1c1 e8d6 c4c7 d7d8 c7c6
+[00:00:03.517] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.518] (7f7fcdf487c0) INFO   <- go wtime 538482 btime 528163 winc 10000 binc 10000 movestogo 40
+[00:00:03.521] (7f7fcdf487c0) INFO   Found best move: d8e7
+[00:00:03.527] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1 h8h3 d3e3 g7e8 g1c1 e8d6 c4c7 d7d8 c7c6 d8e7 c6b6
+[00:00:03.528] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.529] (7f7fcdf487c0) INFO   <- go wtime 548478 btime 538159 winc 10000 binc 10000 movestogo 39
+[00:00:03.536] (7f7fcdf487c0) INFO   Found best move: g6e4
+[00:00:03.538] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1 h8h3 d3e3 g7e8 g1c1 e8d6 c4c7 d7d8 c7c6 d8e7 c6b6 g6e4 b6d6
+[00:00:03.540] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.541] (7f7fcdf487c0) INFO   <- go wtime 558478 btime 548152 winc 10000 binc 10000 movestogo 38
+[00:00:03.542] (7f7fcdf487c0) INFO   Found best move: e4f3
+[00:00:03.548] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1 h8h3 d3e3 g7e8 g1c1 e8d6 c4c7 d7d8 c7c6 d8e7 c6b6 g6e4 b6d6 e4f3 d6b6
+[00:00:03.549] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.550] (7f7fcdf487c0) INFO   <- go wtime 568474 btime 558150 winc 10000 binc 10000 movestogo 37
+[00:00:03.554] (7f7fcdf487c0) INFO   Found best move: f3g4
+[00:00:03.556] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1 h8h3 d3e3 g7e8 g1c1 e8d6 c4c7 d7d8 c7c6 d8e7 c6b6 g6e4 b6d6 e4f3 d6b6 f3g4 e3d2
+[00:00:03.558] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.559] (7f7fcdf487c0) INFO   <- go wtime 578473 btime 568146 winc 10000 binc 10000 movestogo 36
+[00:00:03.563] (7f7fcdf487c0) INFO   Found best move: a4a7
+[00:00:03.567] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1 h8h3 d3e3 g7e8 g1c1 e8d6 c4c7 d7d8 c7c6 d8e7 c6b6 g6e4 b6d6 e4f3 d6b6 f3g4 e3d2 a4a7 b6c6
+[00:00:03.569] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.570] (7f7fcdf487c0) INFO   <- go wtime 588471 btime 578141 winc 10000 binc 10000 movestogo 35
+[00:00:03.575] (7f7fcdf487c0) INFO   Found best move: a7d7
+[00:00:03.579] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1 h8h3 d3e3 g7e8 g1c1 e8d6 c4c7 d7d8 c7c6 d8e7 c6b6 g6e4 b6d6 e4f3 d6b6 f3g4 e3d2 a4a7 b6c6 a7d7 c6c7
+[00:00:03.581] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.582] (7f7fcdf487c0) INFO   <- go wtime 598470 btime 588135 winc 10000 binc 10000 movestogo 34
+[00:00:03.583] (7f7fcdf487c0) INFO   Found best move: g4f5
+[00:00:03.585] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1 h8h3 d3e3 g7e8 g1c1 e8d6 c4c7 d7d8 c7c6 d8e7 c6b6 g6e4 b6d6 e4f3 d6b6 f3g4 e3d2 a4a7 b6c6 a7d7 c6c7 g4f5 c7d7
+[00:00:03.587] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.588] (7f7fcdf487c0) INFO   <- go wtime 608470 btime 598133 winc 10000 binc 10000 movestogo 33
+[00:00:03.589] (7f7fcdf487c0) INFO   Found best move: e7d7
+[00:00:03.591] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1 h8h3 d3e3 g7e8 g1c1 e8d6 c4c7 d7d8 c7c6 d8e7 c6b6 g6e4 b6d6 e4f3 d6b6 f3g4 e3d2 a4a7 b6c6 a7d7 c6c7 g4f5 c7d7 e7d7 c1c4
+[00:00:03.593] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.594] (7f7fcdf487c0) INFO   <- go wtime 618469 btime 608131 winc 10000 binc 10000 movestogo 32
+[00:00:03.596] (7f7fcdf487c0) INFO   Found best move: h3b3
+[00:00:03.598] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1 h8h3 d3e3 g7e8 g1c1 e8d6 c4c7 d7d8 c7c6 d8e7 c6b6 g6e4 b6d6 e4f3 d6b6 f3g4 e3d2 a4a7 b6c6 a7d7 c6c7 g4f5 c7d7 e7d7 c1c4 h3b3 d2c1
+[00:00:03.600] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.601] (7f7fcdf487c0) INFO   <- go wtime 628469 btime 618129 winc 10000 binc 10000 movestogo 31
+[00:00:03.602] (7f7fcdf487c0) INFO   Found best move: b3f3
+[00:00:03.604] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1 h8h3 d3e3 g7e8 g1c1 e8d6 c4c7 d7d8 c7c6 d8e7 c6b6 g6e4 b6d6 e4f3 d6b6 f3g4 e3d2 a4a7 b6c6 a7d7 c6c7 g4f5 c7d7 e7d7 c1c4 h3b3 d2c1 b3f3 c4b4
+[00:00:03.606] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.607] (7f7fcdf487c0) INFO   <- go wtime 638469 btime 628127 winc 10000 binc 10000 movestogo 30
+[00:00:03.608] (7f7fcdf487c0) INFO   Found best move: f3f2
+[00:00:03.610] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1 h8h3 d3e3 g7e8 g1c1 e8d6 c4c7 d7d8 c7c6 d8e7 c6b6 g6e4 b6d6 e4f3 d6b6 f3g4 e3d2 a4a7 b6c6 a7d7 c6c7 g4f5 c7d7 e7d7 c1c4 h3b3 d2c1 b3f3 c4b4 f3f2 b4c4
+[00:00:03.612] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.613] (7f7fcdf487c0) INFO   <- go wtime 648469 btime 638125 winc 10000 binc 10000 movestogo 29
+[00:00:03.614] (7f7fcdf487c0) INFO   Found best move: f2f1
+[00:00:03.615] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1 h8h3 d3e3 g7e8 g1c1 e8d6 c4c7 d7d8 c7c6 d8e7 c6b6 g6e4 b6d6 e4f3 d6b6 f3g4 e3d2 a4a7 b6c6 a7d7 c6c7 g4f5 c7d7 e7d7 c1c4 h3b3 d2c1 b3f3 c4b4 f3f2 b4c4 f2f1 c1d2
+[00:00:03.617] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.618] (7f7fcdf487c0) INFO   <- go wtime 658469 btime 648123 winc 10000 binc 10000 movestogo 28
+[00:00:03.619] (7f7fcdf487c0) INFO   Found best move: f1b1
+[00:00:03.621] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1 h8h3 d3e3 g7e8 g1c1 e8d6 c4c7 d7d8 c7c6 d8e7 c6b6 g6e4 b6d6 e4f3 d6b6 f3g4 e3d2 a4a7 b6c6 a7d7 c6c7 g4f5 c7d7 e7d7 c1c4 h3b3 d2c1 b3f3 c4b4 f3f2 b4c4 f2f1 c1d2 f1b1 c4b4
+[00:00:03.623] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.624] (7f7fcdf487c0) INFO   <- go wtime 668469 btime 658121 winc 10000 binc 10000 movestogo 27
+[00:00:03.625] (7f7fcdf487c0) INFO   Found best move: b1a1
+[00:00:03.628] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1 h8h3 d3e3 g7e8 g1c1 e8d6 c4c7 d7d8 c7c6 d8e7 c6b6 g6e4 b6d6 e4f3 d6b6 f3g4 e3d2 a4a7 b6c6 a7d7 c6c7 g4f5 c7d7 e7d7 c1c4 h3b3 d2c1 b3f3 c4b4 f3f2 b4c4 f2f1 c1d2 f1b1 c4b4 b1a1 b4b3
+[00:00:03.629] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.630] (7f7fcdf487c0) INFO   <- go wtime 678469 btime 668119 winc 10000 binc 10000 movestogo 26
+[00:00:03.631] (7f7fcdf487c0) INFO   Found best move: a1a4
+[00:00:03.634] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1 h8h3 d3e3 g7e8 g1c1 e8d6 c4c7 d7d8 c7c6 d8e7 c6b6 g6e4 b6d6 e4f3 d6b6 f3g4 e3d2 a4a7 b6c6 a7d7 c6c7 g4f5 c7d7 e7d7 c1c4 h3b3 d2c1 b3f3 c4b4 f3f2 b4c4 f2f1 c1d2 f1b1 c4b4 b1a1 b4b3 a1a4 d2e3
+[00:00:03.635] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.636] (7f7fcdf487c0) INFO   <- go wtime 688469 btime 678117 winc 10000 binc 10000 movestogo 25
+[00:00:03.637] (7f7fcdf487c0) INFO   Found best move: e6e5
+[00:00:03.640] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1 h8h3 d3e3 g7e8 g1c1 e8d6 c4c7 d7d8 c7c6 d8e7 c6b6 g6e4 b6d6 e4f3 d6b6 f3g4 e3d2 a4a7 b6c6 a7d7 c6c7 g4f5 c7d7 e7d7 c1c4 h3b3 d2c1 b3f3 c4b4 f3f2 b4c4 f2f1 c1d2 f1b1 c4b4 b1a1 b4b3 a1a4 d2e3 e6e5 d4e5
+[00:00:03.642] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.643] (7f7fcdf487c0) INFO   <- go wtime 698469 btime 688115 winc 10000 binc 10000 movestogo 24
+[00:00:03.644] (7f7fcdf487c0) INFO   Found best move: f6e5
+[00:00:03.646] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1 h8h3 d3e3 g7e8 g1c1 e8d6 c4c7 d7d8 c7c6 d8e7 c6b6 g6e4 b6d6 e4f3 d6b6 f3g4 e3d2 a4a7 b6c6 a7d7 c6c7 g4f5 c7d7 e7d7 c1c4 h3b3 d2c1 b3f3 c4b4 f3f2 b4c4 f2f1 c1d2 f1b1 c4b4 b1a1 b4b3 a1a4 d2e3 e6e5 d4e5 f6e5 b3a3
+[00:00:03.648] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.649] (7f7fcdf487c0) INFO   <- go wtime 708469 btime 698113 winc 10000 binc 10000 movestogo 23
+[00:00:03.650] (7f7fcdf487c0) INFO   Found best move: a4a3
+[00:00:03.651] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1 h8h3 d3e3 g7e8 g1c1 e8d6 c4c7 d7d8 c7c6 d8e7 c6b6 g6e4 b6d6 e4f3 d6b6 f3g4 e3d2 a4a7 b6c6 a7d7 c6c7 g4f5 c7d7 e7d7 c1c4 h3b3 d2c1 b3f3 c4b4 f3f2 b4c4 f2f1 c1d2 f1b1 c4b4 b1a1 b4b3 a1a4 d2e3 e6e5 d4e5 f6e5 b3a3 a4a3 b2a3
+[00:00:03.653] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.655] (7f7fcdf487c0) INFO   <- go wtime 718469 btime 708111 winc 10000 binc 10000 movestogo 22
+[00:00:03.656] (7f7fcdf487c0) INFO   Found best move: f5e6
+[00:00:03.657] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1 h8h3 d3e3 g7e8 g1c1 e8d6 c4c7 d7d8 c7c6 d8e7 c6b6 g6e4 b6d6 e4f3 d6b6 f3g4 e3d2 a4a7 b6c6 a7d7 c6c7 g4f5 c7d7 e7d7 c1c4 h3b3 d2c1 b3f3 c4b4 f3f2 b4c4 f2f1 c1d2 f1b1 c4b4 b1a1 b4b3 a1a4 d2e3 e6e5 d4e5 f6e5 b3a3 a4a3 b2a3 f5e6 e3e4
+[00:00:03.659] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.660] (7f7fcdf487c0) INFO   <- go wtime 728469 btime 718109 winc 10000 binc 10000 movestogo 21
+[00:00:03.661] (7f7fcdf487c0) INFO   Found best move: d7d6
+[00:00:03.662] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1 h8h3 d3e3 g7e8 g1c1 e8d6 c4c7 d7d8 c7c6 d8e7 c6b6 g6e4 b6d6 e4f3 d6b6 f3g4 e3d2 a4a7 b6c6 a7d7 c6c7 g4f5 c7d7 e7d7 c1c4 h3b3 d2c1 b3f3 c4b4 f3f2 b4c4 f2f1 c1d2 f1b1 c4b4 b1a1 b4b3 a1a4 d2e3 e6e5 d4e5 f6e5 b3a3 a4a3 b2a3 f5e6 e3e4 d7d6 a3a4
+[00:00:03.664] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.665] (7f7fcdf487c0) INFO   <- go wtime 738469 btime 728107 winc 10000 binc 10000 movestogo 20
+[00:00:03.666] (7f7fcdf487c0) INFO   Found best move: g5g4
+[00:00:03.667] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1 h8h3 d3e3 g7e8 g1c1 e8d6 c4c7 d7d8 c7c6 d8e7 c6b6 g6e4 b6d6 e4f3 d6b6 f3g4 e3d2 a4a7 b6c6 a7d7 c6c7 g4f5 c7d7 e7d7 c1c4 h3b3 d2c1 b3f3 c4b4 f3f2 b4c4 f2f1 c1d2 f1b1 c4b4 b1a1 b4b3 a1a4 d2e3 e6e5 d4e5 f6e5 b3a3 a4a3 b2a3 f5e6 e3e4 d7d6 a3a4 g5g4 a4a5
+[00:00:03.669] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.671] (7f7fcdf487c0) INFO   <- go wtime 748469 btime 738105 winc 10000 binc 10000 movestogo 19
+[00:00:03.672] (7f7fcdf487c0) INFO   Found best move: e6d5
+[00:00:03.673] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1 h8h3 d3e3 g7e8 g1c1 e8d6 c4c7 d7d8 c7c6 d8e7 c6b6 g6e4 b6d6 e4f3 d6b6 f3g4 e3d2 a4a7 b6c6 a7d7 c6c7 g4f5 c7d7 e7d7 c1c4 h3b3 d2c1 b3f3 c4b4 f3f2 b4c4 f2f1 c1d2 f1b1 c4b4 b1a1 b4b3 a1a4 d2e3 e6e5 d4e5 f6e5 b3a3 a4a3 b2a3 f5e6 e3e4 d7d6 a3a4 g5g4 a4a5 e6d5 e4d3
+[00:00:03.675] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.676] (7f7fcdf487c0) INFO   <- go wtime 758469 btime 748103 winc 10000 binc 10000 movestogo 18
+[00:00:03.677] (7f7fcdf487c0) INFO   Found best move: d5h1
+[00:00:03.678] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1 h8h3 d3e3 g7e8 g1c1 e8d6 c4c7 d7d8 c7c6 d8e7 c6b6 g6e4 b6d6 e4f3 d6b6 f3g4 e3d2 a4a7 b6c6 a7d7 c6c7 g4f5 c7d7 e7d7 c1c4 h3b3 d2c1 b3f3 c4b4 f3f2 b4c4 f2f1 c1d2 f1b1 c4b4 b1a1 b4b3 a1a4 d2e3 e6e5 d4e5 f6e5 b3a3 a4a3 b2a3 f5e6 e3e4 d7d6 a3a4 g5g4 a4a5 e6d5 e4d3 d5h1 b5b6
+[00:00:03.680] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.681] (7f7fcdf487c0) INFO   <- go wtime 768469 btime 758101 winc 10000 binc 10000 movestogo 17
+[00:00:03.682] (7f7fcdf487c0) INFO   Found best move: h1g2
+[00:00:03.683] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1 h8h3 d3e3 g7e8 g1c1 e8d6 c4c7 d7d8 c7c6 d8e7 c6b6 g6e4 b6d6 e4f3 d6b6 f3g4 e3d2 a4a7 b6c6 a7d7 c6c7 g4f5 c7d7 e7d7 c1c4 h3b3 d2c1 b3f3 c4b4 f3f2 b4c4 f2f1 c1d2 f1b1 c4b4 b1a1 b4b3 a1a4 d2e3 e6e5 d4e5 f6e5 b3a3 a4a3 b2a3 f5e6 e3e4 d7d6 a3a4 g5g4 a4a5 e6d5 e4d3 d5h1 b5b6 h1g2 d3c2
+[00:00:03.685] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.686] (7f7fcdf487c0) INFO   <- go wtime 778469 btime 768099 winc 10000 binc 10000 movestogo 16
+[00:00:03.687] (7f7fcdf487c0) INFO   Found best move: g2f3
+[00:00:03.688] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1 h8h3 d3e3 g7e8 g1c1 e8d6 c4c7 d7d8 c7c6 d8e7 c6b6 g6e4 b6d6 e4f3 d6b6 f3g4 e3d2 a4a7 b6c6 a7d7 c6c7 g4f5 c7d7 e7d7 c1c4 h3b3 d2c1 b3f3 c4b4 f3f2 b4c4 f2f1 c1d2 f1b1 c4b4 b1a1 b4b3 a1a4 d2e3 e6e5 d4e5 f6e5 b3a3 a4a3 b2a3 f5e6 e3e4 d7d6 a3a4 g5g4 a4a5 e6d5 e4d3 d5h1 b5b6 h1g2 d3c2 g2f3 a5a6
+[00:00:03.690] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.691] (7f7fcdf487c0) INFO   <- go wtime 788469 btime 778097 winc 10000 binc 10000 movestogo 15
+[00:00:03.692] (7f7fcdf487c0) INFO   Found best move: f3e4
+[00:00:03.694] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1 h8h3 d3e3 g7e8 g1c1 e8d6 c4c7 d7d8 c7c6 d8e7 c6b6 g6e4 b6d6 e4f3 d6b6 f3g4 e3d2 a4a7 b6c6 a7d7 c6c7 g4f5 c7d7 e7d7 c1c4 h3b3 d2c1 b3f3 c4b4 f3f2 b4c4 f2f1 c1d2 f1b1 c4b4 b1a1 b4b3 a1a4 d2e3 e6e5 d4e5 f6e5 b3a3 a4a3 b2a3 f5e6 e3e4 d7d6 a3a4 g5g4 a4a5 e6d5 e4d3 d5h1 b5b6 h1g2 d3c2 g2f3 a5a6 f3e4 c2c1
+[00:00:03.696] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.697] (7f7fcdf487c0) INFO   <- go wtime 798469 btime 788095 winc 10000 binc 10000 movestogo 14
+[00:00:03.698] (7f7fcdf487c0) INFO   Found best move: e4d3
+[00:00:03.700] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1 h8h3 d3e3 g7e8 g1c1 e8d6 c4c7 d7d8 c7c6 d8e7 c6b6 g6e4 b6d6 e4f3 d6b6 f3g4 e3d2 a4a7 b6c6 a7d7 c6c7 g4f5 c7d7 e7d7 c1c4 h3b3 d2c1 b3f3 c4b4 f3f2 b4c4 f2f1 c1d2 f1b1 c4b4 b1a1 b4b3 a1a4 d2e3 e6e5 d4e5 f6e5 b3a3 a4a3 b2a3 f5e6 e3e4 d7d6 a3a4 g5g4 a4a5 e6d5 e4d3 d5h1 b5b6 h1g2 d3c2 g2f3 a5a6 f3e4 c2c1 e4d3 a6a7
+[00:00:03.701] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.702] (7f7fcdf487c0) INFO   <- go wtime 808469 btime 798093 winc 10000 binc 10000 movestogo 13
+[00:00:03.704] (7f7fcdf487c0) INFO   Found best move: d3e4
+[00:00:03.706] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1 h8h3 d3e3 g7e8 g1c1 e8d6 c4c7 d7d8 c7c6 d8e7 c6b6 g6e4 b6d6 e4f3 d6b6 f3g4 e3d2 a4a7 b6c6 a7d7 c6c7 g4f5 c7d7 e7d7 c1c4 h3b3 d2c1 b3f3 c4b4 f3f2 b4c4 f2f1 c1d2 f1b1 c4b4 b1a1 b4b3 a1a4 d2e3 e6e5 d4e5 f6e5 b3a3 a4a3 b2a3 f5e6 e3e4 d7d6 a3a4 g5g4 a4a5 e6d5 e4d3 d5h1 b5b6 h1g2 d3c2 g2f3 a5a6 f3e4 c2c1 e4d3 a6a7 d3e4 c1d2
+[00:00:03.707] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.709] (7f7fcdf487c0) INFO   <- go wtime 818469 btime 808091 winc 10000 binc 10000 movestogo 12
+[00:00:03.710] (7f7fcdf487c0) INFO   Found best move: e4h1
+[00:00:03.712] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1 h8h3 d3e3 g7e8 g1c1 e8d6 c4c7 d7d8 c7c6 d8e7 c6b6 g6e4 b6d6 e4f3 d6b6 f3g4 e3d2 a4a7 b6c6 a7d7 c6c7 g4f5 c7d7 e7d7 c1c4 h3b3 d2c1 b3f3 c4b4 f3f2 b4c4 f2f1 c1d2 f1b1 c4b4 b1a1 b4b3 a1a4 d2e3 e6e5 d4e5 f6e5 b3a3 a4a3 b2a3 f5e6 e3e4 d7d6 a3a4 g5g4 a4a5 e6d5 e4d3 d5h1 b5b6 h1g2 d3c2 g2f3 a5a6 f3e4 c2c1 e4d3 a6a7 d3e4 c1d2 e4h1 a7a8q
+[00:00:03.714] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.715] (7f7fcdf487c0) INFO   <- go wtime 828469 btime 818089 winc 10000 binc 10000 movestogo 11
+[00:00:03.716] (7f7fcdf487c0) INFO   Found best move: h1a8
+[00:00:03.717] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1 h8h3 d3e3 g7e8 g1c1 e8d6 c4c7 d7d8 c7c6 d8e7 c6b6 g6e4 b6d6 e4f3 d6b6 f3g4 e3d2 a4a7 b6c6 a7d7 c6c7 g4f5 c7d7 e7d7 c1c4 h3b3 d2c1 b3f3 c4b4 f3f2 b4c4 f2f1 c1d2 f1b1 c4b4 b1a1 b4b3 a1a4 d2e3 e6e5 d4e5 f6e5 b3a3 a4a3 b2a3 f5e6 e3e4 d7d6 a3a4 g5g4 a4a5 e6d5 e4d3 d5h1 b5b6 h1g2 d3c2 g2f3 a5a6 f3e4 c2c1 e4d3 a6a7 d3e4 c1d2 e4h1 a7a8q h1a8 d2c1
+[00:00:03.719] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.720] (7f7fcdf487c0) INFO   <- go wtime 838469 btime 828087 winc 10000 binc 10000 movestogo 10
+[00:00:03.721] (7f7fcdf487c0) INFO   Found best move: d6c5
+[00:00:03.722] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1 h8h3 d3e3 g7e8 g1c1 e8d6 c4c7 d7d8 c7c6 d8e7 c6b6 g6e4 b6d6 e4f3 d6b6 f3g4 e3d2 a4a7 b6c6 a7d7 c6c7 g4f5 c7d7 e7d7 c1c4 h3b3 d2c1 b3f3 c4b4 f3f2 b4c4 f2f1 c1d2 f1b1 c4b4 b1a1 b4b3 a1a4 d2e3 e6e5 d4e5 f6e5 b3a3 a4a3 b2a3 f5e6 e3e4 d7d6 a3a4 g5g4 a4a5 e6d5 e4d3 d5h1 b5b6 h1g2 d3c2 g2f3 a5a6 f3e4 c2c1 e4d3 a6a7 d3e4 c1d2 e4h1 a7a8q h1a8 d2c1 d6c5 b6b7
+[00:00:03.724] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.725] (7f7fcdf487c0) INFO   <- go wtime 848469 btime 838085 winc 10000 binc 10000 movestogo 9
+[00:00:03.726] (7f7fcdf487c0) INFO   Found best move: a8b7
+[00:00:03.727] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1 h8h3 d3e3 g7e8 g1c1 e8d6 c4c7 d7d8 c7c6 d8e7 c6b6 g6e4 b6d6 e4f3 d6b6 f3g4 e3d2 a4a7 b6c6 a7d7 c6c7 g4f5 c7d7 e7d7 c1c4 h3b3 d2c1 b3f3 c4b4 f3f2 b4c4 f2f1 c1d2 f1b1 c4b4 b1a1 b4b3 a1a4 d2e3 e6e5 d4e5 f6e5 b3a3 a4a3 b2a3 f5e6 e3e4 d7d6 a3a4 g5g4 a4a5 e6d5 e4d3 d5h1 b5b6 h1g2 d3c2 g2f3 a5a6 f3e4 c2c1 e4d3 a6a7 d3e4 c1d2 e4h1 a7a8q h1a8 d2c1 d6c5 b6b7 a8b7 c1b1
+[00:00:03.729] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.730] (7f7fcdf487c0) INFO   <- go wtime 858469 btime 848083 winc 10000 binc 10000 movestogo 8
+[00:00:03.731] (7f7fcdf487c0) INFO   Found best move: b7h1
+[00:00:03.732] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1 h8h3 d3e3 g7e8 g1c1 e8d6 c4c7 d7d8 c7c6 d8e7 c6b6 g6e4 b6d6 e4f3 d6b6 f3g4 e3d2 a4a7 b6c6 a7d7 c6c7 g4f5 c7d7 e7d7 c1c4 h3b3 d2c1 b3f3 c4b4 f3f2 b4c4 f2f1 c1d2 f1b1 c4b4 b1a1 b4b3 a1a4 d2e3 e6e5 d4e5 f6e5 b3a3 a4a3 b2a3 f5e6 e3e4 d7d6 a3a4 g5g4 a4a5 e6d5 e4d3 d5h1 b5b6 h1g2 d3c2 g2f3 a5a6 f3e4 c2c1 e4d3 a6a7 d3e4 c1d2 e4h1 a7a8q h1a8 d2c1 d6c5 b6b7 a8b7 c1b1 b7h1 b1a1
+[00:00:03.734] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.735] (7f7fcdf487c0) INFO   <- go wtime 868469 btime 858081 winc 10000 binc 10000 movestogo 7
+[00:00:03.736] (7f7fcdf487c0) INFO   Found best move: h1g2
+[00:00:03.737] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1 h8h3 d3e3 g7e8 g1c1 e8d6 c4c7 d7d8 c7c6 d8e7 c6b6 g6e4 b6d6 e4f3 d6b6 f3g4 e3d2 a4a7 b6c6 a7d7 c6c7 g4f5 c7d7 e7d7 c1c4 h3b3 d2c1 b3f3 c4b4 f3f2 b4c4 f2f1 c1d2 f1b1 c4b4 b1a1 b4b3 a1a4 d2e3 e6e5 d4e5 f6e5 b3a3 a4a3 b2a3 f5e6 e3e4 d7d6 a3a4 g5g4 a4a5 e6d5 e4d3 d5h1 b5b6 h1g2 d3c2 g2f3 a5a6 f3e4 c2c1 e4d3 a6a7 d3e4 c1d2 e4h1 a7a8q h1a8 d2c1 d6c5 b6b7 a8b7 c1b1 b7h1 b1a1 h1g2 a1b1
+[00:00:03.739] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.740] (7f7fcdf487c0) INFO   <- go wtime 878469 btime 868079 winc 10000 binc 10000 movestogo 6
+[00:00:03.741] (7f7fcdf487c0) INFO   Found best move: g2f3
+[00:00:03.742] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1 h8h3 d3e3 g7e8 g1c1 e8d6 c4c7 d7d8 c7c6 d8e7 c6b6 g6e4 b6d6 e4f3 d6b6 f3g4 e3d2 a4a7 b6c6 a7d7 c6c7 g4f5 c7d7 e7d7 c1c4 h3b3 d2c1 b3f3 c4b4 f3f2 b4c4 f2f1 c1d2 f1b1 c4b4 b1a1 b4b3 a1a4 d2e3 e6e5 d4e5 f6e5 b3a3 a4a3 b2a3 f5e6 e3e4 d7d6 a3a4 g5g4 a4a5 e6d5 e4d3 d5h1 b5b6 h1g2 d3c2 g2f3 a5a6 f3e4 c2c1 e4d3 a6a7 d3e4 c1d2 e4h1 a7a8q h1a8 d2c1 d6c5 b6b7 a8b7 c1b1 b7h1 b1a1 h1g2 a1b1 g2f3 b1a1
+[00:00:03.744] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.745] (7f7fcdf487c0) INFO   <- go wtime 888469 btime 878077 winc 10000 binc 10000 movestogo 5
+[00:00:03.746] (7f7fcdf487c0) INFO   Found best move: f3h1
+[00:00:03.747] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1 h8h3 d3e3 g7e8 g1c1 e8d6 c4c7 d7d8 c7c6 d8e7 c6b6 g6e4 b6d6 e4f3 d6b6 f3g4 e3d2 a4a7 b6c6 a7d7 c6c7 g4f5 c7d7 e7d7 c1c4 h3b3 d2c1 b3f3 c4b4 f3f2 b4c4 f2f1 c1d2 f1b1 c4b4 b1a1 b4b3 a1a4 d2e3 e6e5 d4e5 f6e5 b3a3 a4a3 b2a3 f5e6 e3e4 d7d6 a3a4 g5g4 a4a5 e6d5 e4d3 d5h1 b5b6 h1g2 d3c2 g2f3 a5a6 f3e4 c2c1 e4d3 a6a7 d3e4 c1d2 e4h1 a7a8q h1a8 d2c1 d6c5 b6b7 a8b7 c1b1 b7h1 b1a1 h1g2 a1b1 g2f3 b1a1 f3h1 a1b1
+[00:00:03.749] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.750] (7f7fcdf487c0) INFO   <- go wtime 898469 btime 888075 winc 10000 binc 10000 movestogo 4
+[00:00:03.751] (7f7fcdf487c0) INFO   Found best move: h1g2
+[00:00:03.752] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1 h8h3 d3e3 g7e8 g1c1 e8d6 c4c7 d7d8 c7c6 d8e7 c6b6 g6e4 b6d6 e4f3 d6b6 f3g4 e3d2 a4a7 b6c6 a7d7 c6c7 g4f5 c7d7 e7d7 c1c4 h3b3 d2c1 b3f3 c4b4 f3f2 b4c4 f2f1 c1d2 f1b1 c4b4 b1a1 b4b3 a1a4 d2e3 e6e5 d4e5 f6e5 b3a3 a4a3 b2a3 f5e6 e3e4 d7d6 a3a4 g5g4 a4a5 e6d5 e4d3 d5h1 b5b6 h1g2 d3c2 g2f3 a5a6 f3e4 c2c1 e4d3 a6a7 d3e4 c1d2 e4h1 a7a8q h1a8 d2c1 d6c5 b6b7 a8b7 c1b1 b7h1 b1a1 h1g2 a1b1 g2f3 b1a1 f3h1 a1b1 h1g2 b1a1
+[00:00:03.754] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.755] (7f7fcdf487c0) INFO   <- go wtime 908469 btime 898073 winc 10000 binc 10000 movestogo 3
+[00:00:03.756] (7f7fcdf487c0) INFO   Found best move: g2f3
+[00:00:03.757] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1 h8h3 d3e3 g7e8 g1c1 e8d6 c4c7 d7d8 c7c6 d8e7 c6b6 g6e4 b6d6 e4f3 d6b6 f3g4 e3d2 a4a7 b6c6 a7d7 c6c7 g4f5 c7d7 e7d7 c1c4 h3b3 d2c1 b3f3 c4b4 f3f2 b4c4 f2f1 c1d2 f1b1 c4b4 b1a1 b4b3 a1a4 d2e3 e6e5 d4e5 f6e5 b3a3 a4a3 b2a3 f5e6 e3e4 d7d6 a3a4 g5g4 a4a5 e6d5 e4d3 d5h1 b5b6 h1g2 d3c2 g2f3 a5a6 f3e4 c2c1 e4d3 a6a7 d3e4 c1d2 e4h1 a7a8q h1a8 d2c1 d6c5 b6b7 a8b7 c1b1 b7h1 b1a1 h1g2 a1b1 g2f3 b1a1 f3h1 a1b1 h1g2 b1a1 g2f3 a1b1
+[00:00:03.759] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.760] (7f7fcdf487c0) INFO   <- go wtime 918469 btime 908071 winc 10000 binc 10000 movestogo 2
+[00:00:03.761] (7f7fcdf487c0) INFO   Found best move: f3e4
+[00:00:03.762] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1 h8h3 d3e3 g7e8 g1c1 e8d6 c4c7 d7d8 c7c6 d8e7 c6b6 g6e4 b6d6 e4f3 d6b6 f3g4 e3d2 a4a7 b6c6 a7d7 c6c7 g4f5 c7d7 e7d7 c1c4 h3b3 d2c1 b3f3 c4b4 f3f2 b4c4 f2f1 c1d2 f1b1 c4b4 b1a1 b4b3 a1a4 d2e3 e6e5 d4e5 f6e5 b3a3 a4a3 b2a3 f5e6 e3e4 d7d6 a3a4 g5g4 a4a5 e6d5 e4d3 d5h1 b5b6 h1g2 d3c2 g2f3 a5a6 f3e4 c2c1 e4d3 a6a7 d3e4 c1d2 e4h1 a7a8q h1a8 d2c1 d6c5 b6b7 a8b7 c1b1 b7h1 b1a1 h1g2 a1b1 g2f3 b1a1 f3h1 a1b1 h1g2 b1a1 g2f3 a1b1 f3e4 b1a1
+[00:00:03.764] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.765] (7f7fcdf487c0) INFO   <- go wtime 988469 btime 918069 winc 10000 binc 10000 movestogo 1
+[00:00:03.766] (7f7fcdf487c0) INFO   Found best move: e4c2
+[00:00:03.769] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1 h8h3 d3e3 g7e8 g1c1 e8d6 c4c7 d7d8 c7c6 d8e7 c6b6 g6e4 b6d6 e4f3 d6b6 f3g4 e3d2 a4a7 b6c6 a7d7 c6c7 g4f5 c7d7 e7d7 c1c4 h3b3 d2c1 b3f3 c4b4 f3f2 b4c4 f2f1 c1d2 f1b1 c4b4 b1a1 b4b3 a1a4 d2e3 e6e5 d4e5 f6e5 b3a3 a4a3 b2a3 f5e6 e3e4 d7d6 a3a4 g5g4 a4a5 e6d5 e4d3 d5h1 b5b6 h1g2 d3c2 g2f3 a5a6 f3e4 c2c1 e4d3 a6a7 d3e4 c1d2 e4h1 a7a8q h1a8 d2c1 d6c5 b6b7 a8b7 c1b1 b7h1 b1a1 h1g2 a1b1 g2f3 b1a1 f3h1 a1b1 h1g2 b1a1 g2f3 a1b1 f3e4 b1a1 e4c2 a1a2
+[00:00:03.770] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.771] (7f7fcdf487c0) INFO   <- go wtime 998469 btime 988067 winc 10000 binc 10000 movestogo 40
+[00:00:03.773] (7f7fcdf487c0) INFO   Found best move: c2d3
+[00:00:03.774] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1 h8h3 d3e3 g7e8 g1c1 e8d6 c4c7 d7d8 c7c6 d8e7 c6b6 g6e4 b6d6 e4f3 d6b6 f3g4 e3d2 a4a7 b6c6 a7d7 c6c7 g4f5 c7d7 e7d7 c1c4 h3b3 d2c1 b3f3 c4b4 f3f2 b4c4 f2f1 c1d2 f1b1 c4b4 b1a1 b4b3 a1a4 d2e3 e6e5 d4e5 f6e5 b3a3 a4a3 b2a3 f5e6 e3e4 d7d6 a3a4 g5g4 a4a5 e6d5 e4d3 d5h1 b5b6 h1g2 d3c2 g2f3 a5a6 f3e4 c2c1 e4d3 a6a7 d3e4 c1d2 e4h1 a7a8q h1a8 d2c1 d6c5 b6b7 a8b7 c1b1 b7h1 b1a1 h1g2 a1b1 g2f3 b1a1 f3h1 a1b1 h1g2 b1a1 g2f3 a1b1 f3e4 b1a1 e4c2 a1a2 c2d3 a2a1
+[00:00:03.775] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.776] (7f7fcdf487c0) INFO   <- go wtime 1008469 btime 998065 winc 10000 binc 10000 movestogo 39
+[00:00:03.778] (7f7fcdf487c0) INFO   Found best move: d3c4
+[00:00:03.779] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1 h8h3 d3e3 g7e8 g1c1 e8d6 c4c7 d7d8 c7c6 d8e7 c6b6 g6e4 b6d6 e4f3 d6b6 f3g4 e3d2 a4a7 b6c6 a7d7 c6c7 g4f5 c7d7 e7d7 c1c4 h3b3 d2c1 b3f3 c4b4 f3f2 b4c4 f2f1 c1d2 f1b1 c4b4 b1a1 b4b3 a1a4 d2e3 e6e5 d4e5 f6e5 b3a3 a4a3 b2a3 f5e6 e3e4 d7d6 a3a4 g5g4 a4a5 e6d5 e4d3 d5h1 b5b6 h1g2 d3c2 g2f3 a5a6 f3e4 c2c1 e4d3 a6a7 d3e4 c1d2 e4h1 a7a8q h1a8 d2c1 d6c5 b6b7 a8b7 c1b1 b7h1 b1a1 h1g2 a1b1 g2f3 b1a1 f3h1 a1b1 h1g2 b1a1 g2f3 a1b1 f3e4 b1a1 e4c2 a1a2 c2d3 a2a1 d3c4 a1b1
+[00:00:03.780] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.781] (7f7fcdf487c0) INFO   <- go wtime 1018469 btime 1008063 winc 10000 binc 10000 movestogo 38
+[00:00:03.783] (7f7fcdf487c0) INFO   Found best move: c4b3
+[00:00:03.785] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1 h8h3 d3e3 g7e8 g1c1 e8d6 c4c7 d7d8 c7c6 d8e7 c6b6 g6e4 b6d6 e4f3 d6b6 f3g4 e3d2 a4a7 b6c6 a7d7 c6c7 g4f5 c7d7 e7d7 c1c4 h3b3 d2c1 b3f3 c4b4 f3f2 b4c4 f2f1 c1d2 f1b1 c4b4 b1a1 b4b3 a1a4 d2e3 e6e5 d4e5 f6e5 b3a3 a4a3 b2a3 f5e6 e3e4 d7d6 a3a4 g5g4 a4a5 e6d5 e4d3 d5h1 b5b6 h1g2 d3c2 g2f3 a5a6 f3e4 c2c1 e4d3 a6a7 d3e4 c1d2 e4h1 a7a8q h1a8 d2c1 d6c5 b6b7 a8b7 c1b1 b7h1 b1a1 h1g2 a1b1 g2f3 b1a1 f3h1 a1b1 h1g2 b1a1 g2f3 a1b1 f3e4 b1a1 e4c2 a1a2 c2d3 a2a1 d3c4 a1b1 c4b3 b1a1
+[00:00:03.787] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.788] (7f7fcdf487c0) INFO   <- go wtime 1028469 btime 1018061 winc 10000 binc 10000 movestogo 37
+[00:00:03.789] (7f7fcdf487c0) INFO   Found best move: b3d5
+[00:00:03.790] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1 h8h3 d3e3 g7e8 g1c1 e8d6 c4c7 d7d8 c7c6 d8e7 c6b6 g6e4 b6d6 e4f3 d6b6 f3g4 e3d2 a4a7 b6c6 a7d7 c6c7 g4f5 c7d7 e7d7 c1c4 h3b3 d2c1 b3f3 c4b4 f3f2 b4c4 f2f1 c1d2 f1b1 c4b4 b1a1 b4b3 a1a4 d2e3 e6e5 d4e5 f6e5 b3a3 a4a3 b2a3 f5e6 e3e4 d7d6 a3a4 g5g4 a4a5 e6d5 e4d3 d5h1 b5b6 h1g2 d3c2 g2f3 a5a6 f3e4 c2c1 e4d3 a6a7 d3e4 c1d2 e4h1 a7a8q h1a8 d2c1 d6c5 b6b7 a8b7 c1b1 b7h1 b1a1 h1g2 a1b1 g2f3 b1a1 f3h1 a1b1 h1g2 b1a1 g2f3 a1b1 f3e4 b1a1 e4c2 a1a2 c2d3 a2a1 d3c4 a1b1 c4b3 b1a1 b3d5 a1b1
+[00:00:03.792] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.793] (7f7fcdf487c0) INFO   <- go wtime 1038469 btime 1028059 winc 10000 binc 10000 movestogo 36
+[00:00:03.794] (7f7fcdf487c0) INFO   Found best move: d5c6
+[00:00:03.796] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1 h8h3 d3e3 g7e8 g1c1 e8d6 c4c7 d7d8 c7c6 d8e7 c6b6 g6e4 b6d6 e4f3 d6b6 f3g4 e3d2 a4a7 b6c6 a7d7 c6c7 g4f5 c7d7 e7d7 c1c4 h3b3 d2c1 b3f3 c4b4 f3f2 b4c4 f2f1 c1d2 f1b1 c4b4 b1a1 b4b3 a1a4 d2e3 e6e5 d4e5 f6e5 b3a3 a4a3 b2a3 f5e6 e3e4 d7d6 a3a4 g5g4 a4a5 e6d5 e4d3 d5h1 b5b6 h1g2 d3c2 g2f3 a5a6 f3e4 c2c1 e4d3 a6a7 d3e4 c1d2 e4h1 a7a8q h1a8 d2c1 d6c5 b6b7 a8b7 c1b1 b7h1 b1a1 h1g2 a1b1 g2f3 b1a1 f3h1 a1b1 h1g2 b1a1 g2f3 a1b1 f3e4 b1a1 e4c2 a1a2 c2d3 a2a1 d3c4 a1b1 c4b3 b1a1 b3d5 a1b1 d5c6 b1a1
+[00:00:03.798] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.799] (7f7fcdf487c0) INFO   <- go wtime 1048469 btime 1038057 winc 10000 binc 10000 movestogo 35
+[00:00:03.800] (7f7fcdf487c0) INFO   Found best move: c6e4
+[00:00:03.802] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1 h8h3 d3e3 g7e8 g1c1 e8d6 c4c7 d7d8 c7c6 d8e7 c6b6 g6e4 b6d6 e4f3 d6b6 f3g4 e3d2 a4a7 b6c6 a7d7 c6c7 g4f5 c7d7 e7d7 c1c4 h3b3 d2c1 b3f3 c4b4 f3f2 b4c4 f2f1 c1d2 f1b1 c4b4 b1a1 b4b3 a1a4 d2e3 e6e5 d4e5 f6e5 b3a3 a4a3 b2a3 f5e6 e3e4 d7d6 a3a4 g5g4 a4a5 e6d5 e4d3 d5h1 b5b6 h1g2 d3c2 g2f3 a5a6 f3e4 c2c1 e4d3 a6a7 d3e4 c1d2 e4h1 a7a8q h1a8 d2c1 d6c5 b6b7 a8b7 c1b1 b7h1 b1a1 h1g2 a1b1 g2f3 b1a1 f3h1 a1b1 h1g2 b1a1 g2f3 a1b1 f3e4 b1a1 e4c2 a1a2 c2d3 a2a1 d3c4 a1b1 c4b3 b1a1 b3d5 a1b1 d5c6 b1a1 c6e4 a1a2
+[00:00:03.804] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.805] (7f7fcdf487c0) INFO   <- go wtime 1058469 btime 1048055 winc 10000 binc 10000 movestogo 34
+[00:00:03.807] (7f7fcdf487c0) INFO   Found best move: g4g3
+[00:00:03.809] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1 h8h3 d3e3 g7e8 g1c1 e8d6 c4c7 d7d8 c7c6 d8e7 c6b6 g6e4 b6d6 e4f3 d6b6 f3g4 e3d2 a4a7 b6c6 a7d7 c6c7 g4f5 c7d7 e7d7 c1c4 h3b3 d2c1 b3f3 c4b4 f3f2 b4c4 f2f1 c1d2 f1b1 c4b4 b1a1 b4b3 a1a4 d2e3 e6e5 d4e5 f6e5 b3a3 a4a3 b2a3 f5e6 e3e4 d7d6 a3a4 g5g4 a4a5 e6d5 e4d3 d5h1 b5b6 h1g2 d3c2 g2f3 a5a6 f3e4 c2c1 e4d3 a6a7 d3e4 c1d2 e4h1 a7a8q h1a8 d2c1 d6c5 b6b7 a8b7 c1b1 b7h1 b1a1 h1g2 a1b1 g2f3 b1a1 f3h1 a1b1 h1g2 b1a1 g2f3 a1b1 f3e4 b1a1 e4c2 a1a2 c2d3 a2a1 d3c4 a1b1 c4b3 b1a1 b3d5 a1b1 d5c6 b1a1 c6e4 a1a2 g4g3 a2a1
+[00:00:03.810] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.812] (7f7fcdf487c0) INFO   <- go wtime 1068469 btime 1058053 winc 10000 binc 10000 movestogo 33
+[00:00:03.813] (7f7fcdf487c0) INFO   Found best move: g3g2
+[00:00:03.814] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1 h8h3 d3e3 g7e8 g1c1 e8d6 c4c7 d7d8 c7c6 d8e7 c6b6 g6e4 b6d6 e4f3 d6b6 f3g4 e3d2 a4a7 b6c6 a7d7 c6c7 g4f5 c7d7 e7d7 c1c4 h3b3 d2c1 b3f3 c4b4 f3f2 b4c4 f2f1 c1d2 f1b1 c4b4 b1a1 b4b3 a1a4 d2e3 e6e5 d4e5 f6e5 b3a3 a4a3 b2a3 f5e6 e3e4 d7d6 a3a4 g5g4 a4a5 e6d5 e4d3 d5h1 b5b6 h1g2 d3c2 g2f3 a5a6 f3e4 c2c1 e4d3 a6a7 d3e4 c1d2 e4h1 a7a8q h1a8 d2c1 d6c5 b6b7 a8b7 c1b1 b7h1 b1a1 h1g2 a1b1 g2f3 b1a1 f3h1 a1b1 h1g2 b1a1 g2f3 a1b1 f3e4 b1a1 e4c2 a1a2 c2d3 a2a1 d3c4 a1b1 c4b3 b1a1 b3d5 a1b1 d5c6 b1a1 c6e4 a1a2 g4g3 a2a1 g3g2 a1a2
+[00:00:03.816] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.817] (7f7fcdf487c0) INFO   <- go wtime 1078469 btime 1068051 winc 10000 binc 10000 movestogo 32
+[00:00:03.818] (7f7fcdf487c0) INFO   Found best move: g2g1q
+[00:00:03.819] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1 h8h3 d3e3 g7e8 g1c1 e8d6 c4c7 d7d8 c7c6 d8e7 c6b6 g6e4 b6d6 e4f3 d6b6 f3g4 e3d2 a4a7 b6c6 a7d7 c6c7 g4f5 c7d7 e7d7 c1c4 h3b3 d2c1 b3f3 c4b4 f3f2 b4c4 f2f1 c1d2 f1b1 c4b4 b1a1 b4b3 a1a4 d2e3 e6e5 d4e5 f6e5 b3a3 a4a3 b2a3 f5e6 e3e4 d7d6 a3a4 g5g4 a4a5 e6d5 e4d3 d5h1 b5b6 h1g2 d3c2 g2f3 a5a6 f3e4 c2c1 e4d3 a6a7 d3e4 c1d2 e4h1 a7a8q h1a8 d2c1 d6c5 b6b7 a8b7 c1b1 b7h1 b1a1 h1g2 a1b1 g2f3 b1a1 f3h1 a1b1 h1g2 b1a1 g2f3 a1b1 f3e4 b1a1 e4c2 a1a2 c2d3 a2a1 d3c4 a1b1 c4b3 b1a1 b3d5 a1b1 d5c6 b1a1 c6e4 a1a2 g4g3 a2a1 g3g2 a1a2 g2g1q a2b2
+[00:00:03.821] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.822] (7f7fcdf487c0) INFO   <- go wtime 1088469 btime 1078049 winc 10000 binc 10000 movestogo 31
+[00:00:03.823] (7f7fcdf487c0) INFO   Found best move: g1e1
+[00:00:03.824] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1 h8h3 d3e3 g7e8 g1c1 e8d6 c4c7 d7d8 c7c6 d8e7 c6b6 g6e4 b6d6 e4f3 d6b6 f3g4 e3d2 a4a7 b6c6 a7d7 c6c7 g4f5 c7d7 e7d7 c1c4 h3b3 d2c1 b3f3 c4b4 f3f2 b4c4 f2f1 c1d2 f1b1 c4b4 b1a1 b4b3 a1a4 d2e3 e6e5 d4e5 f6e5 b3a3 a4a3 b2a3 f5e6 e3e4 d7d6 a3a4 g5g4 a4a5 e6d5 e4d3 d5h1 b5b6 h1g2 d3c2 g2f3 a5a6 f3e4 c2c1 e4d3 a6a7 d3e4 c1d2 e4h1 a7a8q h1a8 d2c1 d6c5 b6b7 a8b7 c1b1 b7h1 b1a1 h1g2 a1b1 g2f3 b1a1 f3h1 a1b1 h1g2 b1a1 g2f3 a1b1 f3e4 b1a1 e4c2 a1a2 c2d3 a2a1 d3c4 a1b1 c4b3 b1a1 b3d5 a1b1 d5c6 b1a1 c6e4 a1a2 g4g3 a2a1 g3g2 a1a2 g2g1q a2b2 g1e1 b2a2
+[00:00:03.826] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.827] (7f7fcdf487c0) INFO   <- go wtime 1098469 btime 1088047 winc 10000 binc 10000 movestogo 30
+[00:00:03.828] (7f7fcdf487c0) INFO   Found best move: e1a5
+[00:00:03.829] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1 h8h3 d3e3 g7e8 g1c1 e8d6 c4c7 d7d8 c7c6 d8e7 c6b6 g6e4 b6d6 e4f3 d6b6 f3g4 e3d2 a4a7 b6c6 a7d7 c6c7 g4f5 c7d7 e7d7 c1c4 h3b3 d2c1 b3f3 c4b4 f3f2 b4c4 f2f1 c1d2 f1b1 c4b4 b1a1 b4b3 a1a4 d2e3 e6e5 d4e5 f6e5 b3a3 a4a3 b2a3 f5e6 e3e4 d7d6 a3a4 g5g4 a4a5 e6d5 e4d3 d5h1 b5b6 h1g2 d3c2 g2f3 a5a6 f3e4 c2c1 e4d3 a6a7 d3e4 c1d2 e4h1 a7a8q h1a8 d2c1 d6c5 b6b7 a8b7 c1b1 b7h1 b1a1 h1g2 a1b1 g2f3 b1a1 f3h1 a1b1 h1g2 b1a1 g2f3 a1b1 f3e4 b1a1 e4c2 a1a2 c2d3 a2a1 d3c4 a1b1 c4b3 b1a1 b3d5 a1b1 d5c6 b1a1 c6e4 a1a2 g4g3 a2a1 g3g2 a1a2 g2g1q a2b2 g1e1 b2a2 e1a5 a2b2
+[00:00:03.831] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.832] (7f7fcdf487c0) INFO   <- go wtime 1108469 btime 1098045 winc 10000 binc 10000 movestogo 29
+[00:00:03.833] (7f7fcdf487c0) INFO   Found best move: c5c4
+[00:00:03.834] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1 h8h3 d3e3 g7e8 g1c1 e8d6 c4c7 d7d8 c7c6 d8e7 c6b6 g6e4 b6d6 e4f3 d6b6 f3g4 e3d2 a4a7 b6c6 a7d7 c6c7 g4f5 c7d7 e7d7 c1c4 h3b3 d2c1 b3f3 c4b4 f3f2 b4c4 f2f1 c1d2 f1b1 c4b4 b1a1 b4b3 a1a4 d2e3 e6e5 d4e5 f6e5 b3a3 a4a3 b2a3 f5e6 e3e4 d7d6 a3a4 g5g4 a4a5 e6d5 e4d3 d5h1 b5b6 h1g2 d3c2 g2f3 a5a6 f3e4 c2c1 e4d3 a6a7 d3e4 c1d2 e4h1 a7a8q h1a8 d2c1 d6c5 b6b7 a8b7 c1b1 b7h1 b1a1 h1g2 a1b1 g2f3 b1a1 f3h1 a1b1 h1g2 b1a1 g2f3 a1b1 f3e4 b1a1 e4c2 a1a2 c2d3 a2a1 d3c4 a1b1 c4b3 b1a1 b3d5 a1b1 d5c6 b1a1 c6e4 a1a2 g4g3 a2a1 g3g2 a1a2 g2g1q a2b2 g1e1 b2a2 e1a5 a2b2 c5c4 b2c1
+[00:00:03.836] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.837] (7f7fcdf487c0) INFO   <- go wtime 1118469 btime 1108043 winc 10000 binc 10000 movestogo 28
+[00:00:03.838] (7f7fcdf487c0) INFO   Found best move: a5e1
+[00:00:03.839] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1 h8h3 d3e3 g7e8 g1c1 e8d6 c4c7 d7d8 c7c6 d8e7 c6b6 g6e4 b6d6 e4f3 d6b6 f3g4 e3d2 a4a7 b6c6 a7d7 c6c7 g4f5 c7d7 e7d7 c1c4 h3b3 d2c1 b3f3 c4b4 f3f2 b4c4 f2f1 c1d2 f1b1 c4b4 b1a1 b4b3 a1a4 d2e3 e6e5 d4e5 f6e5 b3a3 a4a3 b2a3 f5e6 e3e4 d7d6 a3a4 g5g4 a4a5 e6d5 e4d3 d5h1 b5b6 h1g2 d3c2 g2f3 a5a6 f3e4 c2c1 e4d3 a6a7 d3e4 c1d2 e4h1 a7a8q h1a8 d2c1 d6c5 b6b7 a8b7 c1b1 b7h1 b1a1 h1g2 a1b1 g2f3 b1a1 f3h1 a1b1 h1g2 b1a1 g2f3 a1b1 f3e4 b1a1 e4c2 a1a2 c2d3 a2a1 d3c4 a1b1 c4b3 b1a1 b3d5 a1b1 d5c6 b1a1 c6e4 a1a2 g4g3 a2a1 g3g2 a1a2 g2g1q a2b2 g1e1 b2a2 e1a5 a2b2 c5c4 b2c1 a5e1 c1b2
+[00:00:03.841] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.842] (7f7fcdf487c0) INFO   <- go wtime 1128469 btime 1118041 winc 10000 binc 10000 movestogo 27
+[00:00:03.843] (7f7fcdf487c0) INFO   Found best move: e1f2
+[00:00:03.844] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1 h8h3 d3e3 g7e8 g1c1 e8d6 c4c7 d7d8 c7c6 d8e7 c6b6 g6e4 b6d6 e4f3 d6b6 f3g4 e3d2 a4a7 b6c6 a7d7 c6c7 g4f5 c7d7 e7d7 c1c4 h3b3 d2c1 b3f3 c4b4 f3f2 b4c4 f2f1 c1d2 f1b1 c4b4 b1a1 b4b3 a1a4 d2e3 e6e5 d4e5 f6e5 b3a3 a4a3 b2a3 f5e6 e3e4 d7d6 a3a4 g5g4 a4a5 e6d5 e4d3 d5h1 b5b6 h1g2 d3c2 g2f3 a5a6 f3e4 c2c1 e4d3 a6a7 d3e4 c1d2 e4h1 a7a8q h1a8 d2c1 d6c5 b6b7 a8b7 c1b1 b7h1 b1a1 h1g2 a1b1 g2f3 b1a1 f3h1 a1b1 h1g2 b1a1 g2f3 a1b1 f3e4 b1a1 e4c2 a1a2 c2d3 a2a1 d3c4 a1b1 c4b3 b1a1 b3d5 a1b1 d5c6 b1a1 c6e4 a1a2 g4g3 a2a1 g3g2 a1a2 g2g1q a2b2 g1e1 b2a2 e1a5 a2b2 c5c4 b2c1 a5e1 c1b2 e1f2 b2a1
+[00:00:03.846] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.847] (7f7fcdf487c0) INFO   <- go wtime 1138469 btime 1128039 winc 10000 binc 10000 movestogo 26
+[00:00:03.848] (7f7fcdf487c0) INFO   Found best move: f2g1
+[00:00:03.850] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1 h8h3 d3e3 g7e8 g1c1 e8d6 c4c7 d7d8 c7c6 d8e7 c6b6 g6e4 b6d6 e4f3 d6b6 f3g4 e3d2 a4a7 b6c6 a7d7 c6c7 g4f5 c7d7 e7d7 c1c4 h3b3 d2c1 b3f3 c4b4 f3f2 b4c4 f2f1 c1d2 f1b1 c4b4 b1a1 b4b3 a1a4 d2e3 e6e5 d4e5 f6e5 b3a3 a4a3 b2a3 f5e6 e3e4 d7d6 a3a4 g5g4 a4a5 e6d5 e4d3 d5h1 b5b6 h1g2 d3c2 g2f3 a5a6 f3e4 c2c1 e4d3 a6a7 d3e4 c1d2 e4h1 a7a8q h1a8 d2c1 d6c5 b6b7 a8b7 c1b1 b7h1 b1a1 h1g2 a1b1 g2f3 b1a1 f3h1 a1b1 h1g2 b1a1 g2f3 a1b1 f3e4 b1a1 e4c2 a1a2 c2d3 a2a1 d3c4 a1b1 c4b3 b1a1 b3d5 a1b1 d5c6 b1a1 c6e4 a1a2 g4g3 a2a1 g3g2 a1a2 g2g1q a2b2 g1e1 b2a2 e1a5 a2b2 c5c4 b2c1 a5e1 c1b2 e1f2 b2a1 f2g1 a1a2
+[00:00:03.851] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.852] (7f7fcdf487c0) INFO   <- go wtime 1148469 btime 1138037 winc 10000 binc 10000 movestogo 25
+[00:00:03.853] (7f7fcdf487c0) INFO   Found best move: g1e3
+[00:00:03.855] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1 h8h3 d3e3 g7e8 g1c1 e8d6 c4c7 d7d8 c7c6 d8e7 c6b6 g6e4 b6d6 e4f3 d6b6 f3g4 e3d2 a4a7 b6c6 a7d7 c6c7 g4f5 c7d7 e7d7 c1c4 h3b3 d2c1 b3f3 c4b4 f3f2 b4c4 f2f1 c1d2 f1b1 c4b4 b1a1 b4b3 a1a4 d2e3 e6e5 d4e5 f6e5 b3a3 a4a3 b2a3 f5e6 e3e4 d7d6 a3a4 g5g4 a4a5 e6d5 e4d3 d5h1 b5b6 h1g2 d3c2 g2f3 a5a6 f3e4 c2c1 e4d3 a6a7 d3e4 c1d2 e4h1 a7a8q h1a8 d2c1 d6c5 b6b7 a8b7 c1b1 b7h1 b1a1 h1g2 a1b1 g2f3 b1a1 f3h1 a1b1 h1g2 b1a1 g2f3 a1b1 f3e4 b1a1 e4c2 a1a2 c2d3 a2a1 d3c4 a1b1 c4b3 b1a1 b3d5 a1b1 d5c6 b1a1 c6e4 a1a2 g4g3 a2a1 g3g2 a1a2 g2g1q a2b2 g1e1 b2a2 e1a5 a2b2 c5c4 b2c1 a5e1 c1b2 e1f2 b2a1 f2g1 a1a2 g1e3 a2b2
+[00:00:03.856] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.857] (7f7fcdf487c0) INFO   <- go wtime 1158469 btime 1148035 winc 10000 binc 10000 movestogo 24
+[00:00:03.858] (7f7fcdf487c0) INFO   Found best move: e3d4
+[00:00:03.861] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1 h8h3 d3e3 g7e8 g1c1 e8d6 c4c7 d7d8 c7c6 d8e7 c6b6 g6e4 b6d6 e4f3 d6b6 f3g4 e3d2 a4a7 b6c6 a7d7 c6c7 g4f5 c7d7 e7d7 c1c4 h3b3 d2c1 b3f3 c4b4 f3f2 b4c4 f2f1 c1d2 f1b1 c4b4 b1a1 b4b3 a1a4 d2e3 e6e5 d4e5 f6e5 b3a3 a4a3 b2a3 f5e6 e3e4 d7d6 a3a4 g5g4 a4a5 e6d5 e4d3 d5h1 b5b6 h1g2 d3c2 g2f3 a5a6 f3e4 c2c1 e4d3 a6a7 d3e4 c1d2 e4h1 a7a8q h1a8 d2c1 d6c5 b6b7 a8b7 c1b1 b7h1 b1a1 h1g2 a1b1 g2f3 b1a1 f3h1 a1b1 h1g2 b1a1 g2f3 a1b1 f3e4 b1a1 e4c2 a1a2 c2d3 a2a1 d3c4 a1b1 c4b3 b1a1 b3d5 a1b1 d5c6 b1a1 c6e4 a1a2 g4g3 a2a1 g3g2 a1a2 g2g1q a2b2 g1e1 b2a2 e1a5 a2b2 c5c4 b2c1 a5e1 c1b2 e1f2 b2a1 f2g1 a1a2 g1e3 a2b2 e3d4 b2c1
+[00:00:03.863] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.864] (7f7fcdf487c0) INFO   <- go wtime 1168469 btime 1158033 winc 10000 binc 10000 movestogo 23
+[00:00:03.865] (7f7fcdf487c0) INFO   Found best move: d4g1
+[00:00:03.867] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1 h8h3 d3e3 g7e8 g1c1 e8d6 c4c7 d7d8 c7c6 d8e7 c6b6 g6e4 b6d6 e4f3 d6b6 f3g4 e3d2 a4a7 b6c6 a7d7 c6c7 g4f5 c7d7 e7d7 c1c4 h3b3 d2c1 b3f3 c4b4 f3f2 b4c4 f2f1 c1d2 f1b1 c4b4 b1a1 b4b3 a1a4 d2e3 e6e5 d4e5 f6e5 b3a3 a4a3 b2a3 f5e6 e3e4 d7d6 a3a4 g5g4 a4a5 e6d5 e4d3 d5h1 b5b6 h1g2 d3c2 g2f3 a5a6 f3e4 c2c1 e4d3 a6a7 d3e4 c1d2 e4h1 a7a8q h1a8 d2c1 d6c5 b6b7 a8b7 c1b1 b7h1 b1a1 h1g2 a1b1 g2f3 b1a1 f3h1 a1b1 h1g2 b1a1 g2f3 a1b1 f3e4 b1a1 e4c2 a1a2 c2d3 a2a1 d3c4 a1b1 c4b3 b1a1 b3d5 a1b1 d5c6 b1a1 c6e4 a1a2 g4g3 a2a1 g3g2 a1a2 g2g1q a2b2 g1e1 b2a2 e1a5 a2b2 c5c4 b2c1 a5e1 c1b2 e1f2 b2a1 f2g1 a1a2 g1e3 a2b2 e3d4 b2c1 d4g1 c1b2
+[00:00:03.869] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.870] (7f7fcdf487c0) INFO   <- go wtime 1178469 btime 1168031 winc 10000 binc 10000 movestogo 22
+[00:00:03.871] (7f7fcdf487c0) INFO   Found best move: g1e3
+[00:00:03.873] (7f7fcdf487c0) INFO   <- position startpos moves d2d4 d7d5 c1f4 c8f5 b1c3 b8c6 g1f3 g8f6 f3h4 f5g4 h2h3 g4e6 d1d3 f6h5 f4h2 g7g5 h4f3 f7f6 d3b5 a8b8 e2e3 a7a6 b5c5 d8d7 f1d3 b7b6 c5a3 a6a5 g2g4 h5g7 c3b5 b8b7 a3c3 h7h5 h1g1 h5g4 h3g4 e6f7 a2a4 e7e6 c3d2 c6b4 d3f1 f7g6 f1d3 b4d3 c2d3 f8b4 b5c3 b4d6 h2d6 d7d6 c3b5 d6b4 d2b4 a5b4 e1d2 h8h3 g1g3 h3h8 a1c1 e8d7 e3e4 d5e4 d3e4 c7c6 d2d3 c6b5 a4b5 b7a7 c1c4 a7a4 g3g1 h8h3 d3e3 g7e8 g1c1 e8d6 c4c7 d7d8 c7c6 d8e7 c6b6 g6e4 b6d6 e4f3 d6b6 f3g4 e3d2 a4a7 b6c6 a7d7 c6c7 g4f5 c7d7 e7d7 c1c4 h3b3 d2c1 b3f3 c4b4 f3f2 b4c4 f2f1 c1d2 f1b1 c4b4 b1a1 b4b3 a1a4 d2e3 e6e5 d4e5 f6e5 b3a3 a4a3 b2a3 f5e6 e3e4 d7d6 a3a4 g5g4 a4a5 e6d5 e4d3 d5h1 b5b6 h1g2 d3c2 g2f3 a5a6 f3e4 c2c1 e4d3 a6a7 d3e4 c1d2 e4h1 a7a8q h1a8 d2c1 d6c5 b6b7 a8b7 c1b1 b7h1 b1a1 h1g2 a1b1 g2f3 b1a1 f3h1 a1b1 h1g2 b1a1 g2f3 a1b1 f3e4 b1a1 e4c2 a1a2 c2d3 a2a1 d3c4 a1b1 c4b3 b1a1 b3d5 a1b1 d5c6 b1a1 c6e4 a1a2 g4g3 a2a1 g3g2 a1a2 g2g1q a2b2 g1e1 b2a2 e1a5 a2b2 c5c4 b2c1 a5e1 c1b2 e1f2 b2a1 f2g1 a1a2 g1e3 a2b2 e3d4 b2c1 d4g1 c1b2 g1e3 b2a2
+[00:00:03.874] (7f7fcdf487c0) INFO   <- isready
+[00:00:03.875] (7f7fcdf487c0) INFO   <- go wtime 1188469 btime 1178029 winc 10000 binc 10000 movestogo 21
+[00:00:03.877] (7f7fcdf487c0) INFO   Found best move: e3d4
+[00:00:04.096] (7f7fcdf487c0) INFO   <- isready
+[00:00:04.098] (7f7fcdf487c0) INFO   <- quit

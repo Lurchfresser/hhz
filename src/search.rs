@@ -10,11 +10,7 @@ pub fn search_entry(board: &Board, depth: u32) -> Option<Move> {
     SearchMetrics::change_timing_kind(TimingKind::Search);
     let maximize_score = board.white_to_move;
 
-    let legal_moves = sort_moves(
-        board.generate_legal_moves_temp(),
-        *board,
-        maximize_score,
-    );
+    let legal_moves = sort_moves(board.generate_legal_moves_temp(), *board, maximize_score);
 
     if legal_moves.is_empty() {
         return None; // No legal moves available
@@ -226,7 +222,10 @@ pub enum DrawReason {
     Repetition,
 }
 
-pub fn check_game_result<const DETECT_THREE_FOLD: bool>(board: &Board, num_legal_moves: usize) -> GameResult {
+pub fn check_game_result<const DETECT_THREE_FOLD: bool>(
+    board: &Board,
+    num_legal_moves: usize,
+) -> GameResult {
     if num_legal_moves == 0 {
         return if board.in_check_temp() {
             // Checkmate - the opponent wins
@@ -241,14 +240,13 @@ pub fn check_game_result<const DETECT_THREE_FOLD: bool>(board: &Board, num_legal
     }
 
     // Check for draw conditions first
-    if board.halfmove_clock > 100 {
+    if board.halfmove_clock >= 100 {
         return GameResult::Draw(DrawReason::FiftyMoveRule);
     }
 
-    //TODO:
-    // if board.can_draw_by_insufficient_material() {
-    //     return GameResult::Draw(DrawReason::InsufficientMaterial);
-    // }
+    if board.is_draw_by_insufficient_material() {
+        return GameResult::Draw(DrawReason::InsufficientMaterial);
+    }
 
     let mut i = i16::from(board.halfmove_clock) - 4;
 
