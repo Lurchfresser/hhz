@@ -60,7 +60,7 @@ impl Bot {
     }
 
     /// Sets the board position for the bot.
-    pub fn set_position(&self, board: Board) {
+    pub fn set_position(&mut self, board: Board) {
         self.stop();
         self.command_tx.send(BotCommand::SetBoard(board)).unwrap();
     }
@@ -133,7 +133,10 @@ impl BotWorker {
                 best_move_so_far = Some(best_move_at_depth);
                 // Send an 'info' message back to the main thread.
                 let info_msg = BotMessage::Info(best_move_at_depth);
-                self.result_tx.send(info_msg).unwrap();
+                match self.result_tx.send(info_msg){
+                    Err(e) => panic!("{}", e),
+                    _ => {}
+                }
             } else {
                 // Search was stopped or completed without finding a better move
                 break;

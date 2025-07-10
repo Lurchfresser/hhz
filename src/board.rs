@@ -3,6 +3,9 @@ use crate::{bit_boards::*, moves::square_to_algebraic};
 use regex::Regex;
 use std::fmt::Debug;
 
+
+pub const DEFAULT_FEN: &str =  "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum CastlingRights {
     All,
@@ -420,6 +423,15 @@ impl Board {
         })
     }
 
+    pub fn from_fen_and_uci_moves(fen: &str, uci_moves: &str) -> Result<Self, FenError> {
+        let mut board = Board::from_fen(fen)?;
+        for uci_move in uci_moves.split_ascii_whitespace() {
+            board = board.make_uci_move_temp(uci_move);
+        }
+        Ok(board)
+    }
+
+
     pub fn to_fen(&self) -> String {
         let mut fen = String::with_capacity(90);
 
@@ -548,7 +560,7 @@ impl Board {
 impl Default for Board {
     fn default() -> Self {
         // Initialize the board to the starting position
-        let board = Board::from_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+        let board = Board::from_fen(DEFAULT_FEN);
         match board {
             Ok(b) => b,
             Err(e) => panic!("{}", e),
