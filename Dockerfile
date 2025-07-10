@@ -9,7 +9,7 @@ COPY . .
 
 # This will now succeed because the toolchain is up-to-date.
 # The binary will be linked against Bookworm's GLIBC.
-RUN cargo build --release --bin make_api -F server
+RUN cargo build --release --bin make_api -F server,uci
 
 
 # ---- Stage 2: The Runtime ----
