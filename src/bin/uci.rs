@@ -48,7 +48,21 @@ fn main() {
                     // println!("{}", uci_msg);
                 }
                 BotMessage::BestMove(_move) => {
+
                     let uci_message = UciMessage::best_move(string_to_uci_move(_move.to_uci()));
+                    if cfg!(debug_assertions) {
+                        // Use an absolute path to ensure the log file is always in your project folder
+                        let log_path = "/home/lurchfresser/Desktop/coding/chess/hhz/uci_log.txt";
+                        let mut file = OpenOptions::new()
+                            .create(true)
+                            .append(true)
+                            .open(log_path)
+                            .unwrap();
+
+                        // Write the message and immediately flush it to the file
+                        writeln!(file, "Playing: {}", _move.to_uci()).unwrap();
+                        file.flush().unwrap();
+                    }
                     println!("{uci_message}");
                 }
             }
@@ -78,7 +92,7 @@ fn main() {
             match msg {
                 UciMessage::Uci => {
                     let message = UciMessage::Id {
-                        name: Some("hhz".to_string()),
+                        name: Some("hhz_v8".to_string()),
                         author: Some("lurchfresser".to_string()),
                     };
                     println!("{message}");

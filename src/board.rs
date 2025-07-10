@@ -110,6 +110,8 @@ pub struct Board {
 
     pub pieces: [Piece; 64],
 
+    pub repetition_lookup: [u64; 50],
+
     pub zobrist_hash: u64,
 }
 

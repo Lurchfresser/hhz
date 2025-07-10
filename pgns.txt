@@ -1,14 +1,14 @@
 [Event "?"]
 [Site "?"]
-[Date "2025.07.09"]
+[Date "2025.07.10"]
 [Round "1"]
 [White "hhz"]
 [Black "hhz"]
 [Result "1/2-1/2"]
 [ECO "A00"]
 [GameDuration "00:00:00"]
-[GameEndTime "2025-07-09T22:33:44.355 CEST"]
-[GameStartTime "2025-07-09T22:33:44.330 CEST"]
+[GameEndTime "2025-07-10T01:34:29.329 CEST"]
+[GameStartTime "2025-07-10T01:34:29.319 CEST"]
 [Opening "Durkin's attack"]
 [PlyCount "12"]
 [TimeControl "40/60"]
@@ -18,19 +18,101 @@ Rb8 {Draw by 3-fold repetition} 1/2-1/2
 
 [Event "?"]
 [Site "?"]
-[Date "2025.07.09"]
+[Date "2025.07.10"]
 [Round "2"]
 [White "hhz"]
 [Black "hhz"]
 [Result "1/2-1/2"]
 [ECO "A00"]
 [GameDuration "00:00:00"]
-[GameEndTime "2025-07-09T22:33:44.376 CEST"]
-[GameStartTime "2025-07-09T22:33:44.355 CEST"]
+[GameEndTime "2025-07-10T01:34:29.337 CEST"]
+[GameStartTime "2025-07-10T01:34:29.330 CEST"]
 [Opening "Durkin's attack"]
 [PlyCount "12"]
 [TimeControl "40/60"]
 
 1. Na3 Na6 2. Rb1 Rb8 3. Ra1 Ra8 4. Rb1 Rb8 5. Ra1 Ra8 6. Rb1
 Rb8 {Draw by 3-fold repetition} 1/2-1/2
+
+[Event "?"]
+[Site "?"]
+[Date "2025.07.10"]
+[Round "1"]
+[White "hhz"]
+[Black "hhz"]
+[Result "1/2-1/2"]
+[ECO "A00"]
+[GameDuration "00:00:02"]
+[GameEndTime "2025-07-10T10:20:38.318 CEST"]
+[GameStartTime "2025-07-10T10:20:36.266 CEST"]
+[Opening "Durkin's attack"]
+[PlyCount "54"]
+[TimeControl "40/60"]
+
+1. Na3 d5 2. Rb1 Qd6 3. Ra1 Bf5 4. Rb1 Nc6 5. Ra1 Qb4 6. Rb1 Nf6 7. Ra1 a5
+8. Rb1 e5 9. Ra1 Bc5 10. Nf3 h5 11. Rg1 Qa4 12. b3 Qe4 13. Nb5 Kd7 14. Bb2
+Nd4 {0.63s} 15. Nfxd4 exd4 16. Qb1 Qh4 17. Rh1 Kc6 18. Na3 Rhe8 19. Qc1 Rad8
+20. Qb1 Qe4 21. d3 Qf4 22. f3 Bb4+ 23. Kf2 Qe3+ 24. Kg3 Qg5+ 25. Kf2 Qe3+
+26. Kg3 Qg5+ 27. Kf2 Qe3+ {Draw by 3-fold repetition} 1/2-1/2
+
+[Event "?"]
+[Site "?"]
+[Date "2025.07.10"]
+[Round "2"]
+[White "hhz"]
+[Black "hhz"]
+[Result "1/2-1/2"]
+[ECO "A40"]
+[GameDuration "00:00:01"]
+[GameEndTime "2025-07-10T10:20:39.805 CEST"]
+[GameStartTime "2025-07-10T10:20:38.327 CEST"]
+[Opening "Queen's pawn"]
+[PlyCount "43"]
+[TimeControl "40/60"]
+
+1. d4 Na6 2. Qd3 Rb8 3. Bf4 Ra8 4. Nc3 Rb8 5. Nb5 Ra8 6. Nf3 Nf6 7. Nc3 Rb8
+8. Qb5 Ra8 9. a4 Rb8 10. e4 Ra8 11. Bc4 Rg8 12. h4 Rh8 13. Qa5 b6 14. Qe5 Nb4
+15. Kd2 Ba6 16. Bxa6 Nxa6 17. Qb5 Qc8 18. Rh3 Qb7 19. Re1 Qc8 20. Ra1 Qb7
+21. Re1 Qc8 22. Ra1 {Draw by 3-fold repetition} 1/2-1/2
+
+[Event "?"]
+[Site "?"]
+[Date "2025.07.10"]
+[Round "1"]
+[White "hhz"]
+[Black "hhz"]
+[Result "1/2-1/2"]
+[ECO "A00"]
+[GameDuration "00:00:02"]
+[GameEndTime "2025-07-10T10:21:03.100 CEST"]
+[GameStartTime "2025-07-10T10:21:01.059 CEST"]
+[Opening "Durkin's attack"]
+[PlyCount "54"]
+[TimeControl "40/60"]
+
+1. Na3 d5 2. Rb1 Qd6 3. Ra1 Bf5 4. Rb1 Nc6 5. Ra1 Qb4 6. Rb1 Nf6 7. Ra1 a5
+8. Rb1 e5 9. Ra1 Bc5 10. Nf3 h5 11. Rg1 Qa4 12. b3 Qe4 13. Nb5 Kd7 14. Bb2
+Nd4 {0.64s} 15. Nfxd4 exd4 16. Qb1 Qh4 17. Rh1 Kc6 18. Na3 Rhe8 19. Qc1 Rad8
+20. Qb1 Qe4 21. d3 Qf4 22. f3 Bb4+ 23. Kf2 Qe3+ 24. Kg3 Qg5+ 25. Kf2 Qe3+
+26. Kg3 Qg5+ 27. Kf2 Qe3+ {Draw by 3-fold repetition} 1/2-1/2
+
+[Event "?"]
+[Site "?"]
+[Date "2025.07.10"]
+[Round "2"]
+[White "hhz"]
+[Black "hhz"]
+[Result "1/2-1/2"]
+[ECO "A40"]
+[GameDuration "00:00:01"]
+[GameEndTime "2025-07-10T10:21:04.577 CEST"]
+[GameStartTime "2025-07-10T10:21:03.101 CEST"]
+[Opening "Queen's pawn"]
+[PlyCount "43"]
+[TimeControl "40/60"]
+
+1. d4 Na6 2. Qd3 Rb8 3. Bf4 Ra8 4. Nc3 Rb8 5. Nb5 Ra8 6. Nf3 Nf6 7. Nc3 Rb8
+8. Qb5 Ra8 9. a4 Rb8 10. e4 Ra8 11. Bc4 Rg8 12. h4 Rh8 13. Qa5 b6 14. Qe5 Nb4
+15. Kd2 Ba6 16. Bxa6 Nxa6 17. Qb5 Qc8 18. Rh3 Qb7 19. Re1 Qc8 20. Ra1 Qb7
+21. Re1 Qc8 22. Ra1 {Draw by 3-fold repetition} 1/2-1/2
 

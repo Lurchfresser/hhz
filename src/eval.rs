@@ -52,7 +52,23 @@ pub fn pieces_score(piece: Piece) -> i32 {
 pub fn eval(board: &Board) -> i32 {
     SearchMetrics::change_timing_kind(TimingKind::Evaluation);
     let score = board.score();
-    score
+    let mobility_score: i32 = board.gen_pawn_attack_squares(true).count_ones() as i32
+        - board.gen_pawn_attack_squares(false).count_ones() as i32
+        + board.generate_knight_attack_squares(true).count_ones() as i32
+        - board.generate_knight_attack_squares(false).count_ones() as i32
+        + board
+            .generate_bishop_and_queen_attack_squares(true)
+            .count_ones() as i32
+        - board
+            .generate_bishop_and_queen_attack_squares(false)
+            .count_ones() as i32
+        + board
+            .generate_rook_and_queen_attack_squares(true)
+            .count_ones() as i32
+        - board
+            .generate_rook_and_queen_attack_squares(false)
+            .count_ones() as i32;
+    score + (mobility_score as i32)
 }
 
 trait PiecesScore {
