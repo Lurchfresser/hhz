@@ -1,19 +1,17 @@
-use tokio::task;
 use dotenv::dotenv;
 use futures_util::StreamExt;
+use hhz::board::Board;
 use hhz::board::DEFAULT_FEN;
-use hhz::board::{Board, FenError};
 use hhz::bot::{Bot, BotMessage};
-use licheszter::models::game::{Color as LichessColor, GameEventInfo, GameState, GameStatus};
+use licheszter::models::game::{Color as LichessColor, GameEventInfo, GameStatus};
 use licheszter::{client::Licheszter, models::board::BoardState};
-use std::env;
-use std::sync::mpsc::{Receiver, Sender, channel};
+use std::sync::mpsc::Receiver;
 use std::sync::{Arc, mpsc};
-use std::thread;
 use std::thread::sleep;
 use std::time::Duration;
 use tokio::spawn;
 use tokio::sync::{Mutex, mpsc::Receiver as TokioReceiver};
+use tokio::task;
 
 #[tokio::main]
 async fn main() {
@@ -85,7 +83,11 @@ async fn handle_game(game: GameEventInfo, client_guard: Arc<Mutex<Licheszter>>) 
             sleep(Duration::from_millis(1));
         }
     });
-    spawn(send_bot_moves(game.clone(), async_receiver, client_guard.clone()));
+    spawn(send_bot_moves(
+        game.clone(),
+        async_receiver,
+        client_guard.clone(),
+    ));
     let mut bot = Bot::new(sender);
 
     let playing_white = if game.color == LichessColor::White {

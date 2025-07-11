@@ -4,7 +4,7 @@ use crate::metrics::TimingKind::Search;
 use crate::metrics::{SearchMetrics, TimingKind};
 use crate::moves::{Move, MoveList};
 
-pub fn search_entry(board: &Board, depth: u32) -> Option<Move> {
+pub fn search_entry(board: &Board, depth: u8) -> Option<Move> {
     SearchMetrics::increment_normal_search_entries();
     // Initialize metrics if not already done
 
@@ -17,18 +17,22 @@ pub fn search_entry(board: &Board, depth: u32) -> Option<Move> {
         return None; // No legal moves available
     }
 
-    SearchMetrics::increment_positions_generated(legal_moves.len() as u64);
+    SearchMetrics::increment_normal_search_positions_generated(legal_moves.len() as u64);
 
     let mut best_move = None;
 
     let mut best_score = if maximize_score {
-        i32::MIN + 1
+        //TODO: define const values, with better ranges
+        i16::MIN + 1
     } else {
-        i32::MAX - 1
+        //TODO: define const values, with better ranges
+        i16::MAX - 1
     };
 
-    let mut alpha = i32::MIN + 1;
-    let mut beta = i32::MAX - 1;
+    //TODO: define const values, with better ranges
+    let mut alpha = i16::MIN + 1;
+    //TODO: define const values, with better ranges
+    let mut beta = i16::MAX - 1;
 
     for move_ in legal_moves {
         let new_game = board.make_move_temp(move_);
@@ -49,7 +53,7 @@ pub fn search_entry(board: &Board, depth: u32) -> Option<Move> {
     best_move
 }
 
-fn min_max_search(board: &Board, depth: u32, mut alpha: i32, mut beta: i32) -> i32 {
+fn min_max_search(board: &Board, depth: u8, mut alpha: i16, mut beta: i16) -> i16 {
     if depth == 0 {
         SearchMetrics::change_timing_kind(TimingKind::QSearch);
         let q_search_score = q_search(board, alpha, beta);
@@ -64,30 +68,34 @@ fn min_max_search(board: &Board, depth: u32, mut alpha: i32, mut beta: i32) -> i
     let maximize_score = board.white_to_move;
 
     let mut best_score = if maximize_score {
-        i32::MIN + 1
+        //TDO: define const values
+        i16::MIN + 1
     } else {
-        i32::MAX - 1
+        //TDO: define const values
+        i16::MAX - 1
     };
 
-    SearchMetrics::change_timing_kind(TimingKind::MoveGen);
+    SearchMetrics::change_timing_kind(TimingKind::NormalMoveGen);
 
     let legal_moves_unordered = board.generate_legal_moves_temp();
 
     match check_game_result::<false>(board, legal_moves_unordered.len()) {
-        GameResult::WhiteWins => return i32::MAX - 2,
+        //TDO: define const values
+        GameResult::WhiteWins => return i16::MAX - 2,
 
-        GameResult::BlackWins => return i32::MIN + 2,
+        //TDO: define const values
+        GameResult::BlackWins => return i16::MIN + 2,
 
         GameResult::Draw(_) => return 0,
 
         GameResult::Ongoing => {}
     }
 
-    SearchMetrics::change_timing_kind(TimingKind::MoveOrdering);
+    SearchMetrics::change_timing_kind(TimingKind::NormalMoveOrdering);
 
     let legal_moves = sort_moves(legal_moves_unordered, board, maximize_score);
 
-    SearchMetrics::increment_positions_generated(legal_moves.len() as u64);
+    SearchMetrics::increment_normal_search_positions_generated(legal_moves.len() as u64);
 
     SearchMetrics::change_timing_kind(TimingKind::Search);
     #[cfg(feature = "metrics")]
@@ -115,8 +123,8 @@ fn min_max_search(board: &Board, depth: u32, mut alpha: i32, mut beta: i32) -> i
             }
             if beta <= alpha {
                 // The move that caused the cutoff is at index 'i'. We add its 1-based index.
-                SearchMetrics::add_to_cutoff_move_index((i + 1) as u64);
-                SearchMetrics::increment_alpha_beta_cutoffs();
+                SearchMetrics::add_to_normal_search_sum_of_cutoff_indices((i + 1) as u64);
+                SearchMetrics::increment_normal_search_cutoffs();
                 break; // Beta cut-off
             }
         }
@@ -125,17 +133,17 @@ fn min_max_search(board: &Board, depth: u32, mut alpha: i32, mut beta: i32) -> i
 
     #[cfg(feature = "metrics")]
     if let Some(final_best_index) = best_move_found_at_index {
-        SearchMetrics::increment_nodes_with_best_move_count();
+        SearchMetrics::increment_normal_search_nodes_with_best_move();
         if final_best_index == 0 {
             // Note: This calls the standard function, not your maybe_increment version.
-            SearchMetrics::increment_best_move_first_count();
+            SearchMetrics::increment_normal_search_best_move_first_count();
         }
     }
 
     best_score
 }
 
-fn q_search(board: &Board, mut alpha: i32, mut beta: i32) -> i32 {
+fn q_search(board: &Board, mut alpha: i16, mut beta: i16) -> i16 {
     SearchMetrics::increment_q_search_entries();
 
     SearchMetrics::change_timing_kind(TimingKind::QSearch);
@@ -154,21 +162,23 @@ fn q_search(board: &Board, mut alpha: i32, mut beta: i32) -> i32 {
         beta = best_score.min(beta);
     }
     if beta <= alpha {
-        SearchMetrics::increment_alpha_beta_cutoffs();
+        SearchMetrics::increment_stand_pat_cutoffs();
         return best_score;
     }
 
-    SearchMetrics::change_timing_kind(TimingKind::MoveGen);
+    SearchMetrics::change_timing_kind(TimingKind::QMoveGen);
 
     //TODO: better stalemate detection
     let legal_moves: MoveList = board.generate_legal_moves_temp();
 
-    SearchMetrics::increment_positions_generated(legal_moves.len() as u64);
+    SearchMetrics::increment_q_search_positions_generated(legal_moves.len() as u64);
 
     match check_game_result::<false>(board, legal_moves.len()) {
-        GameResult::WhiteWins => return i32::MAX - 2,
+        //TODO:
+        GameResult::WhiteWins => return i16::MAX - 2,
 
-        GameResult::BlackWins => return i32::MIN + 2,
+        //TODO:
+        GameResult::BlackWins => return i16::MIN + 2,
 
         GameResult::Draw(_) => return 0,
 
@@ -181,7 +191,7 @@ fn q_search(board: &Board, mut alpha: i32, mut beta: i32) -> i32 {
         .copied()
         .collect();
 
-    SearchMetrics::change_timing_kind(TimingKind::MoveOrdering);
+    SearchMetrics::change_timing_kind(TimingKind::QMoveOrdering);
 
     let legal_captures = sort_moves(legal_captures_unordered, board, maximize_score);
 
@@ -220,8 +230,8 @@ fn q_search(board: &Board, mut alpha: i32, mut beta: i32) -> i32 {
 
             if beta <= alpha {
                 // The move that caused the cutoff is at index 'i'. We add its 1-based index.
-                SearchMetrics::add_to_cutoff_move_index((i + 1) as u64);
-                SearchMetrics::increment_alpha_beta_cutoffs();
+                SearchMetrics::add_to_q_search_sum_of_cutoff_indices((i + 1) as u64);
+                SearchMetrics::increment_q_search_cutoffs();
                 break; // Beta cut-off
             }
         }
@@ -231,10 +241,12 @@ fn q_search(board: &Board, mut alpha: i32, mut beta: i32) -> i32 {
 
     #[cfg(feature = "metrics")]
     if let Some(final_best_index) = best_move_found_at_index {
-        SearchMetrics::increment_nodes_with_best_move_count();
+        // --- FIX #1: Increment the correct denominator ---
+        SearchMetrics::increment_q_search_nodes_with_best_move();
+
+        // --- FIX #2: Only increment the numerator if the condition is met ---
         if final_best_index == 0 {
-            // Note: This calls the standard function, not your maybe_increment version.
-            SearchMetrics::increment_best_move_first_count();
+            SearchMetrics::increment_q_search_best_move_first_count();
         }
     }
 

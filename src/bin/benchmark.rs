@@ -1,13 +1,13 @@
 use csv::Writer;
 use hhz::board::Board;
-use hhz::metrics::{SearchMetrics, SearchMetricsData};
+use hhz::metrics::{calculate_and_update_derived_metrics, SearchMetrics, SearchMetricsData};
 use hhz::search::search_entry;
 use std::time::{Instant, SystemTime};
 
 pub mod generate_attack_lookup;
 
-static FEATURE_NAME: &str = "New metrics";
-static FEATURE_NUMBER: u32 = 10;
+static FEATURE_NAME: &str = "Switch to release mode";
+static FEATURE_NUMBER: u32 = 12;
 
 fn main() {
     let file_path = &format!(
@@ -36,7 +36,7 @@ fn main() {
                                                                     // Add more positions as needed
     ];
 
-    let max_depth = 10; // Depths to test
+    let max_depth = 10u8; // Depths to test
 
     println!("Chess Engine Benchmark");
     println!("=====================");
@@ -80,10 +80,9 @@ fn main() {
             println!("Best move found: {:?}", best_move);
             println!("Total time: {:.3} ms", elapsed.as_secs_f64() * 1000.0);
 
-            SearchMetrics::report();
             // Collect metrics
             unsafe {
-                metrics_data.push(SearchMetrics::get_metrics());
+                metrics_data.push(calculate_and_update_derived_metrics(&SearchMetrics::get_metrics()));
             }
             writer
                 .serialize(metrics_data.last().unwrap().clone())

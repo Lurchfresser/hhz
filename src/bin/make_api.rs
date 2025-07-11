@@ -1,3 +1,5 @@
+use chrono::Local;
+use chrono::DateTime;
 use hhz::board::Board;
 use hhz::search::search_entry;
 use rouille::Request;
@@ -28,8 +30,10 @@ fn main() {
     println!("Starting server on {}", url);
     rouille::start_server(url, move |request| {
         // Rest of closure remains the same
+        let current_local: DateTime<Local> = Local::now();
         println!(
-            "{} request on url: {}",
+            "{}: {} request on url: {}",
+            current_local,
             request.method(),
             request.url()
         );
@@ -52,7 +56,7 @@ fn main() {
     });
 }
 
-fn new_game(request: &Request, board: Arc<Mutex<Board>>, depth: u32) -> Response {
+fn new_game(request: &Request, board: Arc<Mutex<Board>>, depth: u8) -> Response {
     let game_request: GameRequest = try_or_400!(json_input(request));
     let mut board_guard = board.lock().unwrap();
     match Board::from_fen(&game_request.fen) {
@@ -86,7 +90,7 @@ fn new_game(request: &Request, board: Arc<Mutex<Board>>, depth: u32) -> Response
     }
 }
 
-fn on_move(request: &Request, board: Arc<Mutex<Board>>, depth: u32) -> Response {
+fn on_move(request: &Request, board: Arc<Mutex<Board>>, depth: u8) -> Response {
     let move_request: MoveRepresentation = try_or_400!(json_input(request));
     println!("received move: {}", move_request.uci_move);
     let old_board = board.lock().unwrap();

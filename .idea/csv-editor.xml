@@ -10,6 +10,20 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/benchmarks/11_New metrics v2.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/benchmarks/12_Switch to release mode.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/benchmarks/1_first-benchmark.csv">
           <value>
             <Attribute>

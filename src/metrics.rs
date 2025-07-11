@@ -11,77 +11,123 @@ use std::time::{Duration, Instant};
 #[derive(Copy, Clone, Debug, Serialize)]
 pub struct SearchMetricsData {
     feature_name: &'static str,
-    depth: u32,
-    positions_generated: u64,
+    depth: u8,
+
+    // --- Split Counters ---
+    normal_search_positions_generated: u64,
+    q_search_positions_generated: u64,
     normal_search_entries: u64,
     q_search_entries: u64,
-    num_alpha_beta_cutoffs: u64,
+    stand_pat_cutoffs: u64,
+    normal_search_cutoffs: u64,
+    q_search_cutoffs: u64,
 
-    // --- Move Ordering Quality Metrics ---
-    /// Number of nodes where the first move searched was the best one found.
-    best_move_first_count: u64,
-    /// Total number of nodes where a best move was established (i.e., alpha was raised).
-    nodes_with_best_move_count: u64,
-    /// Sum of the 1-based indices of all moves that caused a beta cutoff. Used to calculate the average.
-    sum_of_cutoff_move_indices: u64,
-    /// Number of beta cutoffs caused by a "killer move".
+    // --- Move Ordering Quality Metrics (already split or specific) ---
+    normal_search_best_move_first_count: u64,
+    q_search_best_move_first_count: u64,
+    normal_search_nodes_with_best_move: u64,
+    q_search_nodes_with_best_move: u64,
+
+    // --- Split Sums for Averages ---
+    normal_search_sum_of_cutoff_indices: u64,
+    q_search_sum_of_cutoff_indices: u64,
+
+    // Note: These typically only apply to normal search, so we can leave them as is.
+    #[serde(skip_serializing)]
     killer_move_cutoffs: u64,
-    /// Number of beta cutoffs caused by a move ordered high by the history heuristic.
+    #[serde(skip_serializing)]
     history_heuristic_cutoffs: u64,
 
-    // --- Transposition Table (TT) Metrics ---
-    /// Total number of times the TT was probed for an entry.
-    tt_probes: u64,
-    /// Number of times a probe found a valid entry in the TT.
-    tt_hits: u64,
-    /// Number of times a TT hit resulted in an immediate cutoff, avoiding a search of the node.
-    tt_cutoffs: u64,
+    // --- Split TT Metrics ---
+    #[serde(skip_serializing)]
+    normal_search_tt_probes: u64,
+    #[serde(skip_serializing)]
+    normal_search_tt_hits: u64,
+    #[serde(skip_serializing)]
+    normal_search_tt_cutoffs: u64,
+    #[serde(skip_serializing)]
+    q_search_tt_probes: u64,
+    #[serde(skip_serializing)]
+    q_search_tt_hits: u64,
+    #[serde(skip_serializing)]
+    q_search_tt_cutoffs: u64,
 
-    // --- Timing Metrics ---
+    // --- Split Timing Metrics ---
     #[serde(serialize_with = "serialize_duration_as_ms")]
     search_time: Duration,
     #[serde(serialize_with = "serialize_duration_as_ms")]
     q_search_time: Duration,
     #[serde(serialize_with = "serialize_duration_as_ms")]
-    evaluation_time: Duration,
+    evaluation_time: Duration, // Global, as it's a leaf operation
     #[serde(serialize_with = "serialize_duration_as_ms")]
-    move_gen_time: Duration,
+    normal_search_move_gen_time: Duration,
     #[serde(serialize_with = "serialize_duration_as_ms")]
-    move_ordering_time: Duration,
+    q_search_move_gen_time: Duration,
+    #[serde(serialize_with = "serialize_duration_as_ms")]
+    normal_search_move_ordering_time: Duration,
+    #[serde(serialize_with = "serialize_duration_as_ms")]
+    q_search_move_ordering_time: Duration,
     #[serde(serialize_with = "serialize_duration_as_ms")]
     total_time: Duration,
 
-    pub avg_cutoff_move_index: f64,
-    pub best_move_first_pct: f64,
+    // --- Derived Metrics ---
+    avg_normal_search_cutoff_index: f64,
+    avg_q_search_cutoff_index: f64,
+    normal_search_best_move_first_pct: f64,
+    q_search_best_move_first_pct: f64,
+    stand_pat_cutoff_pct: f64,
 }
 
 #[cfg(feature = "metrics")]
 impl SearchMetricsData {
-    pub fn new(feature_name: &'static str, depth: u32) -> Self {
+    pub fn new(feature_name: &'static str, depth: u8) -> Self {
         Self {
             feature_name,
             depth,
-            positions_generated: 0,
+
+            // Initialize all new split counters
+            normal_search_positions_generated: 0,
+            q_search_positions_generated: 0,
             normal_search_entries: 0,
             q_search_entries: 0,
-            num_alpha_beta_cutoffs: 0,
+            stand_pat_cutoffs: 0,
+            normal_search_cutoffs: 0,
+            q_search_cutoffs: 0,
 
-            // Initialize new metrics
-            best_move_first_count: 0,
-            nodes_with_best_move_count: 0,
-            sum_of_cutoff_move_indices: 0,
+            normal_search_best_move_first_count: 0,
+            q_search_best_move_first_count: 0,
+            normal_search_nodes_with_best_move: 0,
+            q_search_nodes_with_best_move: 0,
+
+            normal_search_sum_of_cutoff_indices: 0,
+            q_search_sum_of_cutoff_indices: 0,
+
             killer_move_cutoffs: 0,
             history_heuristic_cutoffs: 0,
-            tt_probes: 0,
-            tt_hits: 0,
-            tt_cutoffs: 0,
 
+            normal_search_tt_probes: 0,
+            normal_search_tt_hits: 0,
+            normal_search_tt_cutoffs: 0,
+            q_search_tt_probes: 0,
+            q_search_tt_hits: 0,
+            q_search_tt_cutoffs: 0,
+
+            // Initialize new split timing metrics
             search_time: Duration::default(),
-            evaluation_time: Duration::default(),
-            move_gen_time: Duration::default(),
-            move_ordering_time: Duration::default(),
-            total_time: Duration::default(),
             q_search_time: Duration::default(),
+            evaluation_time: Duration::default(),
+            normal_search_move_gen_time: Duration::default(),
+            q_search_move_gen_time: Duration::default(),
+            normal_search_move_ordering_time: Duration::default(),
+            q_search_move_ordering_time: Duration::default(),
+            total_time: Duration::default(),
+
+            // Initialize derived metrics
+            avg_normal_search_cutoff_index: 0.0,
+            avg_q_search_cutoff_index: 0.0,
+            normal_search_best_move_first_pct: 0.0,
+            q_search_best_move_first_pct: 0.0,
+            stand_pat_cutoff_pct: 0.0,
         }
     }
 }
@@ -94,8 +140,12 @@ fn serialize_duration_as_ms<S>(duration: &Duration, serializer: S) -> Result<S::
 where
     S: serde::Serializer,
 {
-    let ms = duration.as_secs_f64() * 1000.0;
-    serializer.serialize_f64(ms)
+    if duration.as_millis() > 5 {
+        let ms = duration.as_millis();
+        serializer.serialize_u128(ms)
+    } else {
+        serializer.serialize_f64(duration.as_secs_f64() * 1000.0)
+    }
 }
 
 // Add these static variables to track timing state separately
@@ -121,174 +171,175 @@ impl SearchMetrics {
     }
 
     #[cfg(not(feature = "metrics"))]
-    pub fn initialize() {
-        // No-op if metrics feature is not enabled
-    }
+    pub fn initialize() {}
 
     #[cfg(feature = "metrics")]
-    pub fn increment_alpha_beta_cutoffs() {
-        unsafe {
-            if let Some(metrics) = &mut METRICS {
-                metrics.num_alpha_beta_cutoffs += 1;
-            }
-        }
-    }
-
-    #[cfg(not(feature = "metrics"))]
-    pub fn increment_alpha_beta_cutoffs() {}
-
-    #[cfg(feature = "metrics")]
-    pub fn new_measurement(feature_name: &'static str, depth: u32) {
+    pub fn new_measurement(feature_name: &'static str, depth: u8) {
         unsafe {
             if let Some(metrics) = &mut METRICS {
                 *metrics = SearchMetricsData::new(feature_name, depth);
             }
-            // Reset timing variables
             LAST_TIMING_CHANGE = None;
             CURRENT_TIMING_KIND = None;
-            // Set start time for total timing
             START_TIME = Some(Instant::now());
         }
     }
 
     #[cfg(not(feature = "metrics"))]
-    pub fn reset() {}
+    pub fn new_measurement(_feature_name: &'static str, _depth: u8) {}
+
+    // --- General Counters ---
 
     #[cfg(feature = "metrics")]
-    pub fn increment_positions_generated(count: u64) {
+    pub fn increment_normal_search_positions_generated(count: u64) {
         unsafe {
-            if let Some(metrics) = &mut METRICS {
-                metrics.positions_generated += count;
+            if let Some(m) = &mut METRICS {
+                m.normal_search_positions_generated += count;
             }
         }
     }
-
     #[cfg(not(feature = "metrics"))]
-    pub fn increment_positions_generated(_count: u64) {}
+    pub fn increment_normal_search_positions_generated(_count: u64) {}
+
+    #[cfg(feature = "metrics")]
+    pub fn increment_q_search_positions_generated(count: u64) {
+        unsafe {
+            if let Some(m) = &mut METRICS {
+                m.q_search_positions_generated += count;
+            }
+        }
+    }
+    #[cfg(not(feature = "metrics"))]
+    pub fn increment_q_search_positions_generated(_count: u64) {}
 
     #[cfg(feature = "metrics")]
     pub fn increment_normal_search_entries() {
         unsafe {
-            if let Some(metrics) = &mut METRICS {
-                metrics.normal_search_entries += 1;
+            if let Some(m) = &mut METRICS {
+                m.normal_search_entries += 1;
             }
         }
     }
-
     #[cfg(not(feature = "metrics"))]
     pub fn increment_normal_search_entries() {}
 
     #[cfg(feature = "metrics")]
     pub fn increment_q_search_entries() {
         unsafe {
-            if let Some(metrics) = &mut METRICS {
-                metrics.q_search_entries += 1;
+            if let Some(m) = &mut METRICS {
+                m.q_search_entries += 1;
             }
         }
     }
-
     #[cfg(not(feature = "metrics"))]
     pub fn increment_q_search_entries() {}
 
+    // --- Cutoff Counters ---
+
     #[cfg(feature = "metrics")]
-    pub fn change_timing_kind(new_kind: TimingKind) {
-        unsafe {
-            // Stop timing for the current kind if active
-            if let Some(start_time) = LAST_TIMING_CHANGE.take() {
-                let elapsed = start_time.elapsed();
-
-                // Add elapsed time to the appropriate counter if we have a current timing kind
-                if let Some(metrics) = &mut METRICS {
-                    if let Some(current_kind) = &CURRENT_TIMING_KIND {
-                        match current_kind {
-                            TimingKind::Search => metrics.search_time += elapsed,
-                            TimingKind::QSearch => metrics.q_search_time += elapsed,
-                            TimingKind::Evaluation => metrics.evaluation_time += elapsed,
-                            TimingKind::MoveGen => metrics.move_gen_time += elapsed,
-                            TimingKind::MoveOrdering => metrics.move_ordering_time += elapsed,
-                        }
-                    }
-                }
-            }
-
-            // Start timing for the new kind
-            LAST_TIMING_CHANGE = Some(Instant::now());
-            CURRENT_TIMING_KIND = Some(new_kind);
-        }
-    }
-
-    #[cfg(not(feature = "metrics"))]
-    pub fn change_timing_kind(_new_kind: TimingKind) {
-        // No-op if metrics feature is not enabled
-    }
-
-    // Transposition Table
-    #[cfg(feature = "metrics")]
-    pub fn increment_tt_probes() {
+    pub fn increment_stand_pat_cutoffs() {
         unsafe {
             if let Some(m) = &mut METRICS {
-                m.tt_probes += 1;
+                m.stand_pat_cutoffs += 1;
             }
         }
     }
     #[cfg(not(feature = "metrics"))]
-    pub fn increment_tt_probes() {}
+    pub fn increment_stand_pat_cutoffs() {}
 
     #[cfg(feature = "metrics")]
-    pub fn increment_tt_hits() {
+    pub fn increment_normal_search_cutoffs() {
         unsafe {
             if let Some(m) = &mut METRICS {
-                m.tt_hits += 1;
+                m.normal_search_cutoffs += 1;
             }
         }
     }
     #[cfg(not(feature = "metrics"))]
-    pub fn increment_tt_hits() {}
+    pub fn increment_normal_search_cutoffs() {}
 
     #[cfg(feature = "metrics")]
-    pub fn increment_tt_cutoffs() {
+    pub fn increment_q_search_cutoffs() {
         unsafe {
             if let Some(m) = &mut METRICS {
-                m.tt_cutoffs += 1;
+                m.q_search_cutoffs += 1;
             }
         }
     }
     #[cfg(not(feature = "metrics"))]
-    pub fn increment_tt_cutoffs() {}
+    pub fn increment_q_search_cutoffs() {}
 
-    // Move Ordering Quality
-    #[cfg(feature = "metrics")]
-    pub fn increment_best_move_first_count() {
-        unsafe {
-            if let Some(m) = &mut METRICS {
-                m.best_move_first_count += 1;
-            }
-        }
-    }
-    #[cfg(not(feature = "metrics"))]
-    pub fn increment_best_move_first_count() {}
+    // --- Cutoff Index Sums ---
 
     #[cfg(feature = "metrics")]
-    pub fn increment_nodes_with_best_move_count() {
+    pub fn add_to_normal_search_sum_of_cutoff_indices(move_number: u64) {
         unsafe {
             if let Some(m) = &mut METRICS {
-                m.nodes_with_best_move_count += 1;
+                m.normal_search_sum_of_cutoff_indices += move_number;
             }
         }
     }
     #[cfg(not(feature = "metrics"))]
-    pub fn increment_nodes_with_best_move_count() {}
+    pub fn add_to_normal_search_sum_of_cutoff_indices(_move_number: u64) {}
 
     #[cfg(feature = "metrics")]
-    pub fn add_to_cutoff_move_index(move_number: u64) {
+    pub fn add_to_q_search_sum_of_cutoff_indices(move_number: u64) {
         unsafe {
             if let Some(m) = &mut METRICS {
-                m.sum_of_cutoff_move_indices += move_number;
+                m.q_search_sum_of_cutoff_indices += move_number;
             }
         }
     }
     #[cfg(not(feature = "metrics"))]
-    pub fn add_to_cutoff_move_index(_move_number: u64) {}
+    pub fn add_to_q_search_sum_of_cutoff_indices(_move_number: u64) {}
+
+    // --- Move Ordering Quality ---
+
+    #[cfg(feature = "metrics")]
+    pub fn increment_normal_search_best_move_first_count() {
+        unsafe {
+            if let Some(m) = &mut METRICS {
+                m.normal_search_best_move_first_count += 1;
+            }
+        }
+    }
+    #[cfg(not(feature = "metrics"))]
+    pub fn increment_normal_search_best_move_first_count() {}
+
+    #[cfg(feature = "metrics")]
+    pub fn increment_q_search_best_move_first_count() {
+        unsafe {
+            if let Some(m) = &mut METRICS {
+                m.q_search_best_move_first_count += 1;
+            }
+        }
+    }
+    #[cfg(not(feature = "metrics"))]
+    pub fn increment_q_search_best_move_first_count() {}
+
+    #[cfg(feature = "metrics")]
+    pub fn increment_normal_search_nodes_with_best_move() {
+        unsafe {
+            if let Some(m) = &mut METRICS {
+                m.normal_search_nodes_with_best_move += 1;
+            }
+        }
+    }
+    #[cfg(not(feature = "metrics"))]
+    pub fn increment_normal_search_nodes_with_best_move() {}
+
+    #[cfg(feature = "metrics")]
+    pub fn increment_q_search_nodes_with_best_move() {
+        unsafe {
+            if let Some(m) = &mut METRICS {
+                m.q_search_nodes_with_best_move += 1;
+            }
+        }
+    }
+    #[cfg(not(feature = "metrics"))]
+    pub fn increment_q_search_nodes_with_best_move() {}
+
+    // --- Killer/History Heuristics ---
 
     #[cfg(feature = "metrics")]
     pub fn increment_killer_move_cutoffs() {
@@ -312,111 +363,193 @@ impl SearchMetrics {
     #[cfg(not(feature = "metrics"))]
     pub fn increment_history_heuristic_cutoffs() {}
 
+    // --- Transposition Table ---
+
     #[cfg(feature = "metrics")]
-    pub fn report() -> String {
-        let mut report = String::new();
+    pub fn increment_normal_search_tt_probes() {
         unsafe {
-            if let (Some(start_time), Some(metrics)) = (START_TIME, &mut METRICS) {
-                metrics.total_time = start_time.elapsed();
-            }
-
-            if let Some(metrics) = &METRICS {
-                report.push_str("=== Search Metrics ===\n");
-                // ... (existing general metrics reporting) ...
-                report.push_str(&format!(
-                    "Positions generated: {}\n",
-                    metrics.positions_generated
-                ));
-                report.push_str(&format!(
-                    "Normal search entries: {}\n",
-                    metrics.normal_search_entries
-                ));
-                report.push_str(&format!(
-                    "Quiescence search entries: {}\n",
-                    metrics.q_search_entries
-                ));
-                report.push_str(&format!(
-                    "Alpha-beta cutoffs: {}\n",
-                    metrics.num_alpha_beta_cutoffs
-                ));
-
-                // --- TT STATISTICS REPORTING ---
-                report.push_str("\n--- Transposition Table ---\n");
-                report.push_str(&format!("TT Probes: {}\n", metrics.tt_probes));
-                report.push_str(&format!("TT Hits: {}\n", metrics.tt_hits));
-                report.push_str(&format!("TT Cutoffs: {}\n", metrics.tt_cutoffs));
-                if metrics.tt_probes > 0 {
-                    let hit_rate = (metrics.tt_hits as f64 / metrics.tt_probes as f64) * 100.0;
-                    report.push_str(&format!("TT Hit Rate: {:.2}%\n", hit_rate));
-                }
-                if metrics.tt_hits > 0 {
-                    let cutoff_rate = (metrics.tt_cutoffs as f64 / metrics.tt_hits as f64) * 100.0;
-                    report.push_str(&format!("TT Cutoff Rate (of hits): {:.2}%\n", cutoff_rate));
-                }
-
-                // --- MOVE ORDERING QUALITY REPORTING ---
-                report.push_str("\n--- Move Ordering Quality ---\n");
-                if metrics.nodes_with_best_move_count > 0 {
-                    let best_first_pct = (metrics.best_move_first_count as f64
-                        / metrics.nodes_with_best_move_count as f64)
-                        * 100.0;
-                    report.push_str(&format!(
-                        "Best-Move-First Percentage: {:.2}%\n",
-                        best_first_pct
-                    ));
-                }
-                if metrics.num_alpha_beta_cutoffs > 0 {
-                    let avg_cutoff_idx = metrics.sum_of_cutoff_move_indices as f64
-                        / metrics.num_alpha_beta_cutoffs as f64;
-                    report.push_str(&format!(
-                        "Average Cutoff Move Index: {:.2}\n",
-                        avg_cutoff_idx
-                    ));
-
-                    let killer_pct = (metrics.killer_move_cutoffs as f64
-                        / metrics.num_alpha_beta_cutoffs as f64)
-                        * 100.0;
-                    report.push_str(&format!(
-                        "Cutoffs from Killer Moves: {} ({:.2}%)\n",
-                        metrics.killer_move_cutoffs, killer_pct
-                    ));
-
-                    let history_pct = (metrics.history_heuristic_cutoffs as f64
-                        / metrics.num_alpha_beta_cutoffs as f64)
-                        * 100.0;
-                    report.push_str(&format!(
-                        "Cutoffs from History Moves: {} ({:.2}%)\n",
-                        metrics.history_heuristic_cutoffs, history_pct
-                    ));
-                }
-
-                // --- TIMING REPORTING ---
-                report.push_str("\n--- Timing ---\n");
-                // ... (rest of your timing report) ...
+            if let Some(m) = &mut METRICS {
+                m.normal_search_tt_probes += 1;
             }
         }
-        report
     }
+    #[cfg(not(feature = "metrics"))]
+    pub fn increment_normal_search_tt_probes() {}
+
+    #[cfg(feature = "metrics")]
+    pub fn increment_q_search_tt_probes() {
+        unsafe {
+            if let Some(m) = &mut METRICS {
+                m.q_search_tt_probes += 1;
+            }
+        }
+    }
+    #[cfg(not(feature = "metrics"))]
+    pub fn increment_q_search_tt_probes() {}
+
+    #[cfg(feature = "metrics")]
+    pub fn increment_normal_search_tt_hits() {
+        unsafe {
+            if let Some(m) = &mut METRICS {
+                m.normal_search_tt_hits += 1;
+            }
+        }
+    }
+    #[cfg(not(feature = "metrics"))]
+    pub fn increment_normal_search_tt_hits() {}
+
+    #[cfg(feature = "metrics")]
+    pub fn increment_q_search_tt_hits() {
+        unsafe {
+            if let Some(m) = &mut METRICS {
+                m.q_search_tt_hits += 1;
+            }
+        }
+    }
+    #[cfg(not(feature = "metrics"))]
+    pub fn increment_q_search_tt_hits() {}
+
+    #[cfg(feature = "metrics")]
+    pub fn increment_normal_search_tt_cutoffs() {
+        unsafe {
+            if let Some(m) = &mut METRICS {
+                m.normal_search_tt_cutoffs += 1;
+            }
+        }
+    }
+    #[cfg(not(feature = "metrics"))]
+    pub fn increment_normal_search_tt_cutoffs() {}
+
+    #[cfg(feature = "metrics")]
+    pub fn increment_q_search_tt_cutoffs() {
+        unsafe {
+            if let Some(m) = &mut METRICS {
+                m.q_search_tt_cutoffs += 1;
+            }
+        }
+    }
+    #[cfg(not(feature = "metrics"))]
+    pub fn increment_q_search_tt_cutoffs() {}
+
+    // --- Timing ---
+
+    #[cfg(feature = "metrics")]
+    pub fn change_timing_kind(new_kind: TimingKind) {
+        unsafe {
+            if let Some(start_time) = LAST_TIMING_CHANGE.take() {
+                let elapsed = start_time.elapsed();
+                if let Some(metrics) = &mut METRICS {
+                    if let Some(current_kind) = &CURRENT_TIMING_KIND {
+                        match current_kind {
+                            TimingKind::Search => metrics.search_time += elapsed,
+                            TimingKind::QSearch => metrics.q_search_time += elapsed,
+                            TimingKind::Evaluation => metrics.evaluation_time += elapsed,
+                            TimingKind::NormalMoveGen => {
+                                metrics.normal_search_move_gen_time += elapsed
+                            }
+                            TimingKind::QMoveGen => metrics.q_search_move_gen_time += elapsed,
+                            TimingKind::NormalMoveOrdering => {
+                                metrics.normal_search_move_ordering_time += elapsed
+                            }
+                            TimingKind::QMoveOrdering => {
+                                metrics.q_search_move_ordering_time += elapsed
+                            }
+                        }
+                    }
+                }
+            }
+            LAST_TIMING_CHANGE = Some(Instant::now());
+            CURRENT_TIMING_KIND = Some(new_kind);
+        }
+    }
+
+    #[cfg(not(feature = "metrics"))]
+    pub fn change_timing_kind(_new_kind: TimingKind) {}
 
     #[cfg(feature = "metrics")]
     pub unsafe fn get_metrics() -> SearchMetricsData {
-        unsafe { METRICS.expect("Metrics not initialized").clone() }
+        if let Some(metrics) = &mut METRICS {
+            // --- ADD THIS BLOCK ---
+            // Ensure total_time is up-to-date before we clone the data.
+            if let Some(start_time) = START_TIME {
+                metrics.total_time = start_time.elapsed();
+            }
+            // --- END ADD ---
+
+            // Now return the clone with the correct total_time
+            metrics.clone()
+        } else {
+            panic!("Metrics not initialized");
+        }
     }
     #[cfg(not(feature = "metrics"))]
     pub fn get_metrics() -> SearchMetricsData {
         SearchMetricsData {}
     }
-
-    #[cfg(not(feature = "metrics"))]
-    pub fn report() -> String {
-        String::new()
-    }
 }
 
+#[cfg(feature = "metrics")]
+pub fn calculate_and_update_derived_metrics(metrics: &SearchMetricsData) -> SearchMetricsData {
+    let mut new_metrics = metrics.clone();
+
+    // --- 1. Average Cutoff Move Indices (Now Split) ---
+
+    // Calculate for Normal Search
+    if new_metrics.normal_search_cutoffs > 0 {
+        new_metrics.avg_normal_search_cutoff_index = new_metrics.normal_search_sum_of_cutoff_indices
+            as f64
+            / new_metrics.normal_search_cutoffs as f64;
+    } else {
+        new_metrics.avg_normal_search_cutoff_index = 0.0;
+    }
+
+    // Calculate for Quiescence Search
+    if new_metrics.q_search_cutoffs > 0 {
+        new_metrics.avg_q_search_cutoff_index =
+            new_metrics.q_search_sum_of_cutoff_indices as f64 / new_metrics.q_search_cutoffs as f64;
+    } else {
+        new_metrics.avg_q_search_cutoff_index = 0.0;
+    }
+
+    // --- 2. Stand-Pat Cutoff Percentage (Unchanged) ---
+    // This logic is correct as it's inherently part of q-search.
+    if new_metrics.q_search_entries > 0 {
+        // Note: Your struct has `stand_pat_cutoff_pct` while your old function had a typo `pub_...`.
+        // Using the correct name from the struct.
+        new_metrics.stand_pat_cutoff_pct =
+            new_metrics.stand_pat_cutoffs as f64 / new_metrics.q_search_entries as f64;
+    } else {
+        new_metrics.stand_pat_cutoff_pct = 0.0;
+    }
+
+    // --- 3. Best-Move-First Percentages (Using correct split denominators) ---
+
+    // Calculate for Normal Search
+    if new_metrics.normal_search_nodes_with_best_move > 0 {
+        new_metrics.normal_search_best_move_first_pct =
+            new_metrics.normal_search_best_move_first_count as f64
+                / new_metrics.normal_search_nodes_with_best_move as f64;
+    } else {
+        new_metrics.normal_search_best_move_first_pct = 0.0;
+    }
+
+    // Calculate for Quiescence Search
+    if new_metrics.q_search_nodes_with_best_move > 0 {
+        new_metrics.q_search_best_move_first_pct = new_metrics.q_search_best_move_first_count
+            as f64
+            / new_metrics.q_search_nodes_with_best_move as f64;
+    } else {
+        new_metrics.q_search_best_move_first_pct = 0.0;
+    }
+
+    new_metrics
+}
 pub enum TimingKind {
     Search,
     QSearch,
     Evaluation,
-    MoveGen,
-    MoveOrdering,
+    NormalMoveGen,      // Differentiated
+    QMoveGen,           // Differentiated
+    NormalMoveOrdering, // Differentiated
+    QMoveOrdering,      // Differentiated
 }
