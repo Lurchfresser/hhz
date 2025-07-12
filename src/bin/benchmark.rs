@@ -1,15 +1,18 @@
 use csv::Writer;
 use hhz::board::Board;
-use hhz::metrics::{calculate_and_update_derived_metrics, SearchMetrics, SearchMetricsData};
+use hhz::metrics::{SearchMetrics, SearchMetricsData, calculate_and_update_derived_metrics};
 use hhz::search::search_entry;
 use std::time::{Instant, SystemTime};
 
 pub mod generate_attack_lookup;
 
-static FEATURE_NAME: &str = "Switch to release mode";
-static FEATURE_NUMBER: u32 = 12;
+static FEATURE_NAME: &str = "multiple_test_fens";
+static FEATURE_NUMBER: u32 = 14;
 
 fn main() {
+    if cfg!(debug_assertions) {
+        panic!("not in release mode");
+    }
     let file_path = &format!(
         "{}/{}_{}.csv",
         "benchmarks".to_owned(),
@@ -30,39 +33,53 @@ fn main() {
 
     // List of positions to benchmark
     let positions = [
-        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", // Starting position
-                                                                    // "r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3",  // After 1.e4 e5 2.Nf3 Nc6
-                                                                    // "r1bqk2r/ppp2ppp/2np1n2/2b1p3/2B1P3/2NP1N2/PPP2PPP/R1BQK2R w KQkq - 0 6",  // Italian Game
-                                                                    // Add more positions as needed
+        (
+            "Starting position",
+            "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        ),
+        (
+            "crowded middlegame",
+            "rnbqkb1r/p4pp1/2p1pn1p/1p2P1B1/2pP4/2N2N2/PP3PPP/R2QKB1R w KQkq - 0 8",
+        ),
+        (
+            "early endgame",
+            "3k4/p3n1R1/4p3/2Pb2P1/2p5/2K5/1P3P2/8 w - - 4 39",
+        ),
+        (
+            "pawns vs knight",
+            "8/p1Pk2n1/4pKP1/8/1P6/8/5P2/8 b - - 2 49",
+        ),
     ];
 
-    let max_depth = 10u8; // Depths to test
+    let max_depth = 7u8;
 
     println!("Chess Engine Benchmark");
     println!("=====================");
 
     SearchMetrics::initialize();
 
-    let mut writer = Writer::from_path(file_path).expect("Failed to create CSV writer");
+    let mut writer = Writer::from_path(file_path)
+        .expect(&("Failed to create CSV writer for path".to_owned() + file_path));
 
-    for position in positions {
-        println!("\nPosition: {}", position);
+    for (position_name, fen) in positions {
+        println!("\nPosition: {}", fen);
 
         for depth in 0..max_depth + 1 {
             println!(
-                "\nSearching at depth {}, current time: {}",
+                "\nSearching at depth {}, current time: {}, for {}",
                 depth,
                 SystemTime::now()
                     .duration_since(SystemTime::UNIX_EPOCH)
                     .unwrap()
-                    .as_secs()
+                    .as_secs(),
+                position_name
             );
 
             // Reset metrics for this test
-            SearchMetrics::new_measurement(FEATURE_NAME, depth);
+            SearchMetrics::new_measurement(FEATURE_NAME, depth, position_name, fen);
 
             // Parse FEN to create game
-            let board = Board::from_fen(position).unwrap();
+            let board = Board::from_fen(fen).unwrap();
 
             // Measure time with Rust's timing
             let start = Instant::now();
@@ -82,12 +99,11 @@ fn main() {
 
             // Collect metrics
             unsafe {
-                metrics_data.push(calculate_and_update_derived_metrics(&SearchMetrics::get_metrics()));
+                let metrics = SearchMetrics::get_metrics();
+                metrics_data.push(metrics);
+                writer.serialize(metrics).unwrap();
+                writer.flush().unwrap();
             }
-            writer
-                .serialize(metrics_data.last().unwrap().clone())
-                .unwrap();
-            writer.flush().unwrap();
         }
     }
 }

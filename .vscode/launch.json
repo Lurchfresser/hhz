@@ -4,6 +4,19 @@
         {
             "type": "lldb",
             "request": "launch",
+            "name": "Cargo test",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--all-features",
+                    "--lib"
+                ]
+            },
+            "args": []
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
             "name": "Perf",
             "cargo": {
                 "args": [

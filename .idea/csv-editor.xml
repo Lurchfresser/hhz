@@ -24,6 +24,20 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/benchmarks/13_smaller_search_and_eval_types.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/benchmarks/14_multiple_test_fens.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/benchmarks/1_first-benchmark.csv">
           <value>
             <Attribute>

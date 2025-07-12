@@ -12,6 +12,8 @@ use std::time::{Duration, Instant};
 pub struct SearchMetricsData {
     feature_name: &'static str,
     depth: u8,
+    position_name: &'static str,
+    fen: &'static str,
 
     // --- Split Counters ---
     normal_search_positions_generated: u64,
@@ -80,10 +82,17 @@ pub struct SearchMetricsData {
 
 #[cfg(feature = "metrics")]
 impl SearchMetricsData {
-    pub fn new(feature_name: &'static str, depth: u8) -> Self {
+    pub fn new(
+        feature_name: &'static str,
+        depth: u8,
+        position_name: &'static str,
+        fen: &'static str,
+    ) -> Self {
         Self {
             feature_name,
             depth,
+            position_name: &position_name,
+            fen: &fen,
 
             // Initialize all new split counters
             normal_search_positions_generated: 0,
@@ -166,7 +175,12 @@ impl SearchMetrics {
     #[cfg(feature = "metrics")]
     pub fn initialize() {
         INIT.call_once(|| unsafe {
-            METRICS = Some(SearchMetricsData::new("Default Feature", 0));
+            METRICS = Some(SearchMetricsData::new(
+                "Default Feature",
+                0,
+                "init",
+                "init value",
+            ));
         });
     }
 
@@ -174,10 +188,15 @@ impl SearchMetrics {
     pub fn initialize() {}
 
     #[cfg(feature = "metrics")]
-    pub fn new_measurement(feature_name: &'static str, depth: u8) {
+    pub fn new_measurement(
+        feature_name: &'static str,
+        depth: u8,
+        position_name: &'static str,
+        fen: &'static str,
+    ) {
         unsafe {
             if let Some(metrics) = &mut METRICS {
-                *metrics = SearchMetricsData::new(feature_name, depth);
+                *metrics = SearchMetricsData::new(feature_name, depth, &position_name, &fen);
             }
             LAST_TIMING_CHANGE = None;
             CURRENT_TIMING_KIND = None;
@@ -468,7 +487,7 @@ impl SearchMetrics {
 
     #[cfg(feature = "metrics")]
     pub unsafe fn get_metrics() -> SearchMetricsData {
-        if let Some(metrics) = &mut METRICS {
+        if let &mut Some(mut metrics) = &mut METRICS {
             // --- ADD THIS BLOCK ---
             // Ensure total_time is up-to-date before we clone the data.
             if let Some(start_time) = START_TIME {
@@ -477,7 +496,8 @@ impl SearchMetrics {
             // --- END ADD ---
 
             // Now return the clone with the correct total_time
-            metrics.clone()
+            calculate_and_update_derived_metrics(& mut metrics);
+            metrics
         } else {
             panic!("Metrics not initialized");
         }
@@ -489,60 +509,55 @@ impl SearchMetrics {
 }
 
 #[cfg(feature = "metrics")]
-pub fn calculate_and_update_derived_metrics(metrics: &SearchMetricsData) -> SearchMetricsData {
-    let mut new_metrics = metrics.clone();
+pub fn calculate_and_update_derived_metrics(metrics: &mut SearchMetricsData) {
 
     // --- 1. Average Cutoff Move Indices (Now Split) ---
 
     // Calculate for Normal Search
-    if new_metrics.normal_search_cutoffs > 0 {
-        new_metrics.avg_normal_search_cutoff_index = new_metrics.normal_search_sum_of_cutoff_indices
-            as f64
-            / new_metrics.normal_search_cutoffs as f64;
+    if metrics.normal_search_cutoffs > 0 {
+        metrics.avg_normal_search_cutoff_index = metrics.normal_search_sum_of_cutoff_indices as f64
+            / metrics.normal_search_cutoffs as f64;
     } else {
-        new_metrics.avg_normal_search_cutoff_index = 0.0;
+        metrics.avg_normal_search_cutoff_index = 0.0;
     }
 
     // Calculate for Quiescence Search
-    if new_metrics.q_search_cutoffs > 0 {
-        new_metrics.avg_q_search_cutoff_index =
-            new_metrics.q_search_sum_of_cutoff_indices as f64 / new_metrics.q_search_cutoffs as f64;
+    if metrics.q_search_cutoffs > 0 {
+        metrics.avg_q_search_cutoff_index =
+            metrics.q_search_sum_of_cutoff_indices as f64 / metrics.q_search_cutoffs as f64;
     } else {
-        new_metrics.avg_q_search_cutoff_index = 0.0;
+        metrics.avg_q_search_cutoff_index = 0.0;
     }
 
     // --- 2. Stand-Pat Cutoff Percentage (Unchanged) ---
     // This logic is correct as it's inherently part of q-search.
-    if new_metrics.q_search_entries > 0 {
+    if metrics.q_search_entries > 0 {
         // Note: Your struct has `stand_pat_cutoff_pct` while your old function had a typo `pub_...`.
         // Using the correct name from the struct.
-        new_metrics.stand_pat_cutoff_pct =
-            new_metrics.stand_pat_cutoffs as f64 / new_metrics.q_search_entries as f64;
+        metrics.stand_pat_cutoff_pct =
+            metrics.stand_pat_cutoffs as f64 / metrics.q_search_entries as f64;
     } else {
-        new_metrics.stand_pat_cutoff_pct = 0.0;
+        metrics.stand_pat_cutoff_pct = 0.0;
     }
 
     // --- 3. Best-Move-First Percentages (Using correct split denominators) ---
 
     // Calculate for Normal Search
-    if new_metrics.normal_search_nodes_with_best_move > 0 {
-        new_metrics.normal_search_best_move_first_pct =
-            new_metrics.normal_search_best_move_first_count as f64
-                / new_metrics.normal_search_nodes_with_best_move as f64;
+    if metrics.normal_search_nodes_with_best_move > 0 {
+        metrics.normal_search_best_move_first_pct = metrics.normal_search_best_move_first_count
+            as f64
+            / metrics.normal_search_nodes_with_best_move as f64;
     } else {
-        new_metrics.normal_search_best_move_first_pct = 0.0;
+        metrics.normal_search_best_move_first_pct = 0.0;
     }
 
     // Calculate for Quiescence Search
-    if new_metrics.q_search_nodes_with_best_move > 0 {
-        new_metrics.q_search_best_move_first_pct = new_metrics.q_search_best_move_first_count
-            as f64
-            / new_metrics.q_search_nodes_with_best_move as f64;
+    if metrics.q_search_nodes_with_best_move > 0 {
+        metrics.q_search_best_move_first_pct = metrics.q_search_best_move_first_count as f64
+            / metrics.q_search_nodes_with_best_move as f64;
     } else {
-        new_metrics.q_search_best_move_first_pct = 0.0;
+        metrics.q_search_best_move_first_pct = 0.0;
     }
-
-    new_metrics
 }
 pub enum TimingKind {
     Search,
