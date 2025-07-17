@@ -1,11 +1,7 @@
-use crate::metrics::SearchMetrics;
+use crate::moves::Move;
 use std::mem;
-use std::ops::Index;
-use std::process::Output;
 
 pub const TT_SIZE: usize = 1 << 20;
-pub const TT_INDEX_MASK: u64 = (TT_SIZE as u64) - 1;
-
 #[derive(Clone, Copy, PartialEq, Debug)]
 #[repr(u64)]
 pub enum NodeType {
@@ -16,71 +12,112 @@ pub enum NodeType {
 
 #[derive(Clone, Copy)]
 pub struct TT_Entry {
-    // layout:
-    // 0 - 15: eval: 16 bits
-    // 16 - 23: depth: 8 bits
-    // 24 - 25: node type: 2 bits
-    // 26 - 63: remaining zobrist hash: 38 bits
-    mask: u64,
+    // 64 bits for the full Zobrist hash for collision-free lookups.
+    zobrist_hash: u64,
+    // 64 bits for all associated data.
+    data: u64,
 }
 
 impl TT_Entry {
-    const TT_EVAL_MASK: u64 = (1 << 16) - 1;
-    const TT_DEPTH_SHIFT: u64 = 16;
-    const TT_DEPTH_MASK: u64 = ((1 << 8) - 1) << Self::TT_DEPTH_SHIFT;
-    const TT_NODE_TYPE_SHIFT: u64 = Self::TT_DEPTH_SHIFT + 8;
-    const TT_NODE_TYPE_MASK: u64 = ((1 << 2) - 1) << Self::TT_NODE_TYPE_SHIFT;
-    const TT_ZOBRIST_SHIFT: u64 = Self::TT_NODE_TYPE_SHIFT + 2;
-    pub const TT_INFO_MASK: u64 = (1 << Self::TT_ZOBRIST_SHIFT) - 1;
+    // --- Bit-packing layout for the 64-bit `data` field ---
+
+    // [Bits 0-15]  16 bits for evaluation score (i16)
+    const EVAL_MASK: u64 = (1 << 16) - 1;
+
+    // [Bits 16-31] 16 bits to store the Move's raw mask directly
+    const MOVE_SHIFT: u64 = 16;
+    const MOVE_MASK: u64 = ((1 << 16) - 1) << Self::MOVE_SHIFT;
+
+    // [Bits 32-39] 8 bits for the search depth
+    const DEPTH_SHIFT: u64 = Self::MOVE_SHIFT + 16;
+    const DEPTH_MASK: u64 = ((1 << 8) - 1) << Self::DEPTH_SHIFT;
+
+    // [Bits 40-46] 7 bits for the halfmove clock
+    const HALFMOVE_SHIFT: u64 = Self::DEPTH_SHIFT + 8;
+    const HALFMOVE_MASK: u64 = ((1 << 7) - 1) << Self::HALFMOVE_SHIFT;
+
+    // [Bits 47-48] 2 bits for the node type (PV, Cut, All)
+    const NODE_TYPE_SHIFT: u64 = Self::HALFMOVE_SHIFT + 7;
+    const NODE_TYPE_MASK: u64 = ((1 << 2) - 1) << Self::NODE_TYPE_SHIFT;
+
+    // [Bits 49-55] 7 bits for the number of resetting moves
+    const NUM_RESETS_SHIFT: u64 = Self::NODE_TYPE_SHIFT + 2;
+    const NUM_RESETS_MASK: u64 = ((1 << 7) - 1) << Self::NUM_RESETS_SHIFT;
+
+    // [Bits 56-63] 8 bits are unused and available for future data.
+
+    /// Creates a new transposition table entry.
+    #[inline(always)]
+    pub fn new(
+        zobrist_hash: u64,
+        depth: u8,
+        eval: i16,
+        node_type: NodeType,
+        best_move: Move,
+        halfmove_clock: u8,
+        num_resetting_moves: u8,
+    ) -> Self {
+        // We now store the move's raw 16-bit mask.
+        let move_mask = best_move.mask as u64;
+
+        let data = (eval as u16 as u64)
+            | (move_mask << Self::MOVE_SHIFT)
+            | ((depth as u64) << Self::DEPTH_SHIFT)
+            | ((halfmove_clock as u64) << Self::HALFMOVE_SHIFT)
+            | ((node_type as u64) << Self::NODE_TYPE_SHIFT)
+            | ((num_resetting_moves as u64) << Self::NUM_RESETS_SHIFT);
+
+        Self { zobrist_hash, data }
+    }
 
     #[inline(always)]
     pub fn init() -> Self {
-        Self { mask: 0 }
+        TT_Entry {
+            zobrist_hash: 0,
+            data: 0,
+        }
     }
 
-    #[inline(always)]
-    pub fn new(zobrist_hash: u64, depth: u8, eval: i16, flag: NodeType) -> Self {
-        let mask = (zobrist_hash & !Self::TT_INFO_MASK)
-            | (eval as u16 as u64)
-            | ((depth as u64) << Self::TT_DEPTH_SHIFT)
-            | ((flag as u64) << Self::TT_NODE_TYPE_SHIFT);
-        Self { mask }
-    }
+    // --- Accessor Methods ---
 
     #[inline(always)]
     pub fn eval(&self) -> i16 {
-        (self.mask & Self::TT_EVAL_MASK) as i16
+        (self.data & Self::EVAL_MASK) as i16
+    }
+
+    /// Unpacks the stored 16-bit mask back into a `Move`.
+    /// Returns `None` if no move was stored (mask is 0).
+    #[inline(always)]
+    pub fn best_move(&self) -> Option<Move> {
+        let move_mask = ((self.data & Self::MOVE_MASK) >> Self::MOVE_SHIFT) as u16;
+        if move_mask == 0 {
+            None
+        } else {
+            Some(Move { mask: move_mask })
+        }
     }
 
     #[inline(always)]
     pub fn depth(&self) -> u8 {
-        ((self.mask & Self::TT_DEPTH_MASK) >> Self::TT_DEPTH_SHIFT) as u8
+        ((self.data & Self::DEPTH_MASK) >> Self::DEPTH_SHIFT) as u8
+    }
+
+    #[inline(always)]
+    pub fn halfmove_clock(&self) -> u8 {
+        ((self.data & Self::HALFMOVE_MASK) >> Self::HALFMOVE_SHIFT) as u8
     }
 
     #[inline(always)]
     pub fn node_type(&self) -> NodeType {
-        let node_type_val = (self.mask & Self::TT_NODE_TYPE_MASK) >> Self::TT_NODE_TYPE_SHIFT;
+        let node_type_val = (self.data & Self::NODE_TYPE_MASK) >> Self::NODE_TYPE_SHIFT;
         unsafe { mem::transmute(node_type_val) }
     }
 
     #[inline(always)]
-    pub fn zobrist_hash_part(&self) -> u64 {
-        self.mask & !Self::TT_INFO_MASK
-    }
-
-    #[inline(always)]
-    pub fn is_init(&self) -> bool {
-        self.mask == 0
+    pub fn num_resetting_moves(&self) -> u8 {
+        ((self.data & Self::NUM_RESETS_MASK) >> Self::NUM_RESETS_SHIFT) as u8
     }
 }
-
-// //TODO: make smaller, current compiled byte size 16, needed 4
-// pub struct TT_Hit {
-//     pub eval: i16,
-//     pub depth: u8,
-//     pub node_type: NodeType,
-//     // pub was_hit: bool,
-// }
 
 pub struct TT_Table {
     //vec because rust can allocate an array directly on the heap and this would cause a stack overflow
@@ -100,10 +137,10 @@ impl TT_Table {
         // if outside_zobrist & (TT_INDEX_MASK | !TT_Entry::TT_INFO_MASK) == 0 {
         //     return None
         // }
-        let i = outside_zobrist & TT_INDEX_MASK;
-        let maybe_hit = &self.tt_table[i as usize];
+        let i = (outside_zobrist as usize) % TT_SIZE;
+        let maybe_hit = &self.tt_table[i];
         //decide if it is a hash hit, because we know by indexing, the last part (the part masked to i) is also the same
-        if maybe_hit.zobrist_hash_part() == outside_zobrist & !TT_Entry::TT_INFO_MASK {
+        if maybe_hit.zobrist_hash == outside_zobrist {
             Some(maybe_hit)
         } else {
             None
@@ -111,14 +148,38 @@ impl TT_Table {
     }
 
     #[inline(always)]
-    pub fn insert(&mut self, zobrist: u64, eval: i16, depth: u8, node_type: NodeType) {
+    pub fn insert(
+        &mut self,
+        zobrist: u64,
+        eval: i16,
+        depth: u8,
+        node_type: NodeType,
+        best_move: Move, // Now takes the Move struct directly
+        halfmove_clock: u8,
+        //TODO: overflow
+        num_resetting_moves: u8,
+    ) {
         //TODO: insertion strategy
-        let existing_entry = self.tt_table[(zobrist & TT_INDEX_MASK) as usize];
+        let index = zobrist as usize % TT_SIZE;
+        let existing_entry = &self.tt_table[index];
 
-        // if node_type == NodeType::PvNode && existing_entry.node_type() != NodeType::PvNode {
-        self.tt_table[(zobrist & TT_INDEX_MASK) as usize] =
-            TT_Entry::new(zobrist, depth, eval, node_type);
-        // }
+        let is_same_position = existing_entry.zobrist_hash == zobrist;
+
+        let new_node_quality = (depth as u16 * 3) + node_type as u16;
+        let existing_node_quality =
+            (existing_entry.depth() as u16 * 3) + existing_entry.node_type() as u16;
+
+        if !is_same_position || new_node_quality >= existing_node_quality {
+            self.tt_table[index] = TT_Entry::new(
+                zobrist,
+                depth,
+                eval,
+                node_type,
+                best_move,
+                halfmove_clock,
+                num_resetting_moves,
+            );
+        }
     }
 }
 

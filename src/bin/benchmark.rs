@@ -8,8 +8,8 @@ use std::time::{Duration, Instant, SystemTime};
 
 pub mod generate_attack_lookup;
 
-static FEATURE_NAME: &str = "PV-then-cut-then-att-then-victim-then-all-node";
-static FEATURE_NUMBER: u32 = 49;
+static FEATURE_NAME: &str = "higher-depths";
+static FEATURE_NUMBER: u32 = 58;
 
 fn main() {
     println!("board size: {}", std::mem::size_of::<Board>());
@@ -53,7 +53,7 @@ fn main() {
         ),
     ];
 
-    let max_depth = 6u8;
+    let max_depth = 12u8;
 
     println!("Chess Engine Benchmark");
     println!("=====================");
@@ -83,7 +83,7 @@ fn main() {
             let board = Board::from_fen(fen).unwrap();
             let start = Instant::now();
 
-            let best_move = search_entry(&board, depth, &mut tt_table);
+            let best_move = search_entry(&board, depth, &mut tt_table, & mut [0;100],0);
 
             let elapsed = start.elapsed();
 

@@ -1,14 +1,17 @@
 use crate::board::Board;
 use crate::eval::{eval, pieces_score};
-use crate::metrics::TimingKind::Search;
 use crate::metrics::{SearchMetrics, SearchMetricsData, TimingKind};
-use crate::moves::MAX_NUM_MOVES;
 use crate::moves::{Move, MoveList};
 use crate::tt_table::{NodeType, TT_Table};
-use arrayvec::ArrayVec;
-use std::cmp::max;
+use std::option::Option;
 
-pub fn search_entry(board: &Board, depth: u8, tt_table: &mut TT_Table) -> Option<Move> {
+pub fn search_entry(
+    board: &Board,
+    depth: u8,
+    tt_table: &mut TT_Table,
+    repetition_lookup: &mut [u64; 100],
+    num_resetting_moves: u8,
+) -> Option<Move> {
     SearchMetrics::increment_normal_search_entries();
     // Initialize metrics if not already done
 
@@ -47,16 +50,35 @@ pub fn search_entry(board: &Board, depth: u8, tt_table: &mut TT_Table) -> Option
         beta,
     );
 
-    let mut repetition_lookup = [0u64; 100];
     for _move in legal_moves {
         let new_board = board.make_move_temp(&_move);
-        let mut lookup_ref = if _move.resets_clock(board) {
-            [board.zobrist_hash; 100]
+        let new_num_resetting_moves = if (_move.resets_clock(board)) {
+            num_resetting_moves + 1
+        } else {
+            num_resetting_moves
+        };
+        let score = if _move.resets_clock(board) {
+            min_max_search(
+                &new_board,
+                depth,
+                alpha,
+                beta,
+                tt_table,
+                &mut [board.zobrist_hash; 100],
+                new_num_resetting_moves,
+            )
         } else {
             repetition_lookup[(board.halfmove_clock + 1) as usize] = board.zobrist_after(&_move);
-            repetition_lookup
+            min_max_search(
+                &new_board,
+                depth,
+                alpha,
+                beta,
+                tt_table,
+                repetition_lookup,
+                new_num_resetting_moves,
+            )
         };
-        let score = min_max_search(&new_board, depth, alpha, beta, tt_table, &mut lookup_ref);
 
         if maximize_score && score > best_score {
             best_score = score;
@@ -71,7 +93,15 @@ pub fn search_entry(board: &Board, depth: u8, tt_table: &mut TT_Table) -> Option
     // we store depth + 1, because we pass it directly to minmax search
     // all Root Nodes are pv nodes, because a beta cutoff can never occur and alpha is always raised
     // see: https://www.chessprogramming.org/Node_Types#PV-Nodes
-    tt_table.insert(board.zobrist_hash, best_score, depth + 1, NodeType::PvNode);
+    tt_table.insert(
+        board.zobrist_hash,
+        best_score,
+        depth + 1,
+        NodeType::PvNode,
+        best_move.unwrap(),
+        board.halfmove_clock,
+        num_resetting_moves,
+    );
     best_move
 }
 
@@ -83,10 +113,18 @@ fn min_max_search(
     tt_table: &mut TT_Table,
     //TODO: look if board can also be used
     repetition_lookup: &mut [u64; 100],
+    num_resetting_moves: u8,
 ) -> i16 {
     if depth == 0 {
         SearchMetrics::change_timing_kind(TimingKind::QSearch);
-        let q_search_score = q_search(board, alpha, beta, tt_table, repetition_lookup);
+        let q_search_score = q_search(
+            board,
+            alpha,
+            beta,
+            tt_table,
+            repetition_lookup,
+            num_resetting_moves,
+        );
         SearchMetrics::change_timing_kind(TimingKind::Search);
         return q_search_score;
     }
@@ -170,11 +208,17 @@ fn min_max_search(
     let mut best_move_found_at_index: Option<usize> = None;
     // all node = all nodes searched
     let mut node_type = NodeType::AllNode;
+    let mut best_move: Move = Move::null_move();
 
     let mut i = 0;
     while i < legal_moves.len() {
         let _move = legal_moves[i];
         let new_game = board.make_move_temp(&_move);
+        let new_num_resetting_moves = if (_move.resets_clock(board)) {
+            num_resetting_moves + 1
+        } else {
+            num_resetting_moves
+        };
         let score = if _move.resets_clock(board) {
             min_max_search(
                 &new_game,
@@ -183,6 +227,7 @@ fn min_max_search(
                 beta,
                 tt_table,
                 &mut [board.zobrist_hash; 100],
+                new_num_resetting_moves,
             )
         } else {
             repetition_lookup[(board.halfmove_clock + 1) as usize] = board.zobrist_after(&_move);
@@ -193,6 +238,7 @@ fn min_max_search(
                 beta,
                 tt_table,
                 repetition_lookup,
+                new_num_resetting_moves,
             )
         };
 
@@ -201,6 +247,7 @@ fn min_max_search(
             {
                 best_move_found_at_index = Some(i);
             }
+            best_move = _move;
             best_score = score;
             node_type = NodeType::PvNode;
 
@@ -211,6 +258,7 @@ fn min_max_search(
             }
             if beta <= alpha {
                 node_type = NodeType::CutNode;
+                best_move = _move;
                 // The move that caused the cutoff is at index 'i'. We add its 1-based index.
                 SearchMetrics::add_to_normal_search_sum_of_cutoff_indices((i + 1) as u64);
                 SearchMetrics::increment_normal_search_cutoffs();
@@ -219,8 +267,16 @@ fn min_max_search(
         }
         i += 1;
     }
-    //insert this node, after every move was searched or cutoff occured
-    tt_table.insert(board.zobrist_hash, best_score, depth, node_type);
+
+    tt_table.insert(
+        board.zobrist_hash,
+        best_score,
+        depth,
+        node_type,
+        best_move,
+        board.halfmove_clock,
+        num_resetting_moves,
+    );
 
     #[cfg(feature = "metrics")]
     if let Some(final_best_index) = best_move_found_at_index {
@@ -240,6 +296,7 @@ fn q_search(
     mut beta: i16,
     tt_table: &mut TT_Table,
     repetition_lookup: &mut [u64; 100],
+    num_resetting_moves: u8,
 ) -> i16 {
     SearchMetrics::increment_q_search_entries();
 
@@ -336,10 +393,16 @@ fn q_search(
     #[cfg(feature = "metrics")]
     let mut best_move_found_at_index: Option<usize> = None;
     let mut node_type = NodeType::AllNode;
+    let mut best_move: Move = Move::null_move();
     let mut i = 0;
     while i < legal_captures.len() {
         let _move = legal_captures[i];
         let new_bard = board.make_move_temp(&_move);
+        let new_num_resetting_moves = if (_move.resets_clock(board)) {
+            num_resetting_moves + 1
+        } else {
+            num_resetting_moves
+        };
         let score = if _move.resets_clock(board) {
             q_search(
                 &new_bard,
@@ -347,10 +410,18 @@ fn q_search(
                 beta,
                 tt_table,
                 &mut [board.zobrist_hash; 100],
+                new_num_resetting_moves,
             )
         } else {
             repetition_lookup[(board.halfmove_clock + 1) as usize] = board.zobrist_after(&_move);
-            q_search(&new_bard, alpha, beta, tt_table, repetition_lookup)
+            q_search(
+                &new_bard,
+                alpha,
+                beta,
+                tt_table,
+                repetition_lookup,
+                new_num_resetting_moves,
+            )
         };
 
         let is_new_best =
@@ -359,6 +430,7 @@ fn q_search(
         if is_new_best {
             node_type = NodeType::PvNode;
             best_score = score;
+            best_move = _move;
             // The current move's index is `i`.
             #[cfg(feature = "metrics")]
             {
@@ -373,6 +445,7 @@ fn q_search(
 
             if beta <= alpha {
                 node_type = NodeType::CutNode;
+                best_move = _move;
                 // The move that caused the cutoff is at index 'i'. We add its 1-based index.
                 SearchMetrics::add_to_q_search_sum_of_cutoff_indices((i + 1) as u64);
                 SearchMetrics::increment_q_search_cutoffs();
@@ -383,7 +456,15 @@ fn q_search(
         i += 1;
     }
 
-    tt_table.insert(board.zobrist_hash, best_score, 0, node_type);
+    tt_table.insert(
+        board.zobrist_hash,
+        best_score,
+        0,
+        node_type,
+        best_move,
+        board.halfmove_clock,
+        num_resetting_moves,
+    );
 
     #[cfg(feature = "metrics")]
     if let Some(final_best_index) = best_move_found_at_index {
@@ -407,7 +488,10 @@ fn sort_moves(
     alpha: i16,
     beta: i16,
 ) {
+    let hash_move_option = tt_table.probe(board.zobrist_hash).map(|h| h.best_move());
+
     moves.sort_by_cached_key(|m| {
+        const HASH_MOVE_SCORE: i32 = 8_000_000;
         //lok at graph http://www.netlib.org/utk/lsi/pcwLSI/text/node351.html
         // pv node, most left, then cut nodes should be preffered, all nodes hould be searched last
         //https://www.chessprogramming.org/Node_Types
@@ -415,6 +499,12 @@ fn sort_moves(
         const CUT_MOVE_SCORE: i32 = 1_500_000;
         const ALL_MOVE_SCORE: i32 = -1_000_000;
         const CAPTURE_BASE_SCORE: i32 = 500_000;
+
+        if let Some(Some(hash_move)) = hash_move_option {
+            if *m == hash_move {
+                return -HASH_MOVE_SCORE;
+            }
+        }
 
         let mut score = 0;
 
@@ -430,7 +520,9 @@ fn sort_moves(
                 || (!is_maximizing && tt_hit.eval() <= alpha)
             {
                 score += CUT_MOVE_SCORE;
-            } else if tt_type == NodeType::CutNode && (is_maximizing && tt_score < alpha) || (!is_maximizing && tt_score > beta) {
+            } else if tt_type == NodeType::CutNode && (is_maximizing && tt_score < alpha)
+                || (!is_maximizing && tt_score > beta)
+            {
                 score += ALL_MOVE_SCORE;
             }
         }

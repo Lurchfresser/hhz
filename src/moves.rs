@@ -8,7 +8,7 @@ use std::slice::Iter;
 
 #[derive(PartialEq, Eq, Hash, Copy, Clone)]
 pub struct Move {
-    mask: u16,
+    pub mask: u16,
 }
 
 impl Move {
@@ -47,6 +47,11 @@ impl Move {
         } else {
             Self { mask }
         }
+    }
+
+    #[inline(always)]
+    pub fn null_move() -> Self {
+        Self { mask: 0 }
     }
 
     #[inline(always)]
@@ -197,7 +202,7 @@ impl Move {
     }
     #[inline(always)]
     pub fn resets_clock(&self, board: &Board) -> bool {
-        self.is_capture() || matches!(board.pieces[self.from()], Piece::Pawn {..})
+        self.is_capture() || matches!(board.pieces[self.from()], Piece::Pawn { .. })
     }
 }
 
@@ -235,7 +240,7 @@ pub struct MoveList {
 
 // For owned Move values
 impl FromIterator<Move> for MoveList {
-    fn from_iter<I: IntoIterator<Item=Move>>(iter: I) -> Self {
+    fn from_iter<I: IntoIterator<Item = Move>>(iter: I) -> Self {
         let mut movelist = MoveList::default();
         for m in iter {
             movelist.push(m);
@@ -245,7 +250,7 @@ impl FromIterator<Move> for MoveList {
 }
 
 impl<'a> FromIterator<&'a Move> for MoveList {
-    fn from_iter<I: IntoIterator<Item=&'a Move>>(iter: I) -> Self {
+    fn from_iter<I: IntoIterator<Item = &'a Move>>(iter: I) -> Self {
         let mut movelist = MoveList::default();
         for &m in iter {
             movelist.push(m);

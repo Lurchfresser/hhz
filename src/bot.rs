@@ -7,13 +7,13 @@ use std::{
     thread,
 };
 
-use crate::{board::*, moves::*, search::*};
 use crate::tt_table::TT_Table;
+use crate::{board::*, moves::*, search::*};
 
 // Protocol: Messages sent FROM the main thread TO the bot thread.
 #[derive(Debug)]
 pub enum BotCommand {
-    SetBoard(Board),
+    SetBoard(Board, [u64; 100], u8),
     Search,
     Stop,
     Quit,
@@ -46,7 +46,9 @@ impl Bot {
             // The worker thread's main loop. It blocks here waiting for commands.
             for command in command_rx {
                 match command {
-                    BotCommand::SetBoard(board) => worker.set_position(board),
+                    BotCommand::SetBoard(board, repetition_lookup, num_resetting_moves) => {
+                        worker.set_position(board, repetition_lookup, num_resetting_moves)
+                    }
                     BotCommand::Search => worker.search(),
                     BotCommand::Stop => worker.stop(),
                     BotCommand::Quit => break, // Exit the loop and end the thread
@@ -61,9 +63,20 @@ impl Bot {
     }
 
     /// Sets the board position for the bot.
-    pub fn set_position(&mut self, board: Board) {
+    pub fn set_position(
+        &mut self,
+        board: Board,
+        repetition_lookup: [u64; 100],
+        num_resetting_moves: u8,
+    ) {
         self.stop();
-        self.command_tx.send(BotCommand::SetBoard(board)).unwrap();
+        self.command_tx
+            .send(BotCommand::SetBoard(
+                board,
+                repetition_lookup,
+                num_resetting_moves,
+            ))
+            .unwrap();
     }
 
     /// Tells the bot to start searching for the best move. This returns immediately.
@@ -92,6 +105,8 @@ struct BotWorker {
     result_tx: Sender<BotMessage>,
     // This flag is essential for stopping the search gracefully.
     is_searching: Arc<AtomicBool>,
+    repetition_lookup: [u64; 100],
+    num_resetting_moves: u8,
 }
 
 impl BotWorker {
@@ -101,12 +116,21 @@ impl BotWorker {
             tt_table: TT_Table::new(),
             result_tx,
             is_searching: Arc::new(AtomicBool::new(false)),
+            repetition_lookup: [0; 100],
+            num_resetting_moves: 0,
         }
     }
 
-    fn set_position(&mut self, board: Board) {
+    fn set_position(
+        &mut self,
+        board: Board,
+        repetition_lookup: [u64; 100],
+        num_resetting_moves: u8,
+    ) {
         self.stop();
         self.board = board;
+        self.repetition_lookup = repetition_lookup;
+        self.num_resetting_moves = num_resetting_moves;
     }
 
     fn stop(&mut self) {
@@ -121,8 +145,7 @@ impl BotWorker {
         let mut best_move_so_far = None;
 
         // --- Iterative Deepening Loop ---
-        //TODO: iterate
-        for depth in 4..5 {
+        for depth in 0..7 {
             // Go up to a max depth
             // Check if we were told to stop BEFORE starting the next depth.
             if !self.is_searching.load(Ordering::Relaxed) {
@@ -130,14 +153,20 @@ impl BotWorker {
             }
 
             // You'll need to adapt your search function to accept the stop flag.
-            let result = search_entry(&self.board, depth, &mut self.tt_table);
+            let result = search_entry(
+                &self.board,
+                depth,
+                &mut self.tt_table,
+                &mut self.repetition_lookup,
+                self.num_resetting_moves,
+            );
 
             // If the search was stopped mid-way (result is None) or if there are no moves, break.
             if let Some(best_move_at_depth) = result {
                 best_move_so_far = Some(best_move_at_depth);
                 // Send an 'info' message back to the main thread.
                 let info_msg = BotMessage::Info(best_move_at_depth);
-                match self.result_tx.send(info_msg){
+                match self.result_tx.send(info_msg) {
                     Err(e) => panic!("{}", e),
                     _ => {}
                 }

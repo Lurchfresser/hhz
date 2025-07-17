@@ -123,14 +123,14 @@ async fn handle_game(game: GameEventInfo, client_guard: Arc<Mutex<Licheszter>>) 
                     GameStatus::VariantEnd => {}
                 };
                 //TODO: use dynamic fen
-                let board = match Board::from_fen_and_uci_moves(DEFAULT_FEN, &game_state.moves) {
+                let (board, rep_look_up, num_m_resets) = match Board::from_fen_and_uci_moves(DEFAULT_FEN, &game_state.moves) {
                     Ok(board) => board,
                     Err(err) => {
                         println!("error while parsing board in handle_game: {}", err);
                         break;
                     }
                 };
-                bot.set_position(board);
+                bot.set_position(board, rep_look_up, num_m_resets as u8);
                 if board.white_to_move == playing_white {
                     bot.start_searching();
                 } else {
@@ -140,7 +140,7 @@ async fn handle_game(game: GameEventInfo, client_guard: Arc<Mutex<Licheszter>>) 
             BoardState::ChatLine(_) => continue,
             BoardState::GameFull(game_ful) => {
                 //TODO: use dynamic fen
-                let board = match Board::from_fen_and_uci_moves(DEFAULT_FEN, &game_ful.state.moves)
+                let (board, rep_look_up, num_m_resets) = match Board::from_fen_and_uci_moves(DEFAULT_FEN, &game_ful.state.moves)
                 {
                     Ok(board) => board,
                     Err(err) => {
@@ -148,7 +148,7 @@ async fn handle_game(game: GameEventInfo, client_guard: Arc<Mutex<Licheszter>>) 
                         break;
                     }
                 };
-                bot.set_position(board);
+                bot.set_position(board, rep_look_up, num_m_resets as u8);
                 if board.white_to_move == playing_white {
                     bot.start_searching();
                 } else {

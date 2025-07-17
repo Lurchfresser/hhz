@@ -421,12 +421,21 @@ impl Board {
         })
     }
 
-    pub fn from_fen_and_uci_moves(fen: &str, uci_moves: &str) -> Result<Self, FenError> {
+    pub fn from_fen_and_uci_moves(fen: &str, uci_moves: &str) -> Result<(Self, [u64; 100], u16), FenError> {
         let mut board = Board::from_fen(fen)?;
-        for uci_move in uci_moves.split_ascii_whitespace() {
-            board = board.make_uci_move_temp(uci_move);
+        let mut repetition_lookup = [0u64; 100];
+        let mut num_resetting_moves = 0;
+        for (index,uci_move) in uci_moves.split_ascii_whitespace().enumerate() {
+            //TODO: error handling
+            let m = board.generate_legal_moves_temp().iter().find(|m| {m.to_uci() == uci_move}).unwrap().to_owned();
+            if m.resets_clock(&board) {
+                num_resetting_moves += 1;
+            } else {
+                repetition_lookup[board.halfmove_clock as usize] = board.zobrist_after(&m);
+            }
+            board = board.make_move_temp(&m);
         }
-        Ok(board)
+        Ok((board, repetition_lookup, num_resetting_moves))
     }
 
 

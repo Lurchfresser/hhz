@@ -255,6 +255,27 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/benchmarks/46_PV-then-cut-att-victim-equal.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/benchmarks/47_PV-then-cut-then-att-then-victim.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/benchmarks/48_PV-then-cut-then-all-node-then-att-then-victim.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/benchmarks/49_PV-then-cut-then-att-then-victim-then-all-node.csv">
           <value>
             <Attribute>
@@ -263,6 +284,55 @@
           </value>
         </entry>
         <entry key="/benchmarks/4_improved-measurent-logic.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/benchmarks/50_Added more types to tt_table.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/benchmarks/51_insertion-strategy.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/benchmarks/52_always-overwrite-collision-depth-first.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/benchmarks/53_hash-move.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/benchmarks/54_hash-move-always-overwrite.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/benchmarks/55_52_always-overwrite-collision-depth-first-with-hash-move.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/benchmarks/56_52_always-overwrite-with-hash-move.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />
