@@ -408,26 +408,39 @@ fn sort_moves(
     beta: i16,
 ) {
     moves.sort_by_cached_key(|m| {
-        const PV_MOVE_SCORE: i32 = 1_000_000;
+        //lok at graph http://www.netlib.org/utk/lsi/pcwLSI/text/node351.html
+        // pv node, most left, then cut nodes should be preffered, all nodes hould be searched last
+        //https://www.chessprogramming.org/Node_Types
+        const PV_MOVE_SCORE: i32 = 3_000_000;
+        const CUT_MOVE_SCORE: i32 = 1_500_000;
+        const ALL_MOVE_SCORE: i32 = -1_000_000;
         const CAPTURE_BASE_SCORE: i32 = 500_000;
 
         let mut score = 0;
 
         // --- HIERARCHY LEVEL 1: PV MOVE ---
         if let Some(tt_hit) = tt_table.probe(board.zobrist_after(m)) {
-            if tt_hit.node_type() == NodeType::PvNode {
+            SearchMetrics::increment_pv_nodes_found_in_move_ordering();
+            let tt_type = tt_hit.node_type();
+            let tt_score = tt_hit.eval();
+            if tt_type == NodeType::PvNode {
                 // DO NOT return early. Assign the score.
                 score = PV_MOVE_SCORE;
+            } else if tt_type == NodeType::CutNode && (is_maximizing && tt_hit.eval() >= beta)
+                || (!is_maximizing && tt_hit.eval() <= alpha)
+            {
+                score += CUT_MOVE_SCORE;
+            } else if tt_type == NodeType::CutNode && (is_maximizing && tt_score < alpha) || (!is_maximizing && tt_score > beta) {
+                score += ALL_MOVE_SCORE;
             }
         }
-
         // --- HIERARCHY LEVEL 2: CAPTURES ---
         if score == 0 && m.is_capture() {
             // Only check if not already a PV move
             let victim_value = pieces_score(board.pieces[m.to()]).abs() as i32;
             let attacker_value = pieces_score(board.pieces[m.from()]).abs() as i32;
 
-            score = CAPTURE_BASE_SCORE + (victim_value - attacker_value);
+            score = CAPTURE_BASE_SCORE + (victim_value * 10 - attacker_value);
         }
         -score
     });

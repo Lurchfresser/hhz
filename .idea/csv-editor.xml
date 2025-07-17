@@ -3,13 +3,6 @@
   <component name="CsvFileAttributes">
     <option name="attributeMap">
       <map>
-        <entry key="/benchmarks/1000_debug.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
         <entry key="/benchmarks/10_New metrics.csv">
           <value>
             <Attribute>
@@ -67,13 +60,6 @@
           </value>
         </entry>
         <entry key="/benchmarks/18_Test.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/benchmarks/19_TT-Table-Move-ordering.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />
@@ -199,7 +185,77 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/benchmarks/34_With-bucket.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/benchmarks/35_Without-pv-node-check.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/benchmarks/37_With-high-victim-value.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/benchmarks/38_Cut-node-score.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/benchmarks/39_Cut-node-score.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/benchmarks/3_Simple move Ordering.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/benchmarks/40_PV-before-cut.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/benchmarks/41_all-nodes-first.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/benchmarks/42_reordered-node-importance.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/benchmarks/44_test.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/benchmarks/49_PV-then-cut-then-att-then-victim-then-all-node.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />
@@ -242,6 +298,13 @@
           </value>
         </entry>
         <entry key="/benchmarks/9_Repetition-check.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/benchmarks/summary_by_version.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />

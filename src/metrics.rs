@@ -10,68 +10,69 @@ use std::time::{Duration, Instant};
 #[cfg(feature = "metrics")]
 #[derive(Copy, Clone, Debug, Serialize)]
 pub struct SearchMetricsData {
-    feature_name: &'static str,
-    depth: u8,
-    position_name: &'static str,
-    fen: &'static str,
+    pub feature_name: &'static str,
+    pub depth: u8,
+    pub position_name: &'static str,
+    pub fen: &'static str,
 
     // --- Split Counters ---
-    normal_search_positions_generated: u64,
-    q_search_positions_generated: u64,
-    normal_search_entries: u64,
-    q_search_entries: u64,
-    stand_pat_cutoffs: u64,
-    normal_search_cutoffs: u64,
-    q_search_cutoffs: u64,
+    pub normal_search_positions_generated: u64,
+    pub q_search_positions_generated: u64,
+    pub normal_search_entries: u64,
+    pub q_search_entries: u64,
+    pub stand_pat_cutoffs: u64,
+    pub normal_search_cutoffs: u64,
+    pub q_search_cutoffs: u64,
 
     // --- Move Ordering Quality Metrics (already split or specific) ---
-    normal_search_best_move_first_count: u64,
-    q_search_best_move_first_count: u64,
-    normal_search_nodes_with_best_move: u64,
-    q_search_nodes_with_best_move: u64,
+    pub normal_search_best_move_first_count: u64,
+    pub q_search_best_move_first_count: u64,
+    pub normal_search_nodes_with_best_move: u64,
+    pub q_search_nodes_with_best_move: u64,
 
     // --- Split Sums for Averages ---
-    normal_search_sum_of_cutoff_indices: u64,
-    q_search_sum_of_cutoff_indices: u64,
+    pub normal_search_sum_of_cutoff_indices: u64,
+    pub q_search_sum_of_cutoff_indices: u64,
 
-    // Note: These typically only apply to normal search, so we can leave them as is.
+    // pub Note: These typically only apply to normal search, so we can leave them as is.
     #[serde(skip_serializing)]
-    killer_move_cutoffs: u64,
+    pub killer_move_cutoffs: u64,
     #[serde(skip_serializing)]
-    history_heuristic_cutoffs: u64,
+    pub history_heuristic_cutoffs: u64,
 
     // --- Split TT Metrics ---
-    normal_search_tt_probes: u64,
-    normal_search_tt_hits: u64,
-    normal_search_tt_cutoffs: u64,
-    q_search_tt_probes: u64,
-    q_search_tt_hits: u64,
-    q_search_tt_cutoffs: u64,
+    pub normal_search_tt_probes: u64,
+    pub normal_search_tt_hits: u64,
+    pub normal_search_tt_cutoffs: u64,
+    pub q_search_tt_probes: u64,
+    pub q_search_tt_hits: u64,
+    pub q_search_tt_cutoffs: u64,
+    pub pv_nodes_found_in_move_ordering: u64,
 
     // --- Split Timing Metrics ---
     #[serde(serialize_with = "serialize_duration_as_ms")]
-    search_time: Duration,
+    pub search_time: Duration,
     #[serde(serialize_with = "serialize_duration_as_ms")]
-    q_search_time: Duration,
+    pub q_search_time: Duration,
     #[serde(serialize_with = "serialize_duration_as_ms")]
-    evaluation_time: Duration, // Global, as it's a leaf operation
+    pub evaluation_time: Duration, // Global, as it's a leaf operation
     #[serde(serialize_with = "serialize_duration_as_ms")]
-    normal_search_move_gen_time: Duration,
+    pub normal_search_move_gen_time: Duration,
     #[serde(serialize_with = "serialize_duration_as_ms")]
-    q_search_move_gen_time: Duration,
+    pub q_search_move_gen_time: Duration,
     #[serde(serialize_with = "serialize_duration_as_ms")]
-    normal_search_move_ordering_time: Duration,
+    pub normal_search_move_ordering_time: Duration,
     #[serde(serialize_with = "serialize_duration_as_ms")]
-    q_search_move_ordering_time: Duration,
+    pub q_search_move_ordering_time: Duration,
     #[serde(serialize_with = "serialize_duration_as_ms")]
-    total_time: Duration,
+    pub total_time: Duration,
 
     // --- Derived Metrics ---
-    avg_normal_search_cutoff_index: f64,
-    avg_q_search_cutoff_index: f64,
-    normal_search_best_move_first_pct: f64,
-    q_search_best_move_first_pct: f64,
-    stand_pat_cutoff_pct: f64,
+    pub avg_normal_search_cutoff_index: f64,
+    pub avg_q_search_cutoff_index: f64,
+    pub normal_search_best_move_first_pct: f64,
+    pub q_search_best_move_first_pct: f64,
+    pub stand_pat_cutoff_pct: f64,
 }
 
 #[cfg(feature = "metrics")]
@@ -114,6 +115,7 @@ impl SearchMetricsData {
             q_search_tt_probes: 0,
             q_search_tt_hits: 0,
             q_search_tt_cutoffs: 0,
+            pv_nodes_found_in_move_ordering: 0,
 
             // Initialize new split timing metrics
             search_time: Duration::default(),
@@ -443,6 +445,17 @@ impl SearchMetrics {
     }
     #[cfg(not(feature = "metrics"))]
     pub fn increment_q_search_tt_cutoffs() {}
+
+    #[cfg(feature = "metrics")]
+    pub fn increment_pv_nodes_found_in_move_ordering() {
+        unsafe {
+            if let Some(m) = &mut METRICS {
+                m.pv_nodes_found_in_move_ordering += 1;
+            }
+        }
+    }
+    #[cfg(not(feature = "metrics"))]
+    pub fn increment_pv_nodes_found_in_move_ordering() {}
 
     // --- Timing ---
 
