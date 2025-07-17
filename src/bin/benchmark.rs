@@ -2,14 +2,17 @@ use csv::Writer;
 use hhz::board::Board;
 use hhz::metrics::{SearchMetrics, SearchMetricsData, calculate_and_update_derived_metrics};
 use hhz::search::search_entry;
+use hhz::tt_table::TT_Table;
 use std::time::{Instant, SystemTime};
 
 pub mod generate_attack_lookup;
 
-static FEATURE_NAME: &str = "multiple_test_fens";
-static FEATURE_NUMBER: u32 = 14;
+static FEATURE_NAME: &str = "With-bucket";
+static FEATURE_NUMBER: u32 = 34;
 
 fn main() {
+    println!("board size: {}", std::mem::size_of::<Board>());
+
     if cfg!(debug_assertions) {
         panic!("not in release mode");
     }
@@ -51,7 +54,7 @@ fn main() {
         ),
     ];
 
-    let max_depth = 7u8;
+    let max_depth = 6u8;
 
     println!("Chess Engine Benchmark");
     println!("=====================");
@@ -64,6 +67,7 @@ fn main() {
     for (position_name, fen) in positions {
         println!("\nPosition: {}", fen);
 
+        let mut tt_table = TT_Table::new();
         for depth in 0..max_depth + 1 {
             println!(
                 "\nSearching at depth {}, current time: {}, for {}",
@@ -87,7 +91,7 @@ fn main() {
             //
             //
             // -------- full measurement --------
-            let best_move = search_entry(&board, depth);
+            let best_move = search_entry(&board, depth, &mut tt_table);
             // ----------------------------------------
             //
             //

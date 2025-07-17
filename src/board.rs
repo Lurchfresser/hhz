@@ -113,7 +113,6 @@ pub struct Board {
 
     pub pieces: [Piece; 64],
 
-    pub repetition_lookup: [u64; 100],
 
     pub zobrist_hash: u64,
 }
@@ -419,7 +418,6 @@ impl Board {
             full_move_number: fullmove_number,
             pieces,
             zobrist_hash,
-            repetition_lookup: [0; 100],
         })
     }
 

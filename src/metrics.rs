@@ -41,17 +41,11 @@ pub struct SearchMetricsData {
     history_heuristic_cutoffs: u64,
 
     // --- Split TT Metrics ---
-    #[serde(skip_serializing)]
     normal_search_tt_probes: u64,
-    #[serde(skip_serializing)]
     normal_search_tt_hits: u64,
-    #[serde(skip_serializing)]
     normal_search_tt_cutoffs: u64,
-    #[serde(skip_serializing)]
     q_search_tt_probes: u64,
-    #[serde(skip_serializing)]
     q_search_tt_hits: u64,
-    #[serde(skip_serializing)]
     q_search_tt_cutoffs: u64,
 
     // --- Split Timing Metrics ---
@@ -496,7 +490,7 @@ impl SearchMetrics {
             // --- END ADD ---
 
             // Now return the clone with the correct total_time
-            calculate_and_update_derived_metrics(& mut metrics);
+            calculate_and_update_derived_metrics(&mut metrics);
             metrics
         } else {
             panic!("Metrics not initialized");
@@ -510,7 +504,6 @@ impl SearchMetrics {
 
 #[cfg(feature = "metrics")]
 pub fn calculate_and_update_derived_metrics(metrics: &mut SearchMetricsData) {
-
     // --- 1. Average Cutoff Move Indices (Now Split) ---
 
     // Calculate for Normal Search

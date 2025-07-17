@@ -724,13 +724,13 @@ impl Board {
         let moves = self.generate_legal_moves_temp();
         for m in moves {
             if m.to_uci() == uci_move {
-                return self.make_move_temp(m);
+                return self.make_move_temp(&m);
             };
         }
         panic!("uci move: {} not found", uci_move);
     }
 
-    pub fn make_move_temp(&self, _move: Move) -> Self {
+    pub fn make_move_temp(&self, _move: &Move) -> Self {
         let mut new_board = *self;
         new_board.en_passant_target = 0;
 
@@ -1157,8 +1157,8 @@ impl Board {
         new_board.update_board_state(
             moved_piece
                 == Piece::Pawn {
-                white: new_board.white_to_move,
-            },
+                    white: new_board.white_to_move,
+                },
             _move.is_capture(),
             self.zobrist_hash,
         );
@@ -1168,10 +1168,7 @@ impl Board {
     fn update_board_state(&mut self, pawn_moved: bool, was_capture: bool, old_board_zobrist: u64) {
         if pawn_moved || was_capture {
             self.halfmove_clock = 0;
-            //TODO: maybe there can be a speed
-            // self.repetition_lookup.fill(0);
         } else {
-            self.repetition_lookup[self.halfmove_clock as usize] = old_board_zobrist;
             self.halfmove_clock += 1;
         }
 
@@ -1180,6 +1177,260 @@ impl Board {
         }
         self.white_to_move = !self.white_to_move;
         self.zobrist_hash ^= ZOBRISTS_WHITE_TO_MOVE;
+    }
+
+    pub fn zobrist_after(&self, _move: &Move) -> u64 {
+        let mut new_hash = self.zobrist_hash;
+
+        // Undo previous en_passant_target from zobrist hash
+        if self.en_passant_target != 0 {
+            let ep_square_index = bitboard_to_square_index(self.en_passant_target);
+            let ep_file = ep_square_index % 8;
+            new_hash ^= ZOBRISTS_EN_PASSANT_FILE[ep_file];
+        }
+
+        let from = _move.from();
+        let to = _move.to();
+        let moved_piece = self.pieces[from];
+
+        if _move.is_castle_short() {
+            if self.white_to_move {
+                new_hash ^= self.white_castling_rights.zobrist_hash(true);
+                new_hash ^= ZOBRISTS_WHITE_KINGS[from];
+                new_hash ^= ZOBRISTS_WHITE_KINGS[WHITE_KINGSIDE_CASTLE_INDEX];
+                new_hash ^= ZOBRISTS_WHITE_ROOKS[WHITE_KINGSIDE_CASTLE_ROOK_INDEX];
+                new_hash ^= ZOBRISTS_WHITE_ROOKS[WHITE_KINGSIDE_CASTLE_ROOK_INDEX - 2];
+            } else {
+                new_hash ^= self.black_castling_rights.zobrist_hash(false);
+                new_hash ^= ZOBRISTS_BLACK_KINGS[from];
+                new_hash ^= ZOBRISTS_BLACK_KINGS[BLACK_KINGSIDE_CASTLE_INDEX];
+                new_hash ^= ZOBRISTS_BLACK_ROOKS[BLACK_KINGSIDE_CASTLE_ROOK_INDEX];
+                new_hash ^= ZOBRISTS_BLACK_ROOKS[BLACK_KINGSIDE_CASTLE_ROOK_INDEX - 2];
+            }
+            return new_hash;
+        } else if _move.is_castle_long() {
+            if self.white_to_move {
+                new_hash ^= self.white_castling_rights.zobrist_hash(true);
+                new_hash ^= ZOBRISTS_WHITE_KINGS[from];
+                new_hash ^= ZOBRISTS_WHITE_KINGS[WHITE_QUEENSIDE_CASTLE_INDEX];
+                new_hash ^= ZOBRISTS_WHITE_ROOKS[WHITE_QUEENSIDE_CASTLE_ROOK_INDEX];
+                new_hash ^= ZOBRISTS_WHITE_ROOKS[WHITE_QUEENSIDE_CASTLE_ROOK_INDEX + 3];
+            } else {
+                new_hash ^= self.black_castling_rights.zobrist_hash(false);
+                new_hash ^= ZOBRISTS_BLACK_KINGS[from];
+                new_hash ^= ZOBRISTS_BLACK_KINGS[BLACK_QUEENSIDE_CASTLE_INDEX];
+                new_hash ^= ZOBRISTS_BLACK_ROOKS[BLACK_QUEENSIDE_CASTLE_ROOK_INDEX];
+                new_hash ^= ZOBRISTS_BLACK_ROOKS[BLACK_QUEENSIDE_CASTLE_ROOK_INDEX + 3];
+            }
+            return new_hash;
+        }
+
+        if _move.is_capture() {
+            let mut captured_piece = self.pieces[to];
+            if _move.is_en_passant() {
+                captured_piece = if self.white_to_move {
+                    self.pieces[to + 8]
+                } else {
+                    self.pieces[to - 8]
+                };
+            }
+
+            match captured_piece {
+                Piece::Pawn { .. } => {
+                    if self.white_to_move {
+                        if _move.is_en_passant() {
+                            new_hash ^= ZOBRISTS_BLACK_PAWNS[to + 8];
+                        } else {
+                            new_hash ^= ZOBRISTS_BLACK_PAWNS[to];
+                        }
+                    } else {
+                        if _move.is_en_passant() {
+                            new_hash ^= ZOBRISTS_WHITE_PAWNS[to - 8];
+                        } else {
+                            new_hash ^= ZOBRISTS_WHITE_PAWNS[to];
+                        }
+                    }
+                }
+                Piece::Knight { .. } => {
+                    if self.white_to_move {
+                        new_hash ^= ZOBRISTS_BLACK_KNIGHTS[to];
+                    } else {
+                        new_hash ^= ZOBRISTS_WHITE_KNIGHTS[to];
+                    }
+                }
+                Piece::Bishop { .. } => {
+                    if self.white_to_move {
+                        new_hash ^= ZOBRISTS_BLACK_BISHOPS[to];
+                    } else {
+                        new_hash ^= ZOBRISTS_WHITE_BISHOPS[to];
+                    }
+                }
+                Piece::Rook { .. } => {
+                    if self.white_to_move {
+                        new_hash ^= ZOBRISTS_BLACK_ROOKS[to];
+                    } else {
+                        new_hash ^= ZOBRISTS_WHITE_ROOKS[to];
+                    }
+                }
+                Piece::Queen { .. } => {
+                    if self.white_to_move {
+                        new_hash ^= ZOBRISTS_BLACK_QUEENS[to];
+                    } else {
+                        new_hash ^= ZOBRISTS_WHITE_QUEENS[to];
+                    }
+                }
+                _ => {}
+            }
+        }
+
+        match moved_piece {
+            Piece::Pawn { .. } => {
+                if self.white_to_move {
+                    new_hash ^= ZOBRISTS_WHITE_PAWNS[from];
+                    new_hash ^= ZOBRISTS_WHITE_PAWNS[to];
+
+                    let was_double_push = to - from == 16;
+                    if was_double_push {
+                        let ep_square_index = to - 8;
+                        let adjacent_files_mask = WHITE_FREE_PAWN_ATTACKS_LOOKUP[ep_square_index];
+                        let can_capture_ep = (self.black_pawns & adjacent_files_mask) != 0;
+
+                        if can_capture_ep {
+                            let ep_file = (to % 8) as usize;
+                            new_hash ^= ZOBRISTS_EN_PASSANT_FILE[ep_file];
+                        }
+                    }
+                } else {
+                    new_hash ^= ZOBRISTS_BLACK_PAWNS[from];
+                    new_hash ^= ZOBRISTS_BLACK_PAWNS[to];
+
+                    let was_double_push = from - to == 16;
+                    if was_double_push {
+                        let ep_square_index = to + 8;
+                        let adjacent_files_mask = BLACK_FREE_PAWN_ATTACKS_LOOKUP[ep_square_index];
+                        let can_capture_ep = (self.white_pawns & adjacent_files_mask) != 0;
+
+                        if can_capture_ep {
+                            let ep_file = (to % 8) as usize;
+                            new_hash ^= ZOBRISTS_EN_PASSANT_FILE[ep_file];
+                        }
+                    }
+                }
+            }
+            Piece::Knight { .. } => {
+                if self.white_to_move {
+                    new_hash ^= ZOBRISTS_WHITE_KNIGHTS[from];
+                    new_hash ^= ZOBRISTS_WHITE_KNIGHTS[to];
+                } else {
+                    new_hash ^= ZOBRISTS_BLACK_KNIGHTS[from];
+                    new_hash ^= ZOBRISTS_BLACK_KNIGHTS[to];
+                }
+            }
+            Piece::Bishop { .. } => {
+                if self.white_to_move {
+                    new_hash ^= ZOBRISTS_WHITE_BISHOPS[from];
+                    new_hash ^= ZOBRISTS_WHITE_BISHOPS[to];
+                } else {
+                    new_hash ^= ZOBRISTS_BLACK_BISHOPS[from];
+                    new_hash ^= ZOBRISTS_BLACK_BISHOPS[to];
+                }
+            }
+            Piece::Rook { .. } => {
+                if self.white_to_move {
+                    new_hash ^= ZOBRISTS_WHITE_ROOKS[from];
+                    new_hash ^= ZOBRISTS_WHITE_ROOKS[to];
+                } else {
+                    new_hash ^= ZOBRISTS_BLACK_ROOKS[from];
+                    new_hash ^= ZOBRISTS_BLACK_ROOKS[to];
+                }
+            }
+            Piece::Queen { .. } => {
+                if self.white_to_move {
+                    new_hash ^= ZOBRISTS_WHITE_QUEENS[from];
+                    new_hash ^= ZOBRISTS_WHITE_QUEENS[to];
+                } else {
+                    new_hash ^= ZOBRISTS_BLACK_QUEENS[from];
+                    new_hash ^= ZOBRISTS_BLACK_QUEENS[to];
+                }
+            }
+            Piece::King { .. } => {
+                if self.white_to_move {
+                    new_hash ^= self.white_castling_rights.zobrist_hash(true);
+                    new_hash ^= ZOBRISTS_WHITE_KINGS[from];
+                    new_hash ^= ZOBRISTS_WHITE_KINGS[to];
+                } else {
+                    new_hash ^= self.black_castling_rights.zobrist_hash(false);
+                    new_hash ^= ZOBRISTS_BLACK_KINGS[from];
+                    new_hash ^= ZOBRISTS_BLACK_KINGS[to];
+                }
+            }
+            Piece::None => {}
+        }
+
+        let mut new_white_castling_rights = self.white_castling_rights;
+        let mut new_black_castling_rights = self.black_castling_rights;
+
+        if from == WHITE_KINGSIDE_CASTLE_ROOK_INDEX || to == WHITE_KINGSIDE_CASTLE_ROOK_INDEX {
+            new_white_castling_rights =
+                new_white_castling_rights.remove_side(CastlingRights::OnlyKingSide);
+        }
+        if from == WHITE_QUEENSIDE_CASTLE_ROOK_INDEX || to == WHITE_QUEENSIDE_CASTLE_ROOK_INDEX {
+            new_white_castling_rights =
+                new_white_castling_rights.remove_side(CastlingRights::OnlyQueenSide);
+        }
+        if from == BLACK_KINGSIDE_CASTLE_ROOK_INDEX || to == BLACK_KINGSIDE_CASTLE_ROOK_INDEX {
+            new_black_castling_rights =
+                new_black_castling_rights.remove_side(CastlingRights::OnlyKingSide);
+        }
+        if from == BLACK_QUEENSIDE_CASTLE_ROOK_INDEX || to == BLACK_QUEENSIDE_CASTLE_ROOK_INDEX {
+            new_black_castling_rights =
+                new_black_castling_rights.remove_side(CastlingRights::OnlyQueenSide);
+        }
+
+        if self.white_castling_rights != new_white_castling_rights {
+            new_hash ^= self.white_castling_rights.zobrist_hash(true);
+            new_hash ^= new_white_castling_rights.zobrist_hash(true);
+        }
+        if self.black_castling_rights != new_black_castling_rights {
+            new_hash ^= self.black_castling_rights.zobrist_hash(false);
+            new_hash ^= new_black_castling_rights.zobrist_hash(false);
+        }
+
+        if _move.is_promotion() {
+            let to_bb = square_index_to_bitboard(to);
+            if self.white_to_move {
+                new_hash ^= ZOBRISTS_WHITE_PAWNS[to];
+                match _move.promotion_piece() {
+                    Some(PieceKind::Queen) => new_hash ^= ZOBRISTS_WHITE_QUEENS[to],
+                    Some(PieceKind::Rook) => new_hash ^= ZOBRISTS_WHITE_ROOKS[to],
+                    Some(PieceKind::Bishop) => new_hash ^= ZOBRISTS_WHITE_BISHOPS[to],
+                    Some(PieceKind::Knight) => new_hash ^= ZOBRISTS_WHITE_KNIGHTS[to],
+                    _ => {}
+                }
+            } else {
+                new_hash ^= ZOBRISTS_BLACK_PAWNS[to];
+                match _move.promotion_piece() {
+                    Some(PieceKind::Queen) => new_hash ^= ZOBRISTS_BLACK_QUEENS[to],
+                    Some(PieceKind::Rook) => new_hash ^= ZOBRISTS_BLACK_ROOKS[to],
+                    Some(PieceKind::Bishop) => new_hash ^= ZOBRISTS_BLACK_BISHOPS[to],
+                    Some(PieceKind::Knight) => new_hash ^= ZOBRISTS_BLACK_KNIGHTS[to],
+                    _ => {}
+                }
+            }
+        }
+
+        if _move.is_en_passant() {
+            if self.white_to_move {
+                let ep_target_index = to - 8;
+                new_hash ^= ZOBRISTS_BLACK_PAWNS[ep_target_index];
+            } else {
+                let ep_target_index = to + 8;
+                new_hash ^= ZOBRISTS_WHITE_PAWNS[ep_target_index];
+            }
+        }
+
+        new_hash ^= ZOBRISTS_WHITE_TO_MOVE;
+        new_hash
     }
 
     fn recompute_combined_bit_boards(&mut self) {
@@ -1279,6 +1530,69 @@ mod tests {
                 "Failed at: {}",
                 description
             );
+        }
+    }
+
+    #[test]
+    fn test_calculate_new_zobrist_hash_matches_make_move_hash() {
+        let fens = [
+            "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", // Starting position
+            "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1", // Kiwipete
+            "8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1",                // Endgame
+            "rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8", // Promotion
+            "r1b1k2r/pp1p1ppp/1qnb1n2/2p1p3/2B1P3/2NP1N2/PPP2PPP/R1BQK2R w KQkq - 1 7", // Castling
+        ];
+
+        for fen in fens.iter() {
+            let board = Board::from_fen(fen).unwrap();
+            let moves = board.generate_legal_moves_temp();
+
+            for m in moves {
+                let calculated_hash = board.zobrist_after(&m);
+                let new_board = board.make_move_temp(&m);
+                assert_eq!(
+                    calculated_hash,
+                    new_board.zobrist_hash,
+                    "Zobrist hash mismatch for move {} on FEN {}",
+                    m.to_uci(),
+                    fen
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn test_zobrist_hash_for_random_moves_in_a_loop() {
+        let fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"; // Starting position
+        let mut board = Board::from_fen(fen).unwrap();
+
+        for i in 0..100 {
+            // Play 100 random moves
+            let moves = board.generate_legal_moves_temp();
+
+            if moves.is_empty() {
+                // Game over (checkmate or stalemate)
+                println!("Game over after {} moves.", i);
+                break;
+            }
+
+            // Pick a random move from the list of legal moves.
+            let random_index = rand::random::<usize>() % moves.len();
+            let random_move = &moves[random_index];
+
+            let calculated_hash = board.calculate_new_zobrist_hash(random_move);
+            let new_board = board.make_move_temp(random_move);
+
+            assert_eq!(
+                calculated_hash,
+                new_board.zobrist_hash,
+                "Zobrist hash mismatch for random move {} on FEN {} at move number {}",
+                random_move.to_uci(),
+                board.to_fen(),
+                i
+            );
+
+            board = new_board;
         }
     }
 

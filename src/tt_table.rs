@@ -1,3 +1,4 @@
+use crate::metrics::SearchMetrics;
 use std::mem;
 use std::ops::Index;
 use std::process::Output;
@@ -82,6 +83,7 @@ impl TT_Entry {
 // }
 
 pub struct TT_Table {
+    //vec because rust can allocate an array directly on the heap and this would cause a stack overflow
     tt_table: Vec<TT_Entry>,
 }
 
@@ -93,25 +95,30 @@ impl TT_Table {
     }
     //TODO: find more performant output
     #[inline(always)]
-    fn probe(&self, outside_zobrist: u64) -> Option<&TT_Entry> {
+    pub fn probe(&self, outside_zobrist: u64) -> Option<&TT_Entry> {
         // This rare edge case will be almost never hit, and when depth = 0 will make it discard the value
         // if outside_zobrist & (TT_INDEX_MASK | !TT_Entry::TT_INFO_MASK) == 0 {
         //     return None
         // }
         let i = outside_zobrist & TT_INDEX_MASK;
+        let maybe_hit = &self.tt_table[i as usize];
         //decide if it is a hash hit, because we know by indexing, the last part (the part masked to i) is also the same
-        if self.tt_table[i as usize].zobrist_hash_part() == outside_zobrist & !TT_Entry::TT_INFO_MASK {
-            Some(&self.tt_table[i as usize])
+        if maybe_hit.zobrist_hash_part() == outside_zobrist & !TT_Entry::TT_INFO_MASK {
+            Some(maybe_hit)
         } else {
             None
         }
     }
 
     #[inline(always)]
-    fn insert(&mut self, zobrist: u64, eval: i16, depth: u8, node_type: NodeType) {
+    pub fn insert(&mut self, zobrist: u64, eval: i16, depth: u8, node_type: NodeType) {
         //TODO: insertion strategy
+        let existing_entry = self.tt_table[(zobrist & TT_INDEX_MASK) as usize];
+
+        // if node_type == NodeType::PvNode && existing_entry.node_type() != NodeType::PvNode {
         self.tt_table[(zobrist & TT_INDEX_MASK) as usize] =
             TT_Entry::new(zobrist, depth, eval, node_type);
+        // }
     }
 }
 
@@ -175,7 +182,10 @@ mod tests {
             tt_table.insert(zobrist_hash, eval, depth, flag);
             let result = tt_table.probe(zobrist_hash);
 
-            assert!(result.is_some(), "A hit was expected, but index() returned None.");
+            assert!(
+                result.is_some(),
+                "A hit was expected, but index() returned None."
+            );
 
             if let Some(entry) = result {
                 assert_eq!(entry.eval(), eval);

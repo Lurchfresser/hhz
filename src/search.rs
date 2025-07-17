@@ -1,17 +1,21 @@
 use crate::board::Board;
 use crate::eval::{eval, pieces_score};
 use crate::metrics::TimingKind::Search;
-use crate::metrics::{SearchMetrics, TimingKind};
+use crate::metrics::{SearchMetrics, SearchMetricsData, TimingKind};
+use crate::moves::MAX_NUM_MOVES;
 use crate::moves::{Move, MoveList};
+use crate::tt_table::{NodeType, TT_Table};
+use arrayvec::ArrayVec;
+use std::cmp::max;
 
-pub fn search_entry(board: &Board, depth: u8) -> Option<Move> {
+pub fn search_entry(board: &Board, depth: u8, tt_table: &mut TT_Table) -> Option<Move> {
     SearchMetrics::increment_normal_search_entries();
     // Initialize metrics if not already done
 
     SearchMetrics::change_timing_kind(TimingKind::Search);
     let maximize_score = board.white_to_move;
 
-    let legal_moves = sort_moves(board.generate_legal_moves_temp(), board, maximize_score);
+    let mut legal_moves = board.generate_legal_moves_temp();
 
     if legal_moves.is_empty() {
         return None; // No legal moves available
@@ -34,29 +38,55 @@ pub fn search_entry(board: &Board, depth: u8) -> Option<Move> {
     //TODO: define const values, with better ranges
     let mut beta = i16::MAX - 1;
 
-    for move_ in legal_moves {
-        let new_game = board.make_move_temp(move_);
+    sort_moves(
+        &mut legal_moves,
+        board,
+        maximize_score,
+        tt_table,
+        alpha,
+        beta,
+    );
 
-        let score = min_max_search(&new_game, depth, alpha, beta);
+    let mut repetition_lookup = [0u64; 100];
+    for _move in legal_moves {
+        let new_board = board.make_move_temp(&_move);
+        let mut lookup_ref = if _move.resets_clock(board) {
+            [board.zobrist_hash; 100]
+        } else {
+            repetition_lookup[(board.halfmove_clock + 1) as usize] = board.zobrist_after(&_move);
+            repetition_lookup
+        };
+        let score = min_max_search(&new_board, depth, alpha, beta, tt_table, &mut lookup_ref);
 
         if maximize_score && score > best_score {
             best_score = score;
-            best_move = Some(move_);
+            best_move = Some(_move);
             alpha = best_score.max(alpha);
         } else if !maximize_score && score < best_score {
             best_score = score;
-            best_move = Some(move_);
+            best_move = Some(_move);
             beta = best_score.min(beta);
         }
     }
-
+    // we store depth + 1, because we pass it directly to minmax search
+    // all Root Nodes are pv nodes, because a beta cutoff can never occur and alpha is always raised
+    // see: https://www.chessprogramming.org/Node_Types#PV-Nodes
+    tt_table.insert(board.zobrist_hash, best_score, depth + 1, NodeType::PvNode);
     best_move
 }
 
-fn min_max_search(board: &Board, depth: u8, mut alpha: i16, mut beta: i16) -> i16 {
+fn min_max_search(
+    board: &Board,
+    depth: u8,
+    mut alpha: i16,
+    mut beta: i16,
+    tt_table: &mut TT_Table,
+    //TODO: look if board can also be used
+    repetition_lookup: &mut [u64; 100],
+) -> i16 {
     if depth == 0 {
         SearchMetrics::change_timing_kind(TimingKind::QSearch);
-        let q_search_score = q_search(board, alpha, beta);
+        let q_search_score = q_search(board, alpha, beta, tt_table, repetition_lookup);
         SearchMetrics::change_timing_kind(TimingKind::Search);
         return q_search_score;
     }
@@ -68,22 +98,22 @@ fn min_max_search(board: &Board, depth: u8, mut alpha: i16, mut beta: i16) -> i1
     let maximize_score = board.white_to_move;
 
     let mut best_score = if maximize_score {
-        //TDO: define const values
-        i16::MIN + 1
+        //TODO: define const values
+        alpha
     } else {
-        //TDO: define const values
-        i16::MAX - 1
+        //TODO: define const values
+        beta
     };
 
     SearchMetrics::change_timing_kind(TimingKind::NormalMoveGen);
 
-    let legal_moves_unordered = board.generate_legal_moves_temp();
+    let mut legal_moves = board.generate_legal_moves_temp();
 
-    match check_game_result::<false>(board, legal_moves_unordered.len()) {
-        //TDO: define const values
+    match check_game_result::<false>(board, repetition_lookup, legal_moves.len()) {
+        //TODO: define const values
         GameResult::WhiteWins => return i16::MAX - 2,
 
-        //TDO: define const values
+        //TODO: define const values
         GameResult::BlackWins => return i16::MIN + 2,
 
         GameResult::Draw(_) => return 0,
@@ -91,23 +121,80 @@ fn min_max_search(board: &Board, depth: u8, mut alpha: i16, mut beta: i16) -> i1
         GameResult::Ongoing => {}
     }
 
+    SearchMetrics::increment_normal_search_tt_probes();
+    if let Some(tt_hit) = tt_table.probe(board.zobrist_hash) {
+        SearchMetrics::increment_normal_search_tt_hits();
+        //TODO: increment in move ordering
+        // SearchMetrics::increment_normal_search_tt_hits();
+        if tt_hit.depth() >= depth {
+            let tt_score = tt_hit.eval();
+            match tt_hit.node_type() {
+                NodeType::PvNode => {
+                    SearchMetrics::increment_normal_search_tt_cutoffs();
+                    return tt_score;
+                }
+                NodeType::CutNode => {
+                    if (maximize_score && tt_score >= beta)
+                        || (!maximize_score && tt_score <= alpha)
+                    {
+                        SearchMetrics::increment_normal_search_tt_cutoffs();
+                        return tt_score;
+                    }
+                }
+                NodeType::AllNode => {
+                    if (maximize_score && tt_score < alpha) || (!maximize_score && tt_score > beta)
+                    {
+                        SearchMetrics::increment_normal_search_tt_cutoffs();
+                        return tt_score;
+                    }
+                }
+            }
+        }
+    }
+
     SearchMetrics::change_timing_kind(TimingKind::NormalMoveOrdering);
 
-    let legal_moves = sort_moves(legal_moves_unordered, board, maximize_score);
+    sort_moves(
+        &mut legal_moves,
+        board,
+        maximize_score,
+        tt_table,
+        alpha,
+        beta,
+    );
 
     SearchMetrics::increment_normal_search_positions_generated(legal_moves.len() as u64);
 
     SearchMetrics::change_timing_kind(TimingKind::Search);
     #[cfg(feature = "metrics")]
     let mut best_move_found_at_index: Option<usize> = None;
+    // all node = all nodes searched
+    let mut node_type = NodeType::AllNode;
 
     let mut i = 0;
     while i < legal_moves.len() {
-        let move_ = legal_moves[i];
-
-        let new_game = board.make_move_temp(move_);
-
-        let score = min_max_search(&new_game, depth - 1, alpha, beta);
+        let _move = legal_moves[i];
+        let new_game = board.make_move_temp(&_move);
+        let score = if _move.resets_clock(board) {
+            min_max_search(
+                &new_game,
+                depth - 1,
+                alpha,
+                beta,
+                tt_table,
+                &mut [board.zobrist_hash; 100],
+            )
+        } else {
+            repetition_lookup[(board.halfmove_clock + 1) as usize] = board.zobrist_after(&_move);
+            min_max_search(
+                &new_game,
+                depth - 1,
+                alpha,
+                beta,
+                tt_table,
+                repetition_lookup,
+            )
+        };
 
         if (maximize_score && score > best_score) || (!maximize_score && score < best_score) {
             #[cfg(feature = "metrics")]
@@ -115,6 +202,7 @@ fn min_max_search(board: &Board, depth: u8, mut alpha: i16, mut beta: i16) -> i1
                 best_move_found_at_index = Some(i);
             }
             best_score = score;
+            node_type = NodeType::PvNode;
 
             if maximize_score {
                 alpha = best_score.max(alpha);
@@ -122,6 +210,7 @@ fn min_max_search(board: &Board, depth: u8, mut alpha: i16, mut beta: i16) -> i1
                 beta = best_score.min(beta);
             }
             if beta <= alpha {
+                node_type = NodeType::CutNode;
                 // The move that caused the cutoff is at index 'i'. We add its 1-based index.
                 SearchMetrics::add_to_normal_search_sum_of_cutoff_indices((i + 1) as u64);
                 SearchMetrics::increment_normal_search_cutoffs();
@@ -130,6 +219,8 @@ fn min_max_search(board: &Board, depth: u8, mut alpha: i16, mut beta: i16) -> i1
         }
         i += 1;
     }
+    //insert this node, after every move was searched or cutoff occured
+    tt_table.insert(board.zobrist_hash, best_score, depth, node_type);
 
     #[cfg(feature = "metrics")]
     if let Some(final_best_index) = best_move_found_at_index {
@@ -143,7 +234,13 @@ fn min_max_search(board: &Board, depth: u8, mut alpha: i16, mut beta: i16) -> i1
     best_score
 }
 
-fn q_search(board: &Board, mut alpha: i16, mut beta: i16) -> i16 {
+fn q_search(
+    board: &Board,
+    mut alpha: i16,
+    mut beta: i16,
+    tt_table: &mut TT_Table,
+    repetition_lookup: &mut [u64; 100],
+) -> i16 {
     SearchMetrics::increment_q_search_entries();
 
     SearchMetrics::change_timing_kind(TimingKind::QSearch);
@@ -154,6 +251,7 @@ fn q_search(board: &Board, mut alpha: i16, mut beta: i16) -> i16 {
     let stand_pat = eval(board);
     SearchMetrics::change_timing_kind(TimingKind::QSearch);
 
+    //TODO: not in check
     let mut best_score = stand_pat;
 
     if maximize_score {
@@ -173,7 +271,7 @@ fn q_search(board: &Board, mut alpha: i16, mut beta: i16) -> i16 {
 
     SearchMetrics::increment_q_search_positions_generated(legal_moves.len() as u64);
 
-    match check_game_result::<false>(board, legal_moves.len()) {
+    match check_game_result::<false>(board, repetition_lookup, legal_moves.len()) {
         //TODO:
         GameResult::WhiteWins => return i16::MAX - 2,
 
@@ -185,7 +283,34 @@ fn q_search(board: &Board, mut alpha: i16, mut beta: i16) -> i16 {
         GameResult::Ongoing => {}
     }
 
-    let legal_captures_unordered: MoveList = legal_moves
+    SearchMetrics::increment_q_search_tt_probes();
+    if let Some(tt_hit) = tt_table.probe(board.zobrist_hash) {
+        //TODO: increment in move ordering
+        // SearchMetrics::increment_normal_search_tt_hits();
+        SearchMetrics::increment_q_search_tt_hits();
+        //
+        let tt_score = tt_hit.eval();
+        match tt_hit.node_type() {
+            NodeType::PvNode => {
+                SearchMetrics::increment_q_search_tt_cutoffs();
+                return tt_score;
+            }
+            NodeType::CutNode => {
+                if (maximize_score && tt_score >= beta) || (!maximize_score && tt_score <= alpha) {
+                    SearchMetrics::increment_q_search_tt_cutoffs();
+                    return tt_score;
+                }
+            }
+            NodeType::AllNode => {
+                if (maximize_score && tt_score < alpha) || (!maximize_score && tt_score > beta) {
+                    SearchMetrics::increment_q_search_tt_cutoffs();
+                    return tt_score;
+                }
+            }
+        }
+    }
+
+    let mut legal_captures: MoveList = legal_moves
         .iter()
         .filter(|m| m.is_capture())
         .copied()
@@ -193,7 +318,14 @@ fn q_search(board: &Board, mut alpha: i16, mut beta: i16) -> i16 {
 
     SearchMetrics::change_timing_kind(TimingKind::QMoveOrdering);
 
-    let legal_captures = sort_moves(legal_captures_unordered, board, maximize_score);
+    sort_moves(
+        &mut legal_captures,
+        board,
+        maximize_score,
+        tt_table,
+        alpha,
+        beta,
+    );
 
     SearchMetrics::change_timing_kind(TimingKind::QSearch);
 
@@ -203,18 +335,29 @@ fn q_search(board: &Board, mut alpha: i16, mut beta: i16) -> i16 {
 
     #[cfg(feature = "metrics")]
     let mut best_move_found_at_index: Option<usize> = None;
-
+    let mut node_type = NodeType::AllNode;
     let mut i = 0;
     while i < legal_captures.len() {
-        let move_ = legal_captures[i];
-
-        let new_game = board.make_move_temp(move_);
-        let score = q_search(&new_game, alpha, beta);
+        let _move = legal_captures[i];
+        let new_bard = board.make_move_temp(&_move);
+        let score = if _move.resets_clock(board) {
+            q_search(
+                &new_bard,
+                alpha,
+                beta,
+                tt_table,
+                &mut [board.zobrist_hash; 100],
+            )
+        } else {
+            repetition_lookup[(board.halfmove_clock + 1) as usize] = board.zobrist_after(&_move);
+            q_search(&new_bard, alpha, beta, tt_table, repetition_lookup)
+        };
 
         let is_new_best =
             (maximize_score && score > best_score) || (!maximize_score && score < best_score);
 
         if is_new_best {
+            node_type = NodeType::PvNode;
             best_score = score;
             // The current move's index is `i`.
             #[cfg(feature = "metrics")]
@@ -229,6 +372,7 @@ fn q_search(board: &Board, mut alpha: i16, mut beta: i16) -> i16 {
             }
 
             if beta <= alpha {
+                node_type = NodeType::CutNode;
                 // The move that caused the cutoff is at index 'i'. We add its 1-based index.
                 SearchMetrics::add_to_q_search_sum_of_cutoff_indices((i + 1) as u64);
                 SearchMetrics::increment_q_search_cutoffs();
@@ -238,6 +382,8 @@ fn q_search(board: &Board, mut alpha: i16, mut beta: i16) -> i16 {
 
         i += 1;
     }
+
+    tt_table.insert(board.zobrist_hash, best_score, 0, node_type);
 
     #[cfg(feature = "metrics")]
     if let Some(final_best_index) = best_move_found_at_index {
@@ -253,15 +399,38 @@ fn q_search(board: &Board, mut alpha: i16, mut beta: i16) -> i16 {
     best_score
 }
 
-fn sort_moves(moves: MoveList, board: &Board, is_maximizing: bool) -> MoveList {
-    // Sort moves based on some heuristic, e.g., captures first, then checks, etc.
-    let mut sorted_moves = moves;
-    sorted_moves.sort_by_key(|m| {
-        let from = pieces_score(board.pieces[m.from()]);
-        let to = pieces_score(board.pieces[m.to()]);
-        if is_maximizing { to - from } else { from - to }
+fn sort_moves(
+    moves: &mut MoveList,
+    board: &Board,
+    is_maximizing: bool,
+    tt_table: &TT_Table,
+    alpha: i16,
+    beta: i16,
+) {
+    moves.sort_by_cached_key(|m| {
+        const PV_MOVE_SCORE: i32 = 1_000_000;
+        const CAPTURE_BASE_SCORE: i32 = 500_000;
+
+        let mut score = 0;
+
+        // --- HIERARCHY LEVEL 1: PV MOVE ---
+        if let Some(tt_hit) = tt_table.probe(board.zobrist_after(m)) {
+            if tt_hit.node_type() == NodeType::PvNode {
+                // DO NOT return early. Assign the score.
+                score = PV_MOVE_SCORE;
+            }
+        }
+
+        // --- HIERARCHY LEVEL 2: CAPTURES ---
+        if score == 0 && m.is_capture() {
+            // Only check if not already a PV move
+            let victim_value = pieces_score(board.pieces[m.to()]).abs() as i32;
+            let attacker_value = pieces_score(board.pieces[m.from()]).abs() as i32;
+
+            score = CAPTURE_BASE_SCORE + (victim_value - attacker_value);
+        }
+        -score
     });
-    sorted_moves
 }
 
 #[derive(Debug, PartialEq)]
@@ -282,6 +451,8 @@ pub enum DrawReason {
 
 pub fn check_game_result<const DETECT_THREE_FOLD: bool>(
     board: &Board,
+    //TODO: measure, if using zobrist is much faster
+    repetition_lookup: &[u64; 100],
     num_legal_moves: usize,
 ) -> GameResult {
     if num_legal_moves == 0 {
@@ -313,7 +484,7 @@ pub fn check_game_result<const DETECT_THREE_FOLD: bool>(
 
     while i >= 0 {
         // Compare the current hash with a historical hash.
-        if board.zobrist_hash == board.repetition_lookup[i as usize] {
+        if board.zobrist_hash == repetition_lookup[i as usize] {
             // A match was found!
 
             if !DETECT_THREE_FOLD {

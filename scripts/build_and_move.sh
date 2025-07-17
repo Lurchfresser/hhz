@@ -1,6 +1,7 @@
 #!/bin/bash
 
-#set -e
+set -x
+
 
 if [ "$#" -ne 3 ]; then
     echo "Usage: $0 <bin-name> <final-name> <version>"

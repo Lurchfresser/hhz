@@ -1,5 +1,5 @@
 use crate::bit_boards::*;
-use crate::board::PieceKind;
+use crate::board::{Board, Piece, PieceKind};
 use std::fmt;
 use std::fmt::{Display, Formatter};
 use std::iter::FromIterator;
@@ -195,6 +195,10 @@ impl Move {
 
         uci
     }
+    #[inline(always)]
+    pub fn resets_clock(&self, board: &Board) -> bool {
+        self.is_capture() || matches!(board.pieces[self.from()], Piece::Pawn {..})
+    }
 }
 
 pub fn square_to_algebraic(square: Square) -> String {
@@ -231,7 +235,7 @@ pub struct MoveList {
 
 // For owned Move values
 impl FromIterator<Move> for MoveList {
-    fn from_iter<I: IntoIterator<Item = Move>>(iter: I) -> Self {
+    fn from_iter<I: IntoIterator<Item=Move>>(iter: I) -> Self {
         let mut movelist = MoveList::default();
         for m in iter {
             movelist.push(m);
@@ -241,7 +245,7 @@ impl FromIterator<Move> for MoveList {
 }
 
 impl<'a> FromIterator<&'a Move> for MoveList {
-    fn from_iter<I: IntoIterator<Item = &'a Move>>(iter: I) -> Self {
+    fn from_iter<I: IntoIterator<Item=&'a Move>>(iter: I) -> Self {
         let mut movelist = MoveList::default();
         for &m in iter {
             movelist.push(m);

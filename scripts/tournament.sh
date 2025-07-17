@@ -6,6 +6,8 @@ if [ "$#" -lt 2 ]; then
     return 1
 fi
 
+set -x
+
 ENGINE1_NAME=$1
 ENGINE2_NAME=$2
 ENGINE1="./versions/${ENGINE1_NAME}"
@@ -14,7 +16,7 @@ ENGINE2="./versions/${ENGINE2_NAME}"
 # Default time control: 40 moves in 60 seconds, with a 10-second increment
 TC=${3:-"40/60+10"}
 # Default rounds: 2
-ROUNDS=${4:-"2"}
+ROUNDS=${4:-"20"}
 
 PGN_DIR="games"
 PGN_FILE="${PGN_DIR}/${ENGINE1_NAME}-vs-${ENGINE2_NAME}-R${ROUNDS}.pgn"
@@ -31,6 +33,7 @@ echo "PGN Output: ${PGN_FILE}"
 
 cutechess-cli -engine cmd="${ENGINE1}" name="${ENGINE1_NAME}" \
 -engine cmd="${ENGINE2}" name="${ENGINE2_NAME}" \
--each proto=uci tc="${TC}" -rounds "${ROUNDS}" -pgnout "${PGN_FILE}"
+-each proto=uci tc="${TC}" -rounds "${ROUNDS}" -pgnout "${PGN_FILE}" \
+-openings file=openings/silver-suite.txt format=pgn
 
 echo "Tournament finished."

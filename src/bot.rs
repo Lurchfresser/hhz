@@ -8,6 +8,7 @@ use std::{
 };
 
 use crate::{board::*, moves::*, search::*};
+use crate::tt_table::TT_Table;
 
 // Protocol: Messages sent FROM the main thread TO the bot thread.
 #[derive(Debug)]
@@ -87,6 +88,7 @@ impl Bot {
 /// The internal worker that lives in its own thread and does all the heavy lifting.
 struct BotWorker {
     board: Board,
+    tt_table: TT_Table,
     result_tx: Sender<BotMessage>,
     // This flag is essential for stopping the search gracefully.
     is_searching: Arc<AtomicBool>,
@@ -96,6 +98,7 @@ impl BotWorker {
     fn new(result_tx: Sender<BotMessage>) -> Self {
         Self {
             board: Board::default(),
+            tt_table: TT_Table::new(),
             result_tx,
             is_searching: Arc::new(AtomicBool::new(false)),
         }
@@ -118,7 +121,8 @@ impl BotWorker {
         let mut best_move_so_far = None;
 
         // --- Iterative Deepening Loop ---
-        for depth in 1..3 {
+        //TODO: iterate
+        for depth in 4..5 {
             // Go up to a max depth
             // Check if we were told to stop BEFORE starting the next depth.
             if !self.is_searching.load(Ordering::Relaxed) {
@@ -126,7 +130,7 @@ impl BotWorker {
             }
 
             // You'll need to adapt your search function to accept the stop flag.
-            let result = search_entry(&self.board, depth);
+            let result = search_entry(&self.board, depth, &mut self.tt_table);
 
             // If the search was stopped mid-way (result is None) or if there are no moves, break.
             if let Some(best_move_at_depth) = result {
