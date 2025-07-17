@@ -339,6 +339,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/benchmarks/57_node-quallity.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/benchmarks/5_fixed-and-fastened-game-result-detection.csv">
           <value>
             <Attribute>
