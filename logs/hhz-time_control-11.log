@@ -1,0 +1,30 @@
+[00:00:00.000] (7fec934977c0) INFO   --- Logger initialized for hhz-time_control-11 ---
+[00:00:00.000] (7fec934977c0) INFO   <- uci
+[00:00:00.001] (7fec934977c0) INFO   <- isready
+[00:00:00.002] (7fec934977c0) INFO   <- ucinewgame
+[00:00:00.003] (7fec934977c0) INFO   <- position startpos
+[00:00:00.005] (7fec934977c0) INFO   <- position startpos moves f2f4
+[00:00:00.006] (7fec934977c0) INFO   <- position startpos moves f2f4 d7d5
+[00:00:00.007] (7fec934977c0) INFO   <- position startpos moves f2f4 d7d5 g1f3
+[00:00:00.008] (7fec934977c0) INFO   <- position startpos moves f2f4 d7d5 g1f3 g8f6
+[00:00:00.010] (7fec934977c0) INFO   <- position startpos moves f2f4 d7d5 g1f3 g8f6 b2b3
+[00:00:00.011] (7fec934977c0) INFO   <- position startpos moves f2f4 d7d5 g1f3 g8f6 b2b3 g7g6
+[00:00:00.012] (7fec934977c0) INFO   <- position startpos moves f2f4 d7d5 g1f3 g8f6 b2b3 g7g6 c1b2
+[00:00:00.013] (7fec934977c0) INFO   <- position startpos moves f2f4 d7d5 g1f3 g8f6 b2b3 g7g6 c1b2 f8g7
+[00:00:00.014] (7fec934977c0) INFO   <- position startpos moves f2f4 d7d5 g1f3 g8f6 b2b3 g7g6 c1b2 f8g7 e2e3
+[00:00:00.016] (7f2671e2c7c0) INFO   <- position startpos moves f2f4 d7d5 g1f3 g8f6 b2b3 g7g6 c1b2 f8g7 e2e3 e8g8
+[00:00:00.018] (7f2671e2c7c0) INFO   <- position startpos moves f2f4 d7d5 g1f3 g8f6 b2b3 g7g6 c1b2 f8g7 e2e3 e8g8 f1e2
+[00:00:00.019] (7f2671e2c7c0) INFO   <- position startpos moves f2f4 d7d5 g1f3 g8f6 b2b3 g7g6 c1b2 f8g7 e2e3 e8g8 f1e2 c7c5
+[00:00:00.020] (7f2671e2c7c0) INFO   <- position startpos moves f2f4 d7d5 g1f3 g8f6 b2b3 g7g6 c1b2 f8g7 e2e3 e8g8 f1e2 c7c5 e1g1
+[00:00:00.022] (7f2671e2c7c0) INFO   <- position startpos moves f2f4 d7d5 g1f3 g8f6 b2b3 g7g6 c1b2 f8g7 e2e3 e8g8 f1e2 c7c5 e1g1 b8c6
+[00:00:04.376] (7fec934977c0) INFO   <- position startpos moves f2f4 d7d5 g1f3 g8f6 b2b3 g7g6 c1b2 f8g7 e2e3 e8g8 f1e2 c7c5 e1g1 b8c6 f3e5
+[00:00:04.377] (7fec934977c0) INFO   <- isready
+[00:00:04.379] (7fec[00:00:08.734] (7f2671e2c7c0) INFO   <- position startpos moves f2f4 d7d5 g1f3 g8f6 b2b3 g7g6 c1b2 f8g7 e2e3 e8g8 f1e2 c7c5 e1g1 b8c6 f3e5 [00:00:13.082] (7fec934977c0) INFO   <- position startpos moves f2f4 d7d5 g1f3 g8f6 b2b3 g7g6 c1b2 f8g7 e2e3 e8g8 f1e2 c7c5 e1g1 b8c6 f3e5 d5d4 a2a4
+[00:00:13.083] (7fec934977c0) INFO   <- isready
+[00:00:13.084] [00:00:17.428] (7f2671e2c7c0) INFO   <- position startpos moves f2f4 d7d5 g1f3 g8f6 b2b3 g7g6 c1b2 f8g7 e2e3 e8g8 f1e2 c7c5 e1g1 b8c6 f3e5 d5d4 [00:00:21.765] (7fec934977c0) INFO   <- position startpos moves f2f4 d7d5 g1f3 g8f6 b2b3 g7g6 c1b2 f8g7 e2e3 e8g8 f1e2 c7c5 e1g1 b8c6 f3e5 d5d4 a2a4 d8d6 e5c6
+[00:00:21.767] (7fec934977c0) INFO   <- isready
+[00:00:21.[00:00:26.103] (7f2671e2c7c0) INFO   <- position startpos moves f2f4 d7d5 g1f3 g8f6 b2b3 g7g6 c1b2 f8g7 e2e3 e8g8 f1e2 c7c5 e1g1 b8c6 f3e5 d5d4 a2a4 [00:00:30.432] (7fec934977c0) INFO   <- position startpos moves f2f4 d7d5 g1f3 g8f6 b2b3 g7g6 c1b2 f8g7 e2e3 e8g8 f1e2 c7c5 e1g1 b8c6 f3e5 d5d4 a2a4 d8d6 e5c6 b7c6 b1a3
+[00:00:30.433] (7fec934977c0) INFO   <- isready
+[00:0[00:00:34.761] (7f2671e2c7c0) INFO   <- position startpos moves f2f4 d7d5 g1f3 g8f6 b2b3 g7g6 c1b2 f8g7 e2e3 e8g8 f1e2 c7c5 e1g1 b8c6 f3e5 d5d4 a2a4 d8d6 [00:00:39.082] (7fec934977c0) INFO   <- position startpos moves f2f4 d7d5 g1f3 g8f6 b2b3 g7g6 c1b2 f8g7 e2e3 e8g8 f1e2 c7c5 e1g1 b8c6 f3e5 d5d4 a2a4 d8d6 e5c6 b7c6 b1a3 a8b8 a3c4
+[00:00:39.084] (7fec934977c0) INFO   <- isready
+[00:00:39.085] (7fec934977c0) INFO   <- go wtime 12326 btime 12645 winc 4000 binc 4000 movestogo 29

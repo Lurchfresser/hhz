@@ -4,23 +4,42 @@ use std::{
         atomic::{AtomicBool, Ordering},
         mpsc::{self, Sender},
     },
-    thread,
+    thread::{self, sleep},
 };
 
 use crate::tt_table::TT_Table;
 use crate::{board::*, moves::*, search::*};
+use core::time::Duration;
 
 // Protocol: Messages sent FROM the main thread TO the bot thread.
 #[derive(Debug)]
 pub enum BotCommand {
     SetBoard(Board, [u64; 100], u8),
-    Search{
-
-    },
+    Search(SearchSpecs),
     Quit,
 }
 
+#[derive(Debug, Clone, Copy)]
+pub enum SearchSpecs {
+    Infinite,
+    TimeLeft {
+        /// White's time on the clock, in milliseconds.
+        white_time: Option<Duration>,
 
+        /// Black's time on the clock, in milliseconds.
+        black_time: Option<Duration>,
+
+        /// White's increment per move, in milliseconds.
+        white_increment: Option<Duration>,
+
+        /// Black's increment per move, in milliseconds.
+        black_increment: Option<Duration>,
+
+        /// The number of moves to go to the next time control.
+        moves_to_go: Option<u8>,
+    },
+    MoveTime(Duration),
+}
 
 // Protocol: Messages sent FROM the bot thread TO the main thread.
 #[derive(Debug)]
@@ -37,6 +56,7 @@ pub struct Bot {
     // The handle is optional, in case we want to join it on quit.
     thread_handle: Option<thread::JoinHandle<()>>,
     is_searching: Arc<AtomicBool>,
+    board: Board,
 }
 
 impl Bot {
@@ -54,7 +74,9 @@ impl Bot {
                     BotCommand::SetBoard(board, repetition_lookup, num_resetting_moves) => {
                         worker.set_position(board, repetition_lookup, num_resetting_moves)
                     }
-                    BotCommand::Search => worker.search(),
+                    BotCommand::Search(specs) => {
+                        worker.search();
+                    }
                     BotCommand::Quit => break, // Exit the loop and end the thread
                 }
             }
@@ -63,7 +85,8 @@ impl Bot {
         Self {
             command_tx,
             thread_handle: Some(thread_handle),
-            is_searching
+            is_searching,
+            board: Board::default()
         }
     }
 
@@ -74,6 +97,7 @@ impl Bot {
         repetition_lookup: [u64; 100],
         num_resetting_moves: u8,
     ) {
+        self.board = board;
         self.stop();
         self.command_tx
             .send(BotCommand::SetBoard(
@@ -85,8 +109,55 @@ impl Bot {
     }
 
     /// Tells the bot to start searching for the best move. This returns immediately.
-    pub fn start_searching(&self) {
-        self.command_tx.send(BotCommand::Search).unwrap();
+    pub fn start_searching(&self, specs: SearchSpecs) {
+        match specs {
+            SearchSpecs::Infinite => {
+                self.command_tx
+                    .send(BotCommand::Search(SearchSpecs::Infinite))
+                    .unwrap();
+            }
+            SearchSpecs::TimeLeft {
+                white_time: white_time,
+                black_time: black_time,
+                white_increment: white_increment,
+                black_increment: black_increment,
+                moves_to_go: moves_to_go,
+            } => {
+                let my_time = if self.board.white_to_move {
+                    white_time
+                } else {
+                    black_time
+                };
+                if my_time.is_none() {
+                    return;
+                }
+                let my_increment = if self.board.white_to_move {
+                    white_increment
+                } else {
+                    black_increment
+                };
+                let move_time = (my_time.unwrap() / 40) + my_increment.unwrap_or(
+                    Duration::from_millis(0)
+                );
+
+                let is_searching = self.is_searching.clone();
+                set_time_out(move_time, move || {
+                    is_searching.store(false, Ordering::Relaxed);
+                });
+                self.command_tx
+                    .send(BotCommand::Search(SearchSpecs::Infinite))
+                    .unwrap();
+            }
+            SearchSpecs::MoveTime(move_time) => {
+                let is_searching = self.is_searching.clone();
+                set_time_out(move_time, move || {
+                    is_searching.store(false, Ordering::Relaxed);
+                });
+                self.command_tx
+                    .send(BotCommand::Search(SearchSpecs::Infinite))
+                    .unwrap();
+            }
+        };
     }
 
     /// Tells the bot to stop its current search.
@@ -166,11 +237,13 @@ impl BotWorker {
             if let Some(best_move_at_depth) = result {
                 best_move_so_far = Some(best_move_at_depth);
                 // Send an 'info' message back to the main thread.
-                let info_msg = BotMessage::Info{
+                let info_msg = BotMessage::Info {
                     best_move: best_move_at_depth,
-                    depth
+                    depth,
                 };
-                if let Err(e) = self.result_tx.send(info_msg) { panic!("{}", e) }
+                if let Err(e) = self.result_tx.send(info_msg) {
+                    panic!("{}", e)
+                }
             } else {
                 // Search was stopped or completed without finding a better move
                 break;
@@ -185,4 +258,11 @@ impl BotWorker {
             .send(BotMessage::BestMove(best_move_so_far.unwrap()))
             .unwrap();
     }
+}
+
+pub fn set_time_out<F: Fn() + Send + 'static>(duration: Duration, c: F) {
+    thread::spawn(move || {
+        sleep(duration);
+        c();
+    });
 }

@@ -726,7 +726,7 @@ impl Board {
             if m.to_uci() == uci_move {
                 return (self.make_move_temp(&m), m.resets_clock(self));
             };
-            println!("{}", m.to_uci());
+            // println!("{}", m.to_uci());
         }
         panic!("uci move: {} not found", uci_move);
     }

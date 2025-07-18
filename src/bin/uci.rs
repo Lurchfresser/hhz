@@ -1,5 +1,6 @@
+use chrono::Duration;
 use hhz::board::{Board, DEFAULT_FEN};
-use hhz::bot::{Bot, BotMessage};
+use hhz::bot::{Bot, BotMessage, SearchSpecs};
 use log::{LevelFilter, error, info};
 use std::io::{self, BufRead, Write};
 use std::panic;
@@ -8,6 +9,7 @@ use std::str::FromStr;
 use std::sync::mpsc;
 use std::thread;
 use std::{env, fs};
+use vampirc_uci::UciTimeControl;
 use vampirc_uci::{UciInfoAttribute, UciMessage, UciMove, UciPiece, UciSquare, parse_one};
 
 fn main() {
@@ -129,7 +131,7 @@ fn main() {
                             .iter()
                             .map(|m| uci_move_to_string(m))
                             .collect::<Vec<String>>()
-                            .join(", "),
+                            .join(" "),
                     )
                     .unwrap();
 
@@ -139,22 +141,14 @@ fn main() {
                 // UciMessage::UciNewGame => todo!(),
                 UciMessage::Stop => {
                     bot.stop();
-                },
+                }
                 // UciMessage::PonderHit => todo!(),
                 // UciMessage::Quit => todo!(),
                 UciMessage::Go {
                     time_control,
                     search_control,
                 } => {
-                    if let Some(time_control) = time_control {
-                        match time_control {
-                            vampirc_uci::UciTimeControl::Ponder => todo!(),
-                            vampirc_uci::UciTimeControl::Infinite => todo!(),
-                            vampirc_uci::UciTimeControl::TimeLeft { white_time, black_time, white_increment, black_increment, moves_to_go } => todo!(),
-                            vampirc_uci::UciTimeControl::MoveTime(time_delta) => todo!(),
-                        }
-                    }
-                    bot.start_searching();
+                    bot.start_searching(time_control_to_search_specs(time_control));
                 }
                 // UciMessage::Id { name, author } => todo!(),
                 // UciMessage::UciOk => todo!(),
@@ -210,4 +204,41 @@ fn uci_move_to_string(uci_move: &UciMove) -> String {
                 .to_string()
                 .to_lowercase())
     )
+}
+
+fn time_control_to_search_specs(time_control: Option<UciTimeControl>) -> SearchSpecs {
+    if let Some(time_control) = time_control {
+        match time_control {
+            UciTimeControl::Ponder => SearchSpecs::Infinite,
+            UciTimeControl::Infinite => SearchSpecs::Infinite,
+            UciTimeControl::TimeLeft {
+                white_time,
+                black_time,
+                white_increment,
+                black_increment,
+                moves_to_go,
+            } => SearchSpecs::TimeLeft {
+                white_time: time_delta_to_duration(white_time),
+                black_time: time_delta_to_duration(black_time),
+                white_increment: time_delta_to_duration(white_increment),
+                black_increment: time_delta_to_duration(black_increment),
+                moves_to_go,
+            },
+            UciTimeControl::MoveTime(move_time) => {
+                SearchSpecs::MoveTime(time_delta_to_duration(Some(move_time)).unwrap())
+            }
+        }
+    } else {
+        SearchSpecs::Infinite
+    }
+}
+
+fn time_delta_to_duration(duration: Option<Duration>) -> Option<core::time::Duration> {
+    if let Some(duration) = duration {
+        Some(core::time::Duration::from_nanos(
+            duration.num_nanoseconds().unwrap().try_into().unwrap(),
+        ))
+    } else {
+        None
+    }
 }
