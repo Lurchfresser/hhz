@@ -1,9 +1,18 @@
 use crate::board::Board;
 use crate::eval::{eval, pieces_score};
-use crate::metrics::{SearchMetrics, SearchMetricsData, TimingKind};
+use crate::metrics::{SearchMetrics, TimingKind};
 use crate::moves::{Move, MoveList};
 use crate::tt_table::{NodeType, TT_Table};
 use std::option::Option;
+
+
+const MIN_SCORE:i16 = i16::MIN + 2;
+const MAX_SCORE:i16 = i16::MAX - 1;
+
+const WHITE_WINS: i16 = MAX_SCORE - 1;
+const BLACK_WINS: i16 = MIN_SCORE + 1;
+
+const SEARCH_CANCELED:i16 = i16::MIN;
 
 pub fn search_entry(
     board: &Board,
@@ -29,17 +38,13 @@ pub fn search_entry(
     let mut best_move = None;
 
     let mut best_score = if maximize_score {
-        //TODO: define const values, with better ranges
-        i16::MIN + 1
+        MIN_SCORE
     } else {
-        //TODO: define const values, with better ranges
-        i16::MAX - 1
+        MAX_SCORE
     };
 
-    //TODO: define const values, with better ranges
-    let mut alpha = i16::MIN + 1;
-    //TODO: define const values, with better ranges
-    let mut beta = i16::MAX - 1;
+    let mut alpha = MIN_SCORE;
+    let mut beta = MAX_SCORE;
 
     sort_moves(
         &mut legal_moves,
@@ -52,7 +57,7 @@ pub fn search_entry(
 
     for _move in legal_moves {
         let new_board = board.make_move_temp(&_move);
-        let new_num_resetting_moves = if (_move.resets_clock(board)) {
+        let new_num_resetting_moves = if _move.resets_clock(board) {
             num_resetting_moves + 1
         } else {
             num_resetting_moves
@@ -148,11 +153,9 @@ fn min_max_search(
     let mut legal_moves = board.generate_legal_moves_temp();
 
     match check_game_result::<false>(board, repetition_lookup, legal_moves.len()) {
-        //TODO: define const values
-        GameResult::WhiteWins => return i16::MAX - 2,
+        GameResult::WhiteWins => return WHITE_WINS,
 
-        //TODO: define const values
-        GameResult::BlackWins => return i16::MIN + 2,
+        GameResult::BlackWins => return BLACK_WINS,
 
         GameResult::Draw(_) => return 0,
 
@@ -214,7 +217,7 @@ fn min_max_search(
     while i < legal_moves.len() {
         let _move = legal_moves[i];
         let new_game = board.make_move_temp(&_move);
-        let new_num_resetting_moves = if (_move.resets_clock(board)) {
+        let new_num_resetting_moves = if _move.resets_clock(board) {
             num_resetting_moves + 1
         } else {
             num_resetting_moves
@@ -330,10 +333,10 @@ fn q_search(
 
     match check_game_result::<false>(board, repetition_lookup, legal_moves.len()) {
         //TODO:
-        GameResult::WhiteWins => return i16::MAX - 2,
+        GameResult::WhiteWins => return WHITE_WINS,
 
         //TODO:
-        GameResult::BlackWins => return i16::MIN + 2,
+        GameResult::BlackWins => return BLACK_WINS,
 
         GameResult::Draw(_) => return 0,
 
@@ -398,7 +401,7 @@ fn q_search(
     while i < legal_captures.len() {
         let _move = legal_captures[i];
         let new_bard = board.make_move_temp(&_move);
-        let new_num_resetting_moves = if (_move.resets_clock(board)) {
+        let new_num_resetting_moves = if _move.resets_clock(board) {
             num_resetting_moves + 1
         } else {
             num_resetting_moves

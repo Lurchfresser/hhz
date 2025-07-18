@@ -1,10 +1,10 @@
 use csv::{Writer, WriterBuilder};
 use hhz::board::Board;
-use hhz::metrics::{calculate_and_update_derived_metrics, SearchMetrics, SearchMetricsData};
+use hhz::metrics::{SearchMetrics, SearchMetricsData};
 use hhz::search::search_entry;
 use hhz::tt_table::TT_Table;
 use std::fs::OpenOptions;
-use std::time::{Duration, Instant, SystemTime};
+use std::time::{Instant, SystemTime};
 
 pub mod generate_attack_lookup;
 

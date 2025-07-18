@@ -793,7 +793,7 @@ impl Board {
                 new_board.pieces[BLACK_KINGSIDE_CASTLE_INDEX] = Piece::King { white: false };
             }
             new_board.recompute_combined_bit_boards();
-            new_board.update_board_state(false, false, self.zobrist_hash);
+            new_board.update_board_state(false, false);
 
             return new_board;
         } else if _move.is_castle_long() {
@@ -840,7 +840,7 @@ impl Board {
                 new_board.pieces[BLACK_QUEENSIDE_CASTLE_INDEX] = Piece::King { white: false };
             }
             new_board.recompute_combined_bit_boards();
-            new_board.update_board_state(false, false, self.zobrist_hash);
+            new_board.update_board_state(false, false);
 
             return new_board;
         }
@@ -1160,12 +1160,11 @@ impl Board {
                     white: new_board.white_to_move,
                 },
             _move.is_capture(),
-            self.zobrist_hash,
         );
         new_board.recompute_combined_bit_boards();
         new_board
     }
-    fn update_board_state(&mut self, pawn_moved: bool, was_capture: bool, old_board_zobrist: u64) {
+    fn update_board_state(&mut self, pawn_moved: bool, was_capture: bool) {
         if pawn_moved || was_capture {
             self.halfmove_clock = 0;
         } else {
@@ -1397,7 +1396,6 @@ impl Board {
         }
 
         if _move.is_promotion() {
-            let to_bb = square_index_to_bitboard(to);
             if self.white_to_move {
                 new_hash ^= ZOBRISTS_WHITE_PAWNS[to];
                 match _move.promotion_piece() {

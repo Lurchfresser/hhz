@@ -10,6 +10,7 @@ pub enum NodeType {
     AllNode = 2, // Upper bound (fail-low)
 }
 
+#[allow(non_camel_case_types)]
 #[derive(Clone, Copy)]
 pub struct TT_Entry {
     // 64 bits for the full Zobrist hash for collision-free lookups.
@@ -118,7 +119,7 @@ impl TT_Entry {
         ((self.data & Self::NUM_RESETS_MASK) >> Self::NUM_RESETS_SHIFT) as u8
     }
 }
-
+#[allow(non_camel_case_types)]
 pub struct TT_Table {
     //vec because rust can allocate an array directly on the heap and this would cause a stack overflow
     tt_table: Vec<TT_Entry>,

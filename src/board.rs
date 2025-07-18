@@ -425,7 +425,7 @@ impl Board {
         let mut board = Board::from_fen(fen)?;
         let mut repetition_lookup = [0u64; 100];
         let mut num_resetting_moves = 0;
-        for (index,uci_move) in uci_moves.split_ascii_whitespace().enumerate() {
+        for (_,uci_move) in uci_moves.split_ascii_whitespace().enumerate() {
             //TODO: error handling
             let m = board.generate_legal_moves_temp().iter().find(|m| {m.to_uci() == uci_move}).unwrap().to_owned();
             if m.resets_clock(&board) {

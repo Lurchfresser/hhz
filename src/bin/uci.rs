@@ -1,13 +1,13 @@
-use hhz::board::Board;
+use hhz::board::{Board, DEFAULT_FEN};
 use hhz::bot::{Bot, BotMessage};
 use log::{LevelFilter, error, info};
-use std::{env, fs};
 use std::io::{self, BufRead, Write};
 use std::panic;
-use std::path::{PathBuf};
+use std::path::PathBuf;
 use std::str::FromStr;
 use std::sync::mpsc;
 use std::thread;
+use std::{env, fs};
 use vampirc_uci::{UciMessage, UciMove, UciPiece, UciSquare, parse_one};
 
 fn main() {
@@ -116,18 +116,22 @@ fn main() {
                     fen,
                     moves,
                 } => {
-                    let mut board = if startpos {
-                        Board::default()
-                    } else if let Some(fen) = fen {
-                        Board::from_fen(fen.as_str()).unwrap()
+                    let fen = if startpos {
+                        DEFAULT_FEN
                     } else {
-                        panic!("No fen and no startpos send");
+                        let x = fen.unwrap();
+                        &x.as_str().to_owned()
                     };
-                    for _move in moves {
-                        board = board.make_uci_move_temp(&uci_move_to_string(_move));
-                    }
+                    let (board, rep_look_up, resetting_moves) = Board::from_fen_and_uci_moves(
+                        fen,
+                        &moves
+                            .iter()
+                            .map(|m| uci_move_to_string(m))
+                            .collect::<Vec<String>>()
+                            .join(", "),
+                    ).unwrap();
 
-                    bot.set_position(board);
+                    bot.set_position(board, rep_look_up, resetting_moves as u8);
                 }
                 // UciMessage::SetOption { name, value } => todo!(),
                 // UciMessage::UciNewGame => todo!(),
@@ -178,7 +182,7 @@ fn string_to_uci_move(uci_string: String) -> UciMove {
     }
 }
 
-fn uci_move_to_string(uci_move: UciMove) -> String {
+fn uci_move_to_string(uci_move: &UciMove) -> String {
     format!(
         "{}{}{}{}{}",
         uci_move.from.file,
