@@ -3,8 +3,7 @@ use crate::{bit_boards::*, moves::square_to_algebraic};
 use regex::Regex;
 use std::fmt::Debug;
 
-
-pub const DEFAULT_FEN: &str =  "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+pub const DEFAULT_FEN: &str = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum CastlingRights {
@@ -112,7 +111,6 @@ pub struct Board {
     pub white_to_move: bool,
 
     pub pieces: [Piece; 64],
-
 
     pub zobrist_hash: u64,
 }
@@ -421,23 +419,25 @@ impl Board {
         })
     }
 
-    pub fn from_fen_and_uci_moves(fen: &str, uci_moves: &str) -> Result<(Self, [u64; 100], u16), FenError> {
+    pub fn from_fen_and_uci_moves(
+        fen: &str,
+        uci_moves: &str,
+    ) -> Result<(Self, [u64; 100], u16), FenError> {
         let mut board = Board::from_fen(fen)?;
         let mut repetition_lookup = [0u64; 100];
         let mut num_resetting_moves = 0;
-        for (_,uci_move) in uci_moves.split_ascii_whitespace().enumerate() {
-            //TODO: error handling
-            let m = board.generate_legal_moves_temp().iter().find(|m| {m.to_uci() == uci_move}).unwrap().to_owned();
-            if m.resets_clock(&board) {
+        for uci_move in uci_moves.split_ascii_whitespace() {
+            let (new_board, resets_clock) = board.make_uci_move_temp(uci_move);
+            if resets_clock {
+                repetition_lookup = [0u64; 100];
                 num_resetting_moves += 1;
             } else {
-                repetition_lookup[board.halfmove_clock as usize] = board.zobrist_after(&m);
+                repetition_lookup[board.halfmove_clock as usize] = board.zobrist_hash;
             }
-            board = board.make_move_temp(&m);
+            board = new_board;
         }
         Ok((board, repetition_lookup, num_resetting_moves))
     }
-
 
     pub fn to_fen(&self) -> String {
         let mut fen = String::with_capacity(90);

@@ -720,12 +720,13 @@ impl Board {
     }
 
     //TODO: return result
-    pub fn make_uci_move_temp(&self, uci_move: &str) -> Self {
+    pub fn make_uci_move_temp(&self, uci_move: &str) -> (Self, bool) {
         let moves = self.generate_legal_moves_temp();
         for m in moves {
             if m.to_uci() == uci_move {
-                return self.make_move_temp(&m);
+                return (self.make_move_temp(&m), m.resets_clock(self));
             };
+            println!("{}", m.to_uci());
         }
         panic!("uci move: {} not found", uci_move);
     }

@@ -8,7 +8,7 @@ use std::str::FromStr;
 use std::sync::mpsc;
 use std::thread;
 use std::{env, fs};
-use vampirc_uci::{UciMessage, UciMove, UciPiece, UciSquare, parse_one};
+use vampirc_uci::{UciInfoAttribute, UciMessage, UciMove, UciPiece, UciSquare, parse_one};
 
 fn main() {
     // Read the engine name that was set at compile time.
@@ -71,11 +71,12 @@ fn main() {
     loop {
         while let Ok(bot_message) = result_rx.try_recv() {
             match bot_message {
-                BotMessage::Info(_) => {
-                    // let uci_msg = UciMessage::Info(
-
-                    // );
-                    // println!("{}", uci_msg);
+                BotMessage::Info { depth, best_move } => {
+                    let uci_msg = UciMessage::Info(vec![
+                        UciInfoAttribute::Depth(depth),
+                        UciInfoAttribute::Pv(vec![string_to_uci_move(best_move.to_uci())]),
+                    ]);
+                    println!("{}", uci_msg);
                 }
                 BotMessage::BestMove(_move) => {
                     info!("Found best move: {}", _move.to_uci());
@@ -129,19 +130,30 @@ fn main() {
                             .map(|m| uci_move_to_string(m))
                             .collect::<Vec<String>>()
                             .join(", "),
-                    ).unwrap();
+                    )
+                    .unwrap();
 
                     bot.set_position(board, rep_look_up, resetting_moves as u8);
                 }
                 // UciMessage::SetOption { name, value } => todo!(),
                 // UciMessage::UciNewGame => todo!(),
-                // UciMessage::Stop => todo!(),
+                UciMessage::Stop => {
+                    bot.stop();
+                },
                 // UciMessage::PonderHit => todo!(),
                 // UciMessage::Quit => todo!(),
                 UciMessage::Go {
                     time_control,
                     search_control,
                 } => {
+                    if let Some(time_control) = time_control {
+                        match time_control {
+                            vampirc_uci::UciTimeControl::Ponder => todo!(),
+                            vampirc_uci::UciTimeControl::Infinite => todo!(),
+                            vampirc_uci::UciTimeControl::TimeLeft { white_time, black_time, white_increment, black_increment, moves_to_go } => todo!(),
+                            vampirc_uci::UciTimeControl::MoveTime(time_delta) => todo!(),
+                        }
+                    }
                     bot.start_searching();
                 }
                 // UciMessage::Id { name, author } => todo!(),

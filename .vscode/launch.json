@@ -51,6 +51,23 @@
         {
             "type": "lldb",
             "request": "launch",
+            "name": "Uci",
+            "cargo": {
+                "args": [
+                    "build",
+                    "-F uci",
+                    "--bin=uci"
+                ]
+            },
+            "args": [],
+            "program": "${workspaceFolder}/target/debug/uci",
+            "initCommands": [
+                "command source '${workspaceFolder}/.vscode/rust_formatters.lldb'"
+            ]
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
             "name": "Lichess",
             "cargo": {
                 "args": [

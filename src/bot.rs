@@ -14,15 +14,18 @@ use crate::{board::*, moves::*, search::*};
 #[derive(Debug)]
 pub enum BotCommand {
     SetBoard(Board, [u64; 100], u8),
-    Search,
-    Stop,
+    Search{
+
+    },
     Quit,
 }
+
+
 
 // Protocol: Messages sent FROM the bot thread TO the main thread.
 #[derive(Debug)]
 pub enum BotMessage {
-    Info(Move),
+    Info { best_move: Move, depth: u8 },
     BestMove(Move),
 }
 
@@ -33,14 +36,16 @@ pub struct Bot {
     command_tx: Sender<BotCommand>,
     // The handle is optional, in case we want to join it on quit.
     thread_handle: Option<thread::JoinHandle<()>>,
+    is_searching: Arc<AtomicBool>,
 }
 
 impl Bot {
     /// Creates a new Bot and spawns its worker thread.
     /// It takes a Sender for the worker to send messages (like moves and info) back to the main thread.
     pub fn new(result_tx: Sender<BotMessage>) -> Self {
+        let is_searching = Arc::new(AtomicBool::new(false));
         let (command_tx, command_rx) = mpsc::channel();
-        let mut worker = BotWorker::new(result_tx);
+        let mut worker = BotWorker::new(result_tx, is_searching.clone());
 
         let thread_handle = thread::spawn(move || {
             // The worker thread's main loop. It blocks here waiting for commands.
@@ -50,7 +55,6 @@ impl Bot {
                         worker.set_position(board, repetition_lookup, num_resetting_moves)
                     }
                     BotCommand::Search => worker.search(),
-                    BotCommand::Stop => worker.stop(),
                     BotCommand::Quit => break, // Exit the loop and end the thread
                 }
             }
@@ -59,6 +63,7 @@ impl Bot {
         Self {
             command_tx,
             thread_handle: Some(thread_handle),
+            is_searching
         }
     }
 
@@ -86,7 +91,7 @@ impl Bot {
 
     /// Tells the bot to stop its current search.
     pub fn stop(&self) {
-        self.command_tx.send(BotCommand::Stop).unwrap();
+        self.is_searching.store(false, Ordering::Relaxed);
     }
 
     /// Tells the bot to quit and cleans up the thread.
@@ -110,12 +115,12 @@ struct BotWorker {
 }
 
 impl BotWorker {
-    fn new(result_tx: Sender<BotMessage>) -> Self {
+    fn new(result_tx: Sender<BotMessage>, is_searching: Arc<AtomicBool>) -> Self {
         Self {
             board: Board::default(),
             tt_table: TT_Table::new(),
             result_tx,
-            is_searching: Arc::new(AtomicBool::new(false)),
+            is_searching,
             repetition_lookup: [0; 100],
             num_resetting_moves: 0,
         }
@@ -127,15 +132,9 @@ impl BotWorker {
         repetition_lookup: [u64; 100],
         num_resetting_moves: u8,
     ) {
-        self.stop();
         self.board = board;
         self.repetition_lookup = repetition_lookup;
         self.num_resetting_moves = num_resetting_moves;
-    }
-
-    fn stop(&mut self) {
-        // Set the flag to false. The search loop will see this and stop.
-        self.is_searching.store(false, Ordering::Relaxed);
     }
 
     /// The main search entry point, implementing iterative deepening.
@@ -145,7 +144,8 @@ impl BotWorker {
         let mut best_move_so_far = None;
 
         // --- Iterative Deepening Loop ---
-        for depth in 0..7 {
+        let mut depth = 0;
+        loop {
             // Go up to a max depth
             // Check if we were told to stop BEFORE starting the next depth.
             if !self.is_searching.load(Ordering::Relaxed) {
@@ -159,21 +159,23 @@ impl BotWorker {
                 &mut self.tt_table,
                 &mut self.repetition_lookup,
                 self.num_resetting_moves,
+                &self.is_searching,
             );
 
             // If the search was stopped mid-way (result is None) or if there are no moves, break.
             if let Some(best_move_at_depth) = result {
                 best_move_so_far = Some(best_move_at_depth);
                 // Send an 'info' message back to the main thread.
-                let info_msg = BotMessage::Info(best_move_at_depth);
-                match self.result_tx.send(info_msg) {
-                    Err(e) => panic!("{}", e),
-                    _ => {}
-                }
+                let info_msg = BotMessage::Info{
+                    best_move: best_move_at_depth,
+                    depth
+                };
+                if let Err(e) = self.result_tx.send(info_msg) { panic!("{}", e) }
             } else {
                 // Search was stopped or completed without finding a better move
                 break;
             }
+            depth += 1;
         }
 
         // After the loop (or when stopped), send the best move found so far.

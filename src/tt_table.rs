@@ -216,7 +216,7 @@ mod tests {
             assert_eq!(entry.depth(), depth, "depth mismatch");
             assert_eq!(entry.node_type(), flag, "node_type mismatch");
             assert_eq!(
-                entry.zobrist_hash_part(),
+                entry.zobrist_hash,
                 zobrist_hash & !TT_Entry::TT_INFO_MASK,
                 "zobrist_hash_part mismatch"
             );

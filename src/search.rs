@@ -4,15 +4,16 @@ use crate::metrics::{SearchMetrics, TimingKind};
 use crate::moves::{Move, MoveList};
 use crate::tt_table::{NodeType, TT_Table};
 use std::option::Option;
+use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
 
-
-const MIN_SCORE:i16 = i16::MIN + 2;
-const MAX_SCORE:i16 = i16::MAX - 1;
+const MIN_SCORE: i16 = i16::MIN + 2;
+const MAX_SCORE: i16 = i16::MAX - 1;
 
 const WHITE_WINS: i16 = MAX_SCORE - 1;
 const BLACK_WINS: i16 = MIN_SCORE + 1;
 
-const SEARCH_CANCELED:i16 = i16::MIN;
+const SEARCH_CANCELED: i16 = i16::MIN;
 
 pub fn search_entry(
     board: &Board,
@@ -20,6 +21,7 @@ pub fn search_entry(
     tt_table: &mut TT_Table,
     repetition_lookup: &mut [u64; 100],
     num_resetting_moves: u8,
+    should_search: &Arc<AtomicBool>,
 ) -> Option<Move> {
     SearchMetrics::increment_normal_search_entries();
     // Initialize metrics if not already done
@@ -37,11 +39,7 @@ pub fn search_entry(
 
     let mut best_move = None;
 
-    let mut best_score = if maximize_score {
-        MIN_SCORE
-    } else {
-        MAX_SCORE
-    };
+    let mut best_score = if maximize_score { MIN_SCORE } else { MAX_SCORE };
 
     let mut alpha = MIN_SCORE;
     let mut beta = MAX_SCORE;
@@ -56,6 +54,9 @@ pub fn search_entry(
     );
 
     for _move in legal_moves {
+        if should_search.load(Ordering::Relaxed) == false {
+            return None;
+        }
         let new_board = board.make_move_temp(&_move);
         let new_num_resetting_moves = if _move.resets_clock(board) {
             num_resetting_moves + 1
@@ -71,6 +72,7 @@ pub fn search_entry(
                 tt_table,
                 &mut [board.zobrist_hash; 100],
                 new_num_resetting_moves,
+                should_search,
             )
         } else {
             repetition_lookup[(board.halfmove_clock + 1) as usize] = board.zobrist_after(&_move);
@@ -82,8 +84,13 @@ pub fn search_entry(
                 tt_table,
                 repetition_lookup,
                 new_num_resetting_moves,
+                should_search,
             )
         };
+
+        if score == SEARCH_CANCELED {
+            return None;
+        }
 
         if maximize_score && score > best_score {
             best_score = score;
@@ -119,7 +126,11 @@ fn min_max_search(
     //TODO: look if board can also be used
     repetition_lookup: &mut [u64; 100],
     num_resetting_moves: u8,
+    should_search: &Arc<AtomicBool>,
 ) -> i16 {
+    if should_search.load(Ordering::Relaxed) == false {
+        return SEARCH_CANCELED;
+    }
     if depth == 0 {
         SearchMetrics::change_timing_kind(TimingKind::QSearch);
         let q_search_score = q_search(
@@ -129,6 +140,7 @@ fn min_max_search(
             tt_table,
             repetition_lookup,
             num_resetting_moves,
+            should_search,
         );
         SearchMetrics::change_timing_kind(TimingKind::Search);
         return q_search_score;
@@ -231,6 +243,7 @@ fn min_max_search(
                 tt_table,
                 &mut [board.zobrist_hash; 100],
                 new_num_resetting_moves,
+                should_search,
             )
         } else {
             repetition_lookup[(board.halfmove_clock + 1) as usize] = board.zobrist_after(&_move);
@@ -242,8 +255,12 @@ fn min_max_search(
                 tt_table,
                 repetition_lookup,
                 new_num_resetting_moves,
+                should_search,
             )
         };
+        if score == SEARCH_CANCELED {
+            return SEARCH_CANCELED;
+        }
 
         if (maximize_score && score > best_score) || (!maximize_score && score < best_score) {
             #[cfg(feature = "metrics")]
@@ -300,7 +317,11 @@ fn q_search(
     tt_table: &mut TT_Table,
     repetition_lookup: &mut [u64; 100],
     num_resetting_moves: u8,
+    should_search: &Arc<AtomicBool>,
 ) -> i16 {
+    if should_search.load(Ordering::Relaxed) == false {
+        return SEARCH_CANCELED;
+    }
     SearchMetrics::increment_q_search_entries();
 
     SearchMetrics::change_timing_kind(TimingKind::QSearch);
@@ -414,6 +435,7 @@ fn q_search(
                 tt_table,
                 &mut [board.zobrist_hash; 100],
                 new_num_resetting_moves,
+                should_search,
             )
         } else {
             repetition_lookup[(board.halfmove_clock + 1) as usize] = board.zobrist_after(&_move);
@@ -424,8 +446,13 @@ fn q_search(
                 tt_table,
                 repetition_lookup,
                 new_num_resetting_moves,
+                should_search,
             )
         };
+
+        if score == SEARCH_CANCELED {
+            return SEARCH_CANCELED;
+        }
 
         let is_new_best =
             (maximize_score && score > best_score) || (!maximize_score && score < best_score);
